@@ -1,1 +1,1 @@
-// Barrel export for hooks
+export { useAuth } from './useAuth'

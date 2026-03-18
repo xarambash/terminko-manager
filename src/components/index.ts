@@ -1,1 +1,7 @@
-// Barrel export for components
+export { ProtectedRoute } from './ProtectedRoute'
+export { AuthLayout } from './ui/AuthLayout'
+export { Button } from './ui/Button'
+export { Card } from './ui/Card'
+export { FormError } from './ui/FormError'
+export { FormField } from './ui/FormField'
+export { PageTitle } from './ui/PageTitle'
