@@ -9,14 +9,14 @@ function DashboardPage() {
       <div className="flex items-center justify-between">
         <PageTitle>Dashboard</PageTitle>
         <Button variant="secondary" onClick={logout}>
-          Odjavi se
+          Log out
         </Button>
       </div>
 
       <div className="flex flex-wrap gap-4">
         <Card to="/appointments" className="p-6">
-          <h2 className="mb-2 text-lg font-medium text-[var(--text-h)]">Termini</h2>
-          <p className="text-sm text-[var(--text)]">Pregled i upravljanje terminima</p>
+          <h2 className="mb-2 text-lg font-medium text-[var(--text-h)]">Appointments</h2>
+          <p className="text-sm text-[var(--text)]">View and manage appointments</p>
         </Card>
       </div>
     </main>

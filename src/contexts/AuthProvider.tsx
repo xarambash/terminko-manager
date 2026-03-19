@@ -1,25 +1,40 @@
 import { useState, type ReactNode } from 'react'
-import { isAuthenticated, setAuth, clearAuth } from '../lib/auth'
+import type { User } from '../types'
+import { isAuthenticated, setAuth, clearAuth, getUser } from '../lib/auth'
+import { getTenantSlug } from '../lib/tenant'
+import { api } from '../api'
 import { AuthContext } from './AuthContext'
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [authenticated, setAuthenticated] = useState(() => isAuthenticated())
+  const [user, setUser] = useState<User | null>(() => getUser())
 
   const login = async (email: string, password: string) => {
-    // TODO: zamena sa pravim API pozivom - use email, password
-    void [email, password]
-    setAuth()
+    const tenantSlug = getTenantSlug()
+    if (!tenantSlug) {
+      throw new Error('Tenant not found. Check that VITE_TENANT_SLUG is set for localhost.')
+    }
+
+    const { data } = await api.post<{ token: string; user: User }>('/auth/login', {
+      tenantSlug,
+      email,
+      password,
+    })
+
+    setAuth(data.token, data.user)
+    setUser(data.user)
     setAuthenticated(true)
   }
 
   const logout = () => {
     clearAuth()
+    setUser(null)
     setAuthenticated(false)
   }
 
   return (
     <AuthContext.Provider
-      value={{ isAuthenticated: authenticated, login, logout }}
+      value={{ isAuthenticated: authenticated, user, login, logout }}
     >
       {children}
     </AuthContext.Provider>

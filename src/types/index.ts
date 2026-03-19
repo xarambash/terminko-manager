@@ -6,8 +6,19 @@ import type {
   InputHTMLAttributes,
 } from 'react'
 
+export type User = {
+  id: string
+  email: string
+  firstName: string
+  lastName: string
+  role: 'owner' | 'staff'
+  tenantId: string
+  resourceId: string | null
+}
+
 export type AuthContextValue = {
   isAuthenticated: boolean
+  user: User | null
   login: (email: string, password: string) => Promise<void>
   logout: () => void
 }

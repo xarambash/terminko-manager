@@ -4,10 +4,10 @@ import { Card, PageTitle } from '../components'
 import type { AppointmentStatus } from '../types'
 
 const statusLabels: Record<AppointmentStatus, string> = {
-  scheduled: 'Zakazan',
-  confirmed: 'Potvrđen',
-  completed: 'Završen',
-  cancelled: 'Otkazan',
+  scheduled: 'Scheduled',
+  confirmed: 'Confirmed',
+  completed: 'Completed',
+  cancelled: 'Cancelled',
 }
 
 const statusStyles: Record<AppointmentStatus, string> = {
@@ -19,7 +19,7 @@ const statusStyles: Record<AppointmentStatus, string> = {
 
 function formatDate(dateStr: string) {
   const date = new Date(dateStr)
-  return date.toLocaleDateString('sr-RS', {
+  return date.toLocaleDateString('en-GB', {
     weekday: 'short',
     day: 'numeric',
     month: 'short',
@@ -47,7 +47,7 @@ function AppointmentsPage() {
           >
             ← Dashboard
           </Link>
-          <PageTitle>Termini</PageTitle>
+          <PageTitle>Appointments</PageTitle>
         </div>
       </div>
 
@@ -57,22 +57,22 @@ function AppointmentsPage() {
             <thead>
               <tr className="border-b border-[var(--border)]">
                 <th className="px-4 py-3 text-left text-sm font-medium text-[var(--text-h)]">
-                  Datum
+                  Date
                 </th>
                 <th className="px-4 py-3 text-left text-sm font-medium text-[var(--text-h)]">
-                  Vreme
+                  Time
                 </th>
                 <th className="px-4 py-3 text-left text-sm font-medium text-[var(--text-h)]">
-                  Klijent
+                  Client
                 </th>
                 <th className="px-4 py-3 text-left text-sm font-medium text-[var(--text-h)]">
-                  Usluga
+                  Service
                 </th>
                 <th className="px-4 py-3 text-left text-sm font-medium text-[var(--text-h)]">
                   Status
                 </th>
                 <th className="px-4 py-3 text-left text-sm font-medium text-[var(--text-h)]">
-                  Napomene
+                  Notes
                 </th>
               </tr>
             </thead>

@@ -9,9 +9,17 @@ import { AuthLayout, Button, Card, FormError, FormField, PageTitle } from '../co
 import type { LoginForm } from '../types'
 
 const loginSchema = z.object({
-  email: z.string().min(1, 'Email je obavezan').email('Neispravan email'),
-  password: z.string().min(1, 'Lozinka je obavezna'),
+  email: z.string().min(1, 'Email is required').email('Invalid email'),
+  password: z.string().min(1, 'Password is required'),
 })
+
+function extractServerError(err: unknown): string | undefined {
+  if (!err || typeof err !== 'object' || !('response' in err)) return undefined
+  const data = (err as { response?: { data?: Record<string, unknown> } }).response?.data
+  if (!data || typeof data !== 'object') return undefined
+  const msg = data.error ?? data.message ?? data.detail
+  return typeof msg === 'string' ? msg : undefined
+}
 
 function LoginPage() {
   const { t } = useTranslation()
@@ -24,8 +32,11 @@ function LoginPage() {
     handleSubmit,
     formState: { errors, isSubmitting },
     setError,
+    setValue,
   } = useForm<LoginForm>({
     resolver: zodResolver(loginSchema),
+    mode: 'onSubmit',
+    reValidateMode: 'onSubmit',
   })
 
   useEffect(() => {
@@ -43,35 +54,41 @@ function LoginPage() {
       await login(data.email, data.password)
       const from = (location.state as { from?: { pathname: string } })?.from?.pathname ?? '/'
       navigate(from, { replace: true })
-    } catch {
-      setError('root', { message: 'Prijava nije uspela. Pokušajte ponovo.' })
+    } catch (err: unknown) {
+      const message = extractServerError(err)
+      setValue('password', '')
+      setError('root', { message: message ?? 'Login failed. Please try again.' })
     }
   }
 
   return (
     <AuthLayout>
       <Card className="w-full max-w-sm p-8">
-        <PageTitle className="mb-6">{t('login.title', 'Prijava')}</PageTitle>
+        <PageTitle className="mb-6">{t('login.title', 'Login')}</PageTitle>
         <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
           <FormField
             label="Email"
             id="email"
             type="email"
             autoComplete="email"
-            error={errors.email?.message}
             {...register('email')}
           />
           <FormField
-            label="Lozinka"
+            label="Password"
             id="password"
             type="password"
             autoComplete="current-password"
-            error={errors.password?.message}
             {...register('password')}
           />
-          <FormError message={errors.root?.message} />
+          <FormError
+            message={
+              errors.root?.message ??
+              errors.email?.message ??
+              errors.password?.message
+            }
+          />
           <Button type="submit" disabled={isSubmitting} className="mt-2">
-            {isSubmitting ? 'Prijavljivanje...' : 'Prijavi se'}
+            {isSubmitting ? 'Logging in...' : 'Log in'}
           </Button>
         </form>
       </Card>
