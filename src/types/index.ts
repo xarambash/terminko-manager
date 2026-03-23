@@ -1,4 +1,11 @@
-// Shared TypeScript types and interfaces
+
+export type {
+  AppointmentStatus,
+  AppointmentWithRelations,
+  AppointmentGuest,
+  AppointmentResource,
+  AppointmentService,
+} from './appointments'
 
 import type {
   ReactNode,
@@ -21,19 +28,6 @@ export type AuthContextValue = {
   user: User | null
   login: (email: string, password: string) => Promise<void>
   logout: () => void
-}
-
-export type AppointmentStatus = 'scheduled' | 'confirmed' | 'completed' | 'cancelled'
-
-export type Appointment = {
-  id: string
-  date: string
-  time: string
-  clientName: string
-  clientPhone?: string
-  service: string
-  status: AppointmentStatus
-  notes?: string
 }
 
 export type ProtectedRouteProps = {
