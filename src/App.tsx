@@ -3,6 +3,8 @@ import { ProtectedRoute } from './components/ProtectedRoute'
 import LoginPage from './pages/LoginPage'
 import DashboardPage from './pages/DashboardPage'
 import AppointmentsPage from './pages/AppointmentsPage'
+import ResourcesPage from './pages/ResourcesPage'
+import { OwnerRoute } from './components/OwnerRoute'
 import './App.css'
 
 function App() {
@@ -17,6 +19,16 @@ function App() {
       <Route
         path="/appointments"
         element={<ProtectedRoute><AppointmentsPage /></ProtectedRoute>
+        }
+      />
+      <Route
+        path="/resources"
+        element={
+          <ProtectedRoute>
+            <OwnerRoute>
+              <ResourcesPage />
+            </OwnerRoute>
+          </ProtectedRoute>
         }
       />
       <Route path="*" element={<Navigate to="/" replace />} />

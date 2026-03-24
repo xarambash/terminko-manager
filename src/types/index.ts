@@ -69,3 +69,30 @@ export type AuthLayoutProps = {
   children: ReactNode
   className?: string
 }
+
+export type PageSectionHeaderProps = {
+  title: ReactNode
+  backTo?: string
+  backLabel?: string
+  actions?: ReactNode
+}
+
+export type QueryStatusBannerProps = {
+  isPending: boolean
+  isError: boolean
+  error: unknown
+  loadingText: string
+}
+
+export type ModalProps = {
+  open: boolean
+  onClose: () => void
+  title: string
+  titleId?: string
+  children: ReactNode
+}
+
+export type CreateResourceModalProps = {
+  open: boolean
+  onClose: () => void
+}

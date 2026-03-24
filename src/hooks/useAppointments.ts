@@ -8,7 +8,7 @@ export function useAppointments() {
   const tenantId = user?.tenantId
 
   return useQuery<AppointmentWithRelations[]>({
-    queryKey: ['appointments', tenantId],
+    queryKey: ['appointments', tenantId, user?.id],
     queryFn: () => fetchAppointments(tenantId!),
     enabled: Boolean(tenantId),
   })

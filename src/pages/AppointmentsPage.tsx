@@ -1,6 +1,4 @@
-import { Link } from 'react-router-dom'
-import { isAxiosError } from 'axios'
-import { Card, PageTitle } from '../components'
+import { Card, PageSectionHeader, QueryStatusBanner } from '../components'
 import { useAppointments } from '../hooks'
 import type { AppointmentStatus } from '../types'
 
@@ -57,40 +55,16 @@ function StatusBadge({ status }: { status: string }) {
 function AppointmentsPage() {
   const { data: appointments, isPending, isError, error } = useAppointments()
 
-  const errorMessage = (() => {
-    if (!isError || !error) return null
-    if (isAxiosError(error)) {
-      const data = error.response?.data as { error?: string } | undefined
-      return data?.error ?? error.message
-    }
-    return error instanceof Error ? error.message : 'Something went wrong'
-  })()
-
   return (
     <main className="flex flex-1 flex-col gap-8 p-8 text-left">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-4">
-          <Link
-            to="/"
-            className="text-sm text-[var(--text)] transition hover:text-[var(--text-h)]"
-          >
-            ← Dashboard
-          </Link>
-          <PageTitle>Appointments</PageTitle>
-        </div>
-      </div>
+      <PageSectionHeader title="Appointments" />
 
-      {isPending && (
-        <p className="text-sm text-[var(--text)]" role="status">
-          Loading appointments…
-        </p>
-      )}
-
-      {isError && errorMessage && (
-        <p className="text-sm text-red-600 dark:text-red-400" role="alert">
-          {errorMessage}
-        </p>
-      )}
+      <QueryStatusBanner
+        isPending={isPending}
+        isError={isError}
+        error={error}
+        loadingText="Loading appointments…"
+      />
 
       {!isPending && !isError && (
         <Card className="overflow-hidden p-0">

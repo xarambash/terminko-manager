@@ -6,20 +6,13 @@ import { useNavigate, useLocation } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { useAuth } from '../hooks/useAuth'
 import { AuthLayout, Button, Card, FormError, FormField, PageTitle } from '../components'
+import { extractServerError } from '../lib/errors'
 import type { LoginForm } from '../types'
 
 const loginSchema = z.object({
   email: z.string().min(1, 'Email is required').email('Invalid email'),
   password: z.string().min(1, 'Password is required'),
 })
-
-function extractServerError(err: unknown): string | undefined {
-  if (!err || typeof err !== 'object' || !('response' in err)) return undefined
-  const data = (err as { response?: { data?: Record<string, unknown> } }).response?.data
-  if (!data || typeof data !== 'object') return undefined
-  const msg = data.error ?? data.message ?? data.detail
-  return typeof msg === 'string' ? msg : undefined
-}
 
 function LoginPage() {
   const { t } = useTranslation()

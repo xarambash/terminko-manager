@@ -3,6 +3,7 @@ import type { User } from '../types'
 import { isAuthenticated, setAuth, clearAuth, getUser } from '../lib/auth'
 import { getTenantSlug } from '../lib/tenant'
 import { api } from '../api'
+import { queryClient } from '../queryClient'
 import { AuthContext } from './AuthContext'
 
 export function AuthProvider({ children }: { children: ReactNode }) {
@@ -27,6 +28,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }
 
   const logout = () => {
+    queryClient.removeQueries({ queryKey: ['appointments'] })
     clearAuth()
     setUser(null)
     setAuthenticated(false)
