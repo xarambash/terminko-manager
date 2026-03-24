@@ -7,6 +7,16 @@ export type {
   AppointmentService,
 } from './appointments'
 
+export type { Service } from './services'
+export type {
+  ResourceServiceAssignment,
+  ResourceWorkingHour,
+  ResourceFreeDay,
+  AssignServicePayload,
+  CreateWorkingHourPayload,
+  CreateFreeDayPayload,
+} from './resourceScheduling'
+
 import type {
   ReactNode,
   ButtonHTMLAttributes,

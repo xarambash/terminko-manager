@@ -1,5 +1,6 @@
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
+import { useNavigate } from 'react-router-dom'
 import { z } from 'zod'
 import { Button } from './ui/Button'
 import { FormError } from './ui/FormError'
@@ -21,6 +22,7 @@ const createResourceSchema = z.object({
 type CreateResourceForm = z.infer<typeof createResourceSchema>
 
 export function CreateResourceModal({ open, onClose }: CreateResourceModalProps) {
+  const navigate = useNavigate()
   const createMutation = useCreateResource()
 
   const {
@@ -49,7 +51,7 @@ export function CreateResourceModal({ open, onClose }: CreateResourceModalProps)
 
   const onSubmit = async (data: CreateResourceForm) => {
     try {
-      await createMutation.mutateAsync({
+      const created = await createMutation.mutateAsync({
         firstName: data.firstName,
         lastName: data.lastName,
         email: data.email,
@@ -60,6 +62,7 @@ export function CreateResourceModal({ open, onClose }: CreateResourceModalProps)
         }),
       })
       closeModal()
+      navigate(`/resources/${created.id}`)
     } catch (err: unknown) {
       setError('root', {
         message: extractServerError(err) ?? 'Could not create resource',

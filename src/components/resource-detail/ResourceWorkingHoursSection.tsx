@@ -1,0 +1,157 @@
+import { useMemo, useState } from 'react'
+import { Button } from '../ui/Button'
+import { Card } from '../ui/Card'
+import { FormError } from '../ui/FormError'
+import { FormField } from '../ui/FormField'
+import { QueryStatusBanner } from '../ui/QueryStatusBanner'
+import { useCreateWorkingHour, useResourceWorkingHours } from '../../hooks'
+import { extractServerError } from '../../lib/errors'
+import {
+  DAY_NAMES,
+  inputSelectClass,
+  parseTimeToMinutes,
+  timeRe,
+} from './resourceDetailUtils'
+
+export function ResourceWorkingHoursSection({ resourceId }: { resourceId: string }) {
+  const { data: rows, isPending, isError, error } = useResourceWorkingHours(resourceId)
+  const createMutation = useCreateWorkingHour(resourceId)
+
+  const [dayOfWeek, setDayOfWeek] = useState('1')
+  const [startTime, setStartTime] = useState('09:00')
+  const [endTime, setEndTime] = useState('17:00')
+  const [formError, setFormError] = useState<string | undefined>()
+
+  const resetMutationState = () => {
+    setFormError(undefined)
+    createMutation.reset()
+  }
+
+  const onAdd = async () => {
+    resetMutationState()
+    if (!timeRe.test(startTime) || !timeRe.test(endTime)) {
+      setFormError('Use HH:MM format for times (e.g. 09:00)')
+      return
+    }
+    if (parseTimeToMinutes(endTime) <= parseTimeToMinutes(startTime)) {
+      setFormError('End time must be after start time')
+      return
+    }
+    const day = Number.parseInt(dayOfWeek, 10)
+    try {
+      await createMutation.mutateAsync({
+        dayOfWeek: day,
+        startTime,
+        endTime,
+      })
+    } catch (err: unknown) {
+      setFormError(extractServerError(err) ?? 'Could not add working hours')
+    }
+  }
+
+  const sorted = useMemo(() => {
+    const list = [...(rows ?? [])]
+    list.sort((a, b) => {
+      if (a.dayOfWeek !== b.dayOfWeek) return a.dayOfWeek - b.dayOfWeek
+      return a.startTime.localeCompare(b.startTime)
+    })
+    return list
+  }, [rows])
+
+  return (
+    <Card className="flex flex-col gap-4 p-6">
+      <h2 className="text-lg font-medium text-[var(--text-h)]">Working hours</h2>
+      <p className="text-sm text-[var(--text)]">
+        Add one or more intervals per weekday. Day: 0 = Sunday through 6 = Saturday.
+      </p>
+
+      <QueryStatusBanner
+        isPending={isPending}
+        isError={isError}
+        error={error}
+        loadingText="Loading working hours…"
+      />
+
+      {!isPending && !isError && (
+        <>
+          <div className="overflow-x-auto rounded border border-[var(--border)]">
+            <table className="w-full min-w-[400px] border-collapse text-sm">
+              <thead>
+                <tr className="border-b border-[var(--border)] bg-[var(--code-bg)]">
+                  <th className="px-3 py-2 text-left font-medium text-[var(--text-h)]">Day</th>
+                  <th className="px-3 py-2 text-left font-medium text-[var(--text-h)]">Start</th>
+                  <th className="px-3 py-2 text-left font-medium text-[var(--text-h)]">End</th>
+                </tr>
+              </thead>
+              <tbody>
+                {sorted.length === 0 ? (
+                  <tr>
+                    <td colSpan={3} className="px-3 py-6 text-center text-[var(--text)]">
+                      No working hours yet.
+                    </td>
+                  </tr>
+                ) : (
+                  sorted.map((w) => (
+                    <tr key={w.id} className="border-b border-[var(--border)] last:border-b-0">
+                      <td className="px-3 py-2 text-[var(--text-h)]">
+                        {DAY_NAMES[w.dayOfWeek] ?? w.dayOfWeek}
+                      </td>
+                      <td className="px-3 py-2 text-[var(--text)]">{w.startTime}</td>
+                      <td className="px-3 py-2 text-[var(--text)]">{w.endTime}</td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
+          </div>
+
+          <div className="flex flex-col gap-3 border-t border-[var(--border)] pt-4">
+            <p className="text-sm font-medium text-[var(--text-h)]">Add interval</p>
+            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+              <div>
+                <label htmlFor="wh-day" className="mb-1 block text-sm text-[var(--text)]">
+                  Day
+                </label>
+                <select
+                  id="wh-day"
+                  className={inputSelectClass}
+                  value={dayOfWeek}
+                  onChange={(e) => setDayOfWeek(e.target.value)}
+                >
+                  {DAY_NAMES.map((name, i) => (
+                    <option key={name} value={String(i)}>
+                      {name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <FormField
+                label="Start (HH:MM)"
+                value={startTime}
+                onChange={(e) => setStartTime(e.target.value)}
+                placeholder="09:00"
+              />
+              <FormField
+                label="End (HH:MM)"
+                value={endTime}
+                onChange={(e) => setEndTime(e.target.value)}
+                placeholder="17:00"
+              />
+              <div className="flex items-end">
+                <Button
+                  type="button"
+                  className="w-full sm:w-auto"
+                  disabled={createMutation.isPending}
+                  onClick={() => void onAdd()}
+                >
+                  {createMutation.isPending ? 'Adding…' : 'Add'}
+                </Button>
+              </div>
+            </div>
+            <FormError message={formError} />
+          </div>
+        </>
+      )}
+    </Card>
+  )
+}

@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import {
   Button,
   Card,
@@ -9,6 +10,7 @@ import {
 import { useResources } from '../hooks'
 
 function ResourcesPage() {
+  const navigate = useNavigate()
   const [modalOpen, setModalOpen] = useState(false)
   const { data: resources, isPending, isError, error } = useResources()
 
@@ -67,7 +69,16 @@ function ResourcesPage() {
                   (resources ?? []).map((r) => (
                     <tr
                       key={r.id}
-                      className="border-b border-[var(--border)] last:border-b-0 transition hover:bg-[var(--bg)]"
+                      role="button"
+                      tabIndex={0}
+                      className="cursor-pointer border-b border-[var(--border)] last:border-b-0 transition hover:bg-[var(--bg)]"
+                      onClick={() => navigate(`/resources/${r.id}`)}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter' || e.key === ' ') {
+                          e.preventDefault()
+                          navigate(`/resources/${r.id}`)
+                        }
+                      }}
                     >
                       <td className="px-4 py-3 text-sm text-[var(--text-h)]">
                         {r.firstName} {r.lastName}
@@ -83,15 +94,6 @@ function ResourcesPage() {
                       </td>
                       <td className="px-4 py-3 text-right">
                         <div className="flex justify-end gap-2">
-                          <Button
-                            type="button"
-                            variant="secondary"
-                            disabled
-                            title="Edit will be available in a future update"
-                            className="px-3 py-1.5 text-xs"
-                          >
-                            Edit
-                          </Button>
                           <Button
                             type="button"
                             variant="secondary"
