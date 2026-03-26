@@ -6,7 +6,7 @@ import {
   ResourceServicesSection,
   ResourceSummaryCard,
   ResourceWorkingHoursSection,
-} from '../components/resource-detail'
+} from '../components/ResourceDetail'
 import { useResources } from '../hooks'
 const pageClass = 'flex flex-1 flex-col gap-4 p-4 text-left sm:gap-6 sm:p-6 md:gap-8 md:p-8'
 

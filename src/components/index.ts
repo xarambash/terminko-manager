@@ -10,3 +10,12 @@ export { Modal } from './ui/Modal'
 export { PageSectionHeader } from './ui/PageSectionHeader'
 export { PageTitle } from './ui/PageTitle'
 export { QueryStatusBanner } from './ui/QueryStatusBanner'
+export {
+  DataTable,
+  DataTableBodyRow,
+  DataTableEmptyCell,
+  DataTableHeadRow,
+  DataTableScroll,
+  DataTableTd,
+  DataTableTh,
+} from './ui/DataTable'

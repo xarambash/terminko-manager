@@ -1,10 +1,17 @@
-import { useState } from 'react'
+import { useState, type KeyboardEvent } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
 import {
   Button,
   Card,
   CreateResourceModal,
+  DataTable,
+  DataTableBodyRow,
+  DataTableEmptyCell,
+  DataTableHeadRow,
+  DataTableScroll,
+  DataTableTd,
+  DataTableTh,
   PageSectionHeader,
   QueryStatusBanner,
 } from '../components'
@@ -38,65 +45,55 @@ function ResourcesPage() {
 
       {!isPending && !isError && (
         <Card className="overflow-hidden p-0">
-          <div className="overflow-x-auto">
-            <table className="w-full min-w-[640px] border-collapse">
+          <DataTableScroll variant="page">
+            <DataTable variant="page" minWidth={640}>
               <thead>
-                <tr className="border-b border-[var(--border)]">
-                  <th className="px-3 py-3 text-left text-sm font-medium text-[var(--text-h)] sm:px-4">
-                    {t('common.name')}
-                  </th>
-                  <th className="px-3 py-3 text-left text-sm font-medium text-[var(--text-h)] sm:px-4">
-                    {t('common.email')}
-                  </th>
-                  <th className="px-3 py-3 text-left text-sm font-medium text-[var(--text-h)] sm:px-4">
-                    {t('common.phone')}
-                  </th>
-                  <th className="px-3 py-3 text-left text-sm font-medium text-[var(--text-h)] sm:px-4">
-                    {t('common.active')}
-                  </th>
-                  <th className="px-3 py-3 text-right text-sm font-medium text-[var(--text-h)] sm:px-4">
+                <DataTableHeadRow variant="page">
+                  <DataTableTh variant="page">{t('common.name')}</DataTableTh>
+                  <DataTableTh variant="page">{t('common.email')}</DataTableTh>
+                  <DataTableTh variant="page">{t('common.phone')}</DataTableTh>
+                  <DataTableTh variant="page">{t('common.active')}</DataTableTh>
+                  <DataTableTh variant="page" align="right">
                     {t('common.actions')}
-                  </th>
-                </tr>
+                  </DataTableTh>
+                </DataTableHeadRow>
               </thead>
               <tbody>
                 {(resources ?? []).length === 0 ? (
                   <tr>
-                    <td
-                      colSpan={5}
-                      className="px-3 py-8 text-center text-sm text-[var(--text)] sm:px-4"
-                    >
+                    <DataTableEmptyCell variant="page" colSpan={5}>
                       {t('resources.empty')}
-                    </td>
+                    </DataTableEmptyCell>
                   </tr>
                 ) : (
                   (resources ?? []).map((r) => (
-                    <tr
+                    <DataTableBodyRow
                       key={r.id}
+                      hoverable
                       role="button"
                       tabIndex={0}
-                      className="cursor-pointer border-b border-[var(--border)] last:border-b-0 transition hover:bg-[var(--bg)]"
+                      className="cursor-pointer"
                       onClick={() => navigate(`/resources/${r.id}`)}
-                      onKeyDown={(e) => {
+                      onKeyDown={(e: KeyboardEvent<HTMLTableRowElement>) => {
                         if (e.key === 'Enter' || e.key === ' ') {
                           e.preventDefault()
                           navigate(`/resources/${r.id}`)
                         }
                       }}
                     >
-                      <td className="px-3 py-3 text-sm text-[var(--text-h)] sm:px-4">
+                      <DataTableTd variant="page" className="text-[var(--text-h)]">
                         {r.firstName} {r.lastName}
-                      </td>
-                      <td className="px-3 py-3 text-sm text-[var(--text)] sm:px-4">
+                      </DataTableTd>
+                      <DataTableTd variant="page" className="text-[var(--text)]">
                         {r.email ?? t('common.dash')}
-                      </td>
-                      <td className="px-3 py-3 text-sm text-[var(--text)] sm:px-4">
+                      </DataTableTd>
+                      <DataTableTd variant="page" className="text-[var(--text)]">
                         {r.phone ?? t('common.dash')}
-                      </td>
-                      <td className="px-3 py-3 text-sm text-[var(--text)] sm:px-4">
+                      </DataTableTd>
+                      <DataTableTd variant="page" className="text-[var(--text)]">
                         {r.isActive ? t('common.yes') : t('common.no')}
-                      </td>
-                      <td className="px-3 py-3 text-right sm:px-4">
+                      </DataTableTd>
+                      <DataTableTd variant="page" align="right">
                         <div className="flex justify-end gap-2">
                           <Button
                             type="button"
@@ -108,13 +105,13 @@ function ResourcesPage() {
                             {t('resources.delete')}
                           </Button>
                         </div>
-                      </td>
-                    </tr>
+                      </DataTableTd>
+                    </DataTableBodyRow>
                   ))
                 )}
               </tbody>
-            </table>
-          </div>
+            </DataTable>
+          </DataTableScroll>
         </Card>
       )}
 

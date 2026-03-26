@@ -1,6 +1,17 @@
 import { useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Card, PageSectionHeader, QueryStatusBanner } from '../components'
+import {
+  Card,
+  DataTable,
+  DataTableBodyRow,
+  DataTableEmptyCell,
+  DataTableHeadRow,
+  DataTableScroll,
+  DataTableTd,
+  DataTableTh,
+  PageSectionHeader,
+  QueryStatusBanner,
+} from '../components'
 import { calendarLocaleFromLng } from '../lib/dateLocale'
 import { useAppointments } from '../hooks'
 import type { AppointmentStatus } from '../types'
@@ -88,75 +99,60 @@ function AppointmentsPage() {
 
       {!isPending && !isError && (
         <Card className="overflow-hidden p-0">
-          <div className="overflow-x-auto">
-            <table className="w-full min-w-[600px] border-collapse">
+          <DataTableScroll variant="page">
+            <DataTable variant="page" minWidth={600}>
               <thead>
-                <tr className="border-b border-[var(--border)]">
-                  <th className="px-3 py-3 text-left text-sm font-medium text-[var(--text-h)] sm:px-4">
-                    {t('common.date')}
-                  </th>
-                  <th className="px-3 py-3 text-left text-sm font-medium text-[var(--text-h)] sm:px-4">
-                    {t('common.time')}
-                  </th>
-                  <th className="px-3 py-3 text-left text-sm font-medium text-[var(--text-h)] sm:px-4">
-                    {t('common.client')}
-                  </th>
-                  <th className="px-3 py-3 text-left text-sm font-medium text-[var(--text-h)] sm:px-4">
-                    {t('common.service')}
-                  </th>
-                  <th className="px-3 py-3 text-left text-sm font-medium text-[var(--text-h)] sm:px-4">
-                    {t('common.status')}
-                  </th>
-                  <th className="px-3 py-3 text-left text-sm font-medium text-[var(--text-h)] sm:px-4">
-                    {t('common.notes')}
-                  </th>
-                </tr>
+                <DataTableHeadRow variant="page">
+                  <DataTableTh variant="page">{t('common.date')}</DataTableTh>
+                  <DataTableTh variant="page">{t('common.time')}</DataTableTh>
+                  <DataTableTh variant="page">{t('common.client')}</DataTableTh>
+                  <DataTableTh variant="page">{t('common.service')}</DataTableTh>
+                  <DataTableTh variant="page">{t('common.status')}</DataTableTh>
+                  <DataTableTh variant="page">{t('common.notes')}</DataTableTh>
+                </DataTableHeadRow>
               </thead>
               <tbody>
                 {(appointments ?? []).length === 0 ? (
                   <tr>
-                    <td
-                      colSpan={6}
-                      className="px-3 py-8 text-center text-sm text-[var(--text)] sm:px-4"
-                    >
+                    <DataTableEmptyCell variant="page" colSpan={6}>
                       {t('appointments.empty')}
-                    </td>
+                    </DataTableEmptyCell>
                   </tr>
                 ) : (
                   (appointments ?? []).map((apt) => (
-                    <tr
-                      key={apt.id}
-                      className="border-b border-[var(--border)] last:border-b-0 transition hover:bg-[var(--bg)]"
-                    >
-                      <td className="px-3 py-3 text-sm text-[var(--text-h)] sm:px-4">
+                    <DataTableBodyRow key={apt.id} hoverable>
+                      <DataTableTd variant="page" className="text-[var(--text-h)]">
                         {formatAppointmentDate(apt.startAt, calLocale)}
-                      </td>
-                      <td className="px-3 py-3 text-sm text-[var(--text)] sm:px-4">
+                      </DataTableTd>
+                      <DataTableTd variant="page" className="text-[var(--text)]">
                         {formatAppointmentTime(apt.startAt, calLocale)}
-                      </td>
-                      <td className="px-3 py-3 sm:px-4">
+                      </DataTableTd>
+                      <DataTableTd variant="page">
                         <div>
                           <p className="text-sm font-medium text-[var(--text-h)]">
                             {apt.guest.name}
                           </p>
                           <p className="text-xs text-[var(--text)]">{apt.guest.email}</p>
                         </div>
-                      </td>
-                      <td className="px-3 py-3 text-sm text-[var(--text)] sm:px-4">
+                      </DataTableTd>
+                      <DataTableTd variant="page" className="text-[var(--text)]">
                         {apt.service.name}
-                      </td>
-                      <td className="px-3 py-3 sm:px-4">
+                      </DataTableTd>
+                      <DataTableTd variant="page">
                         <StatusBadge status={apt.status} labels={statusLabels} />
-                      </td>
-                      <td className="max-w-[200px] truncate px-3 py-3 text-sm text-[var(--text)] sm:px-4">
+                      </DataTableTd>
+                      <DataTableTd
+                        variant="page"
+                        className="max-w-[200px] truncate text-[var(--text)]"
+                      >
                         {apt.notes ?? t('common.dash')}
-                      </td>
-                    </tr>
+                      </DataTableTd>
+                    </DataTableBodyRow>
                   ))
                 )}
               </tbody>
-            </table>
-          </div>
+            </DataTable>
+          </DataTableScroll>
         </Card>
       )}
     </main>

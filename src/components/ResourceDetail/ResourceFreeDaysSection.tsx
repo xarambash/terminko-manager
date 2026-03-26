@@ -2,6 +2,15 @@ import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Button } from '../ui/Button'
 import { Card } from '../ui/Card'
+import {
+  DataTable,
+  DataTableBodyRow,
+  DataTableEmptyCell,
+  DataTableHeadRow,
+  DataTableScroll,
+  DataTableTd,
+  DataTableTh,
+} from '../ui/DataTable'
 import { FormError } from '../ui/FormError'
 import { FormField } from '../ui/FormField'
 import { QueryStatusBanner } from '../ui/QueryStatusBanner'
@@ -50,36 +59,36 @@ export function ResourceFreeDaysSection({ resourceId }: { resourceId: string }) 
 
       {!isPending && !isError && (
         <>
-          <div className="overflow-x-auto rounded border border-[var(--border)]">
-            <table className="w-full min-w-[360px] border-collapse text-sm">
+          <DataTableScroll variant="inset">
+            <DataTable variant="inset" minWidth={360}>
               <thead>
-                <tr className="border-b border-[var(--border)] bg-[var(--code-bg)]">
-                  <th className="px-3 py-2 text-left font-medium text-[var(--text-h)]">
-                    {t('common.date')}
-                  </th>
-                  <th className="px-3 py-2 text-left font-medium text-[var(--text-h)]">
-                    {t('common.reason')}
-                  </th>
-                </tr>
+                <DataTableHeadRow variant="inset">
+                  <DataTableTh variant="inset">{t('common.date')}</DataTableTh>
+                  <DataTableTh variant="inset">{t('common.reason')}</DataTableTh>
+                </DataTableHeadRow>
               </thead>
               <tbody>
                 {(rows ?? []).length === 0 ? (
                   <tr>
-                    <td colSpan={2} className="px-3 py-6 text-center text-[var(--text)]">
+                    <DataTableEmptyCell variant="inset" colSpan={2}>
                       {t('resourceDetail.freeDays.empty')}
-                    </td>
+                    </DataTableEmptyCell>
                   </tr>
                 ) : (
                   (rows ?? []).map((f) => (
-                    <tr key={f.id} className="border-b border-[var(--border)] last:border-b-0">
-                      <td className="px-3 py-2 text-[var(--text-h)]">{formatFreeDayDate(f.date)}</td>
-                      <td className="px-3 py-2 text-[var(--text)]">{f.reason ?? t('common.dash')}</td>
-                    </tr>
+                    <DataTableBodyRow key={f.id}>
+                      <DataTableTd variant="inset" className="text-[var(--text-h)]">
+                        {formatFreeDayDate(f.date)}
+                      </DataTableTd>
+                      <DataTableTd variant="inset" className="text-[var(--text)]">
+                        {f.reason ?? t('common.dash')}
+                      </DataTableTd>
+                    </DataTableBodyRow>
                   ))
                 )}
               </tbody>
-            </table>
-          </div>
+            </DataTable>
+          </DataTableScroll>
 
           <div className="flex flex-col gap-3 border-t border-[var(--border)] pt-4">
             <p className="text-sm font-medium text-[var(--text-h)]">

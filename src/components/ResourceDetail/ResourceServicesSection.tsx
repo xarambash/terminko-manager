@@ -2,6 +2,15 @@ import { useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Button } from '../ui/Button'
 import { Card } from '../ui/Card'
+import {
+  DataTable,
+  DataTableBodyRow,
+  DataTableEmptyCell,
+  DataTableHeadRow,
+  DataTableScroll,
+  DataTableTd,
+  DataTableTh,
+} from '../ui/DataTable'
 import { FormError } from '../ui/FormError'
 import { FormField } from '../ui/FormField'
 import { QueryStatusBanner } from '../ui/QueryStatusBanner'
@@ -108,50 +117,46 @@ export function ResourceServicesSection({ resourceId }: { resourceId: string }) 
             loadingText={t('loading.tenantServices')}
           />
 
-          <div className="overflow-x-auto rounded border border-[var(--border)]">
-            <table className="w-full min-w-[480px] border-collapse text-sm">
+          <DataTableScroll variant="inset">
+            <DataTable variant="inset" minWidth={480}>
               <thead>
-                <tr className="border-b border-[var(--border)] bg-[var(--code-bg)]">
-                  <th className="px-3 py-2 text-left font-medium text-[var(--text-h)]">
-                    {t('common.service')}
-                  </th>
-                  <th className="px-3 py-2 text-left font-medium text-[var(--text-h)]">
-                    {t('common.duration')}
-                  </th>
-                  <th className="px-3 py-2 text-left font-medium text-[var(--text-h)]">
-                    {t('common.price')}
-                  </th>
-                  <th className="px-3 py-2 text-left font-medium text-[var(--text-h)]">
-                    {t('common.active')}
-                  </th>
-                </tr>
+                <DataTableHeadRow variant="inset">
+                  <DataTableTh variant="inset">{t('common.service')}</DataTableTh>
+                  <DataTableTh variant="inset">{t('common.duration')}</DataTableTh>
+                  <DataTableTh variant="inset">{t('common.price')}</DataTableTh>
+                  <DataTableTh variant="inset">{t('common.active')}</DataTableTh>
+                </DataTableHeadRow>
               </thead>
               <tbody>
                 {(assignments ?? []).length === 0 ? (
                   <tr>
-                    <td colSpan={4} className="px-3 py-6 text-center text-[var(--text)]">
+                    <DataTableEmptyCell variant="inset" colSpan={4}>
                       {t('resourceDetail.services.empty')}
-                    </td>
+                    </DataTableEmptyCell>
                   </tr>
                 ) : (
                   (assignments ?? []).map((a) => (
-                    <tr key={a.id} className="border-b border-[var(--border)] last:border-b-0">
-                      <td className="px-3 py-2 text-[var(--text-h)]">{a.service.name}</td>
-                      <td className="px-3 py-2 text-[var(--text)]">
+                    <DataTableBodyRow key={a.id}>
+                      <DataTableTd variant="inset" className="text-[var(--text-h)]">
+                        {a.service.name}
+                      </DataTableTd>
+                      <DataTableTd variant="inset" className="text-[var(--text)]">
                         {t('common.minutes', {
                           count: a.durationOverride ?? a.service.durationMinutes,
                         })}
-                      </td>
-                      <td className="px-3 py-2 text-[var(--text)]">{formatPrice(a.price)}</td>
-                      <td className="px-3 py-2 text-[var(--text)]">
+                      </DataTableTd>
+                      <DataTableTd variant="inset" className="text-[var(--text)]">
+                        {formatPrice(a.price)}
+                      </DataTableTd>
+                      <DataTableTd variant="inset" className="text-[var(--text)]">
                         {a.isActive ? t('common.yes') : t('common.no')}
-                      </td>
-                    </tr>
+                      </DataTableTd>
+                    </DataTableBodyRow>
                   ))
                 )}
               </tbody>
-            </table>
-          </div>
+            </DataTable>
+          </DataTableScroll>
 
           {!servicesPending && !servicesError && tenantServicesOrdered.length > 0 ? (
             <div className="flex flex-col gap-3 border-t border-[var(--border)] pt-4">

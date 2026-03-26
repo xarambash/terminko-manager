@@ -1,0 +1,20 @@
+import type { ComponentPropsWithoutRef } from 'react'
+
+type DataTableBodyRowProps = ComponentPropsWithoutRef<'tr'> & {
+  /** Subtle hover background (list rows). */
+  hoverable?: boolean
+}
+
+export function DataTableBodyRow({
+  hoverable,
+  className = '',
+  ...props
+}: DataTableBodyRowProps) {
+  const hover = hoverable ? ' transition hover:bg-[var(--bg)]' : ''
+  return (
+    <tr
+      className={`border-b border-[var(--border)] last:border-b-0${hover} ${className}`.trim()}
+      {...props}
+    />
+  )
+}

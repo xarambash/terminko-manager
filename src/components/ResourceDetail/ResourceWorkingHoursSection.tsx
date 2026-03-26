@@ -2,6 +2,15 @@ import { useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Button } from '../ui/Button'
 import { Card } from '../ui/Card'
+import {
+  DataTable,
+  DataTableBodyRow,
+  DataTableEmptyCell,
+  DataTableHeadRow,
+  DataTableScroll,
+  DataTableTd,
+  DataTableTh,
+} from '../ui/DataTable'
 import { FormError } from '../ui/FormError'
 import { FormField } from '../ui/FormField'
 import { QueryStatusBanner } from '../ui/QueryStatusBanner'
@@ -78,42 +87,40 @@ export function ResourceWorkingHoursSection({ resourceId }: { resourceId: string
 
       {!isPending && !isError && (
         <>
-          <div className="overflow-x-auto rounded border border-[var(--border)]">
-            <table className="w-full min-w-[400px] border-collapse text-sm">
+          <DataTableScroll variant="inset">
+            <DataTable variant="inset" minWidth={400}>
               <thead>
-                <tr className="border-b border-[var(--border)] bg-[var(--code-bg)]">
-                  <th className="px-3 py-2 text-left font-medium text-[var(--text-h)]">
-                    {t('common.day')}
-                  </th>
-                  <th className="px-3 py-2 text-left font-medium text-[var(--text-h)]">
-                    {t('common.start')}
-                  </th>
-                  <th className="px-3 py-2 text-left font-medium text-[var(--text-h)]">
-                    {t('common.end')}
-                  </th>
-                </tr>
+                <DataTableHeadRow variant="inset">
+                  <DataTableTh variant="inset">{t('common.day')}</DataTableTh>
+                  <DataTableTh variant="inset">{t('common.start')}</DataTableTh>
+                  <DataTableTh variant="inset">{t('common.end')}</DataTableTh>
+                </DataTableHeadRow>
               </thead>
               <tbody>
                 {sorted.length === 0 ? (
                   <tr>
-                    <td colSpan={3} className="px-3 py-6 text-center text-[var(--text)]">
+                    <DataTableEmptyCell variant="inset" colSpan={3}>
                       {t('resourceDetail.workingHours.empty')}
-                    </td>
+                    </DataTableEmptyCell>
                   </tr>
                 ) : (
                   sorted.map((w) => (
-                    <tr key={w.id} className="border-b border-[var(--border)] last:border-b-0">
-                      <td className="px-3 py-2 text-[var(--text-h)]">
+                    <DataTableBodyRow key={w.id}>
+                      <DataTableTd variant="inset" className="text-[var(--text-h)]">
                         {formatWeekdayLong(w.dayOfWeek, calLocale)}
-                      </td>
-                      <td className="px-3 py-2 text-[var(--text)]">{w.startTime}</td>
-                      <td className="px-3 py-2 text-[var(--text)]">{w.endTime}</td>
-                    </tr>
+                      </DataTableTd>
+                      <DataTableTd variant="inset" className="text-[var(--text)]">
+                        {w.startTime}
+                      </DataTableTd>
+                      <DataTableTd variant="inset" className="text-[var(--text)]">
+                        {w.endTime}
+                      </DataTableTd>
+                    </DataTableBodyRow>
                   ))
                 )}
               </tbody>
-            </table>
-          </div>
+            </DataTable>
+          </DataTableScroll>
 
           <div className="flex flex-col gap-3 border-t border-[var(--border)] pt-4">
             <p className="text-sm font-medium text-[var(--text-h)]">
