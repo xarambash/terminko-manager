@@ -1,6 +1,7 @@
 import { NavLink } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { useAuth } from '../hooks/useAuth'
+import { Button } from './ui/Button'
 import { LanguageSwitcher } from './ui/LanguageSwitcher'
 
 function navClass({ isActive }: { isActive: boolean }) {
@@ -14,7 +15,7 @@ function navClass({ isActive }: { isActive: boolean }) {
 
 export function AppNav() {
   const { t } = useTranslation()
-  const { user } = useAuth()
+  const { user, logout } = useAuth()
   const owner = user?.role === 'owner'
 
   return (
@@ -39,8 +40,11 @@ export function AppNav() {
             </NavLink>
           </>
         )}
-        <div className="ml-auto flex shrink-0 items-center">
+        <div className="ml-auto flex shrink-0 items-center gap-2 sm:gap-3">
           <LanguageSwitcher />
+          <Button type="button" variant="outline" size="sm" onClick={logout}>
+            {t('common.logout')}
+          </Button>
         </div>
       </nav>
     </header>

@@ -1,23 +1,36 @@
+import { forwardRef } from 'react'
+
+import { cn } from '@/lib/utils'
 import type { FormFieldProps } from '../../types'
+import { Input } from './input'
 
-const inputClasses =
-  'w-full rounded border border-[var(--border)] bg-[var(--bg)] px-3 py-2 text-[var(--text-h)] focus:outline-none focus:ring-2 focus:ring-[var(--accent)]'
+export const FormField = forwardRef<HTMLInputElement, FormFieldProps>(
+  function FormField({ label, error, id, className, ...props }, ref) {
+    const inputId = id ?? props.name
+    return (
+      <div>
+        <label
+          htmlFor={inputId}
+          className="mb-1 block text-sm font-medium text-foreground"
+        >
+          {label}
+        </label>
+        <Input
+          ref={ref}
+          id={inputId}
+          className={cn(className)}
+          aria-invalid={!!error}
+          aria-describedby={error ? `${inputId}-error` : undefined}
+          {...props}
+        />
+        {error && (
+          <p id={`${inputId}-error`} className="mt-1 text-sm text-destructive" role="alert">
+            {error}
+          </p>
+        )}
+      </div>
+    )
+  }
+)
 
-export function FormField({ label, error, id, ...props }: FormFieldProps) {
-  const inputId = id ?? props.name
-  return (
-    <div>
-      <label htmlFor={inputId} className="mb-1 block text-sm text-[var(--text)]">{label}</label>
-      <input
-        id={inputId}
-        className={inputClasses}
-        aria-invalid={!!error}
-        aria-describedby={error ? `${inputId}-error` : undefined}
-        {...props}
-      />
-      {error && (
-        <p id={`${inputId}-error`} className="mt-1 text-sm text-red-500">{error}</p>
-      )}
-    </div>
-  )
-}
+FormField.displayName = 'FormField'

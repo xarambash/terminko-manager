@@ -10,7 +10,6 @@ import {
   ServicesPage,
 } from './pages'
 import { OwnerRoute } from './components/OwnerRoute'
-import './App.css'
 
 function App() {
   return (

@@ -1,22 +1,41 @@
 import { useTranslation } from 'react-i18next'
+import { ChevronDownIcon } from 'lucide-react'
 
-const selectClass =
-  'rounded border border-[var(--border)] bg-[var(--bg)] px-3 py-2 text-sm text-[var(--text-h)] focus:outline-none focus:ring-2 focus:ring-[var(--accent)]'
+import { Button } from './Button'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuRadioGroup,
+  DropdownMenuRadioItem,
+  DropdownMenuTrigger,
+} from './dropdown-menu'
 
 export function LanguageSwitcher() {
   const { t, i18n } = useTranslation()
-
   const value = i18n.language.startsWith('en') ? 'en' : 'sr'
 
   return (
-    <select
-      className={selectClass}
-      aria-label={t('languages.switcherLabel')}
-      value={value}
-      onChange={(e) => void i18n.changeLanguage(e.target.value)}
-    >
-      <option value="sr">{t('languages.sr')}</option>
-      <option value="en">{t('languages.en')}</option>
-    </select>
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button
+          variant="outline"
+          size="sm"
+          aria-label={t('languages.switcherLabel')}
+          className="gap-1"
+        >
+          {value === 'en' ? t('languages.en') : t('languages.sr')}
+          <ChevronDownIcon className="size-4 opacity-60" />
+        </Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="end" className="min-w-32">
+        <DropdownMenuRadioGroup
+          value={value}
+          onValueChange={(lang) => void i18n.changeLanguage(lang)}
+        >
+          <DropdownMenuRadioItem value="sr">{t('languages.sr')}</DropdownMenuRadioItem>
+          <DropdownMenuRadioItem value="en">{t('languages.en')}</DropdownMenuRadioItem>
+        </DropdownMenuRadioGroup>
+      </DropdownMenuContent>
+    </DropdownMenu>
   )
 }

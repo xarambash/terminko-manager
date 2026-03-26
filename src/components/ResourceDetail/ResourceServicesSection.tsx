@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
+import { ChevronDownIcon } from 'lucide-react'
 import { Button } from '../ui/Button'
 import { Card } from '../ui/Card'
 import {
@@ -12,6 +13,12 @@ import {
   DataTableTh,
 } from '../ui/DataTable'
 import { FormError } from '../ui/FormError'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '../ui/dropdown-menu'
 import { FormField } from '../ui/FormField'
 import { QueryStatusBanner } from '../ui/QueryStatusBanner'
 import {
@@ -20,7 +27,7 @@ import {
   useServices,
 } from '../../hooks'
 import { extractServerError } from '../../lib/errors'
-import { formatPrice, inputSelectClass } from '../../lib/resourceDetailUtils'
+import { formatPrice } from '../../lib/resourceDetailUtils'
 
 export function ResourceServicesSection({ resourceId }: { resourceId: string }) {
   const { t } = useTranslation()
@@ -51,6 +58,11 @@ export function ResourceServicesSection({ resourceId }: { resourceId: string }) 
     () => new Set((assignments ?? []).map((a) => a.serviceId)),
     [assignments]
   )
+
+  const selectedService = useMemo(() => {
+    if (!serviceId) return undefined
+    return tenantServicesOrdered.find((s) => s.id === serviceId)
+  }, [serviceId, tenantServicesOrdered])
 
   const resetForm = () => {
     setServiceId('')
@@ -168,26 +180,48 @@ export function ResourceServicesSection({ resourceId }: { resourceId: string }) 
               <p className="text-xs text-[var(--text)]">{t('resourceDetail.services.hint')}</p>
               <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
                 <div>
-                  <label htmlFor="assign-service" className="mb-1 block text-sm text-[var(--text)]">
+                  <div id="assign-service-label" className="mb-1 block text-sm text-[var(--text)]">
                     {t('common.service')}
-                  </label>
-                  <select
-                    id="assign-service"
-                    className={inputSelectClass}
-                    value={serviceId}
-                    onChange={(e) => setServiceId(e.target.value)}
-                  >
-                    <option value="">{t('common.selectPlaceholder')}</option>
-                    {tenantServicesOrdered.map((s) => {
-                      const taken = assignedServiceIds.has(s.id)
-                      return (
-                        <option key={s.id} value={s.id} disabled={taken}>
-                          {s.name} ({t('common.minutes', { count: s.durationMinutes })})
-                          {taken ? t('resourceDetail.services.optionAssigned') : ''}
-                        </option>
-                      )
-                    })}
-                  </select>
+                  </div>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        aria-labelledby="assign-service-label"
+                        disabled={servicesPending || tenantServicesOrdered.length === 0}
+                        className="w-full justify-between font-normal"
+                      >
+                        <span className="truncate text-left">
+                          {selectedService
+                            ? `${selectedService.name} (${t('common.minutes', { count: selectedService.durationMinutes })})`
+                            : t('common.selectPlaceholder')}
+                        </span>
+                        <ChevronDownIcon className="size-4 shrink-0 opacity-60" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent
+                      align="start"
+                      className="max-h-72 min-w-[var(--radix-dropdown-menu-trigger-width)] overflow-y-auto"
+                    >
+                      <DropdownMenuItem onSelect={() => setServiceId('')}>
+                        {t('common.selectPlaceholder')}
+                      </DropdownMenuItem>
+                      {tenantServicesOrdered.map((s) => {
+                        const taken = assignedServiceIds.has(s.id)
+                        return (
+                          <DropdownMenuItem
+                            key={s.id}
+                            disabled={taken}
+                            onSelect={() => setServiceId(s.id)}
+                          >
+                            {s.name} ({t('common.minutes', { count: s.durationMinutes })})
+                            {taken ? ` ${t('resourceDetail.services.optionAssigned')}` : ''}
+                          </DropdownMenuItem>
+                        )
+                      })}
+                    </DropdownMenuContent>
+                  </DropdownMenu>
                 </div>
                 <FormField
                   label={t('common.price')}

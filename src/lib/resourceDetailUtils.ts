@@ -1,6 +1,3 @@
-export const inputSelectClass =
-  'w-full rounded border border-[var(--border)] bg-[var(--bg)] px-3 py-2 text-[var(--text-h)] focus:outline-none focus:ring-2 focus:ring-[var(--accent)]'
-
 export function formatPrice(value: string | number): string {
   const n = typeof value === 'string' ? Number.parseFloat(value) : value
   if (Number.isNaN(n)) return String(value)

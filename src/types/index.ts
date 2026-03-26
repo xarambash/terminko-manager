@@ -17,11 +17,7 @@ export type {
   CreateFreeDayPayload,
 } from './resourceScheduling'
 
-import type {
-  ReactNode,
-  ButtonHTMLAttributes,
-  InputHTMLAttributes,
-} from 'react'
+import type { ReactNode, InputHTMLAttributes } from 'react'
 
 export type User = {
   id: string
@@ -47,12 +43,6 @@ export type ProtectedRouteProps = {
 export type LoginForm = {
   email: string
   password: string
-}
-
-export type ButtonVariant = 'primary' | 'secondary'
-
-export type ButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & {
-  variant?: ButtonVariant
 }
 
 export type FormFieldProps = InputHTMLAttributes<HTMLInputElement> & {
@@ -92,14 +82,6 @@ export type QueryStatusBannerProps = {
   isError: boolean
   error: unknown
   loadingText: string
-}
-
-export type ModalProps = {
-  open: boolean
-  onClose: () => void
-  title: string
-  titleId?: string
-  children: ReactNode
 }
 
 export type CreateResourceModalProps = {

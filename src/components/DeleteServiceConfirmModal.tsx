@@ -1,6 +1,13 @@
 import { useTranslation } from 'react-i18next'
 import { Button } from './ui/Button'
-import { Modal } from './ui/Modal'
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from './ui/dialog'
 import type { DeleteServiceConfirmModalProps } from '../types'
 
 export function DeleteServiceConfirmModal({
@@ -17,21 +24,26 @@ export function DeleteServiceConfirmModal({
   }
 
   return (
-    <Modal
+    <Dialog
       open={open}
-      onClose={onClose}
-      title={t('deleteService.title')}
-      titleId="delete-service-modal-title"
+      onOpenChange={(next) => {
+        if (!next) onClose()
+      }}
     >
-      <p className="text-sm text-[var(--text)]">{t('deleteService.body', { name: serviceName })}</p>
-      <div className="mt-6 flex justify-end gap-2">
-        <Button type="button" variant="secondary" onClick={onClose}>
-          {t('common.cancel')}
-        </Button>
-        <Button type="button" onClick={handleConfirm}>
-          {t('deleteService.confirm')}
-        </Button>
-      </div>
-    </Modal>
+      <DialogContent className="sm:max-w-md">
+        <DialogHeader>
+          <DialogTitle id="delete-service-modal-title">{t('deleteService.title')}</DialogTitle>
+          <DialogDescription>{t('deleteService.body', { name: serviceName })}</DialogDescription>
+        </DialogHeader>
+        <DialogFooter className="gap-2 sm:justify-end">
+          <Button type="button" variant="secondary" onClick={onClose}>
+            {t('common.cancel')}
+          </Button>
+          <Button type="button" variant="destructive" onClick={handleConfirm}>
+            {t('deleteService.confirm')}
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   )
 }

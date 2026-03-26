@@ -4,11 +4,17 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { useTranslation } from 'react-i18next'
 import { z } from 'zod'
 import { Button } from './ui/Button'
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from './ui/dialog'
 import { FormError } from './ui/FormError'
 import { FormField } from './ui/FormField'
-import { Modal } from './ui/Modal'
 import { useCreateService } from '../hooks'
 import { extractServerError } from '../lib/errors'
+import { cn } from '@/lib/utils'
 import type { CreateServiceModalProps } from '../types'
 import type { CreateServicePayload } from '../types/services'
 
@@ -91,12 +97,9 @@ function CreateServiceFormContent({ onClose }: { onClose: () => void }) {
     }
   }
 
-  const inputClass =
-    'rounded border border-[var(--border)] bg-[var(--bg)] text-[var(--text-h)] focus:outline-none focus:ring-2 focus:ring-[var(--accent)]'
-
   return (
     <>
-      <p className="mb-4 text-sm text-[var(--text)]">{t('createService.intro')}</p>
+      <p className="mb-4 text-sm text-muted-foreground">{t('createService.intro')}</p>
       <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
         <FormField
           label={t('createService.name')}
@@ -124,10 +127,13 @@ function CreateServiceFormContent({ onClose }: { onClose: () => void }) {
           {...register('sortOrder')}
           error={errors.sortOrder?.message}
         />
-        <label className="flex cursor-pointer items-center gap-2 text-sm text-[var(--text-h)]">
+        <label className="flex cursor-pointer items-center gap-2 text-sm text-foreground">
           <input
             type="checkbox"
-            className={`size-4 ${inputClass}`}
+            className={cn(
+              'size-4 shrink-0 rounded border border-input accent-primary',
+              'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50'
+            )}
             {...register('isActive')}
           />
           {t('createService.isActive')}
@@ -157,13 +163,18 @@ export function CreateServiceModal({ open, onClose }: CreateServiceModalProps) {
   const { t, i18n } = useTranslation()
 
   return (
-    <Modal
+    <Dialog
       open={open}
-      onClose={onClose}
-      title={t('createService.title')}
-      titleId="create-service-modal-title"
+      onOpenChange={(next) => {
+        if (!next) onClose()
+      }}
     >
-      <CreateServiceFormContent key={i18n.language} onClose={onClose} />
-    </Modal>
+      <DialogContent className="sm:max-w-md" aria-describedby={undefined}>
+        <DialogHeader>
+          <DialogTitle id="create-service-modal-title">{t('createService.title')}</DialogTitle>
+        </DialogHeader>
+        <CreateServiceFormContent key={i18n.language} onClose={onClose} />
+      </DialogContent>
+    </Dialog>
   )
 }

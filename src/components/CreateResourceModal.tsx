@@ -5,9 +5,14 @@ import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { z } from 'zod'
 import { Button } from './ui/Button'
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from './ui/dialog'
 import { FormError } from './ui/FormError'
 import { FormField } from './ui/FormField'
-import { Modal } from './ui/Modal'
 import { useCreateResource } from '../hooks'
 import { extractServerError } from '../lib/errors'
 import type { CreateResourceModalProps } from '../types'
@@ -90,7 +95,7 @@ function CreateResourceFormContent({
 
   return (
     <>
-      <p className="mb-4 text-sm text-[var(--text)]">{t('createResource.intro')}</p>
+      <p className="mb-4 text-sm text-muted-foreground">{t('createResource.intro')}</p>
       <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
         <FormField
           label={t('common.firstName')}
@@ -151,13 +156,18 @@ export function CreateResourceModal({ open, onClose }: CreateResourceModalProps)
   const { t, i18n } = useTranslation()
 
   return (
-    <Modal
+    <Dialog
       open={open}
-      onClose={onClose}
-      title={t('createResource.title')}
-      titleId="resource-modal-title"
+      onOpenChange={(next) => {
+        if (!next) onClose()
+      }}
     >
-      <CreateResourceFormContent key={i18n.language} onClose={onClose} />
-    </Modal>
+      <DialogContent className="sm:max-w-md" aria-describedby={undefined}>
+        <DialogHeader>
+          <DialogTitle id="resource-modal-title">{t('createResource.title')}</DialogTitle>
+        </DialogHeader>
+        <CreateResourceFormContent key={i18n.language} onClose={onClose} />
+      </DialogContent>
+    </Dialog>
   )
 }

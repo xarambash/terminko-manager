@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
+import { ChevronDownIcon } from 'lucide-react'
 import { Button } from '../ui/Button'
 import { Card } from '../ui/Card'
 import {
@@ -12,6 +13,12 @@ import {
   DataTableTh,
 } from '../ui/DataTable'
 import { FormError } from '../ui/FormError'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '../ui/dropdown-menu'
 import { FormField } from '../ui/FormField'
 import { QueryStatusBanner } from '../ui/QueryStatusBanner'
 import { useCreateWorkingHour, useResourceWorkingHours } from '../../hooks'
@@ -19,7 +26,6 @@ import { calendarLocaleFromLng } from '../../lib/dateLocale'
 import { extractServerError } from '../../lib/errors'
 import {
   formatWeekdayLong,
-  inputSelectClass,
   parseTimeToMinutes,
   timeRe,
 } from '../../lib/resourceDetailUtils'
@@ -128,21 +134,34 @@ export function ResourceWorkingHoursSection({ resourceId }: { resourceId: string
             </p>
             <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
               <div>
-                <label htmlFor="wh-day" className="mb-1 block text-sm text-[var(--text)]">
+                <div id="wh-day-label" className="mb-1 block text-sm text-[var(--text)]">
                   {t('common.day')}
-                </label>
-                <select
-                  id="wh-day"
-                  className={inputSelectClass}
-                  value={dayOfWeek}
-                  onChange={(e) => setDayOfWeek(e.target.value)}
-                >
-                  {WEEKDAY_INDICES.map((i) => (
-                    <option key={i} value={String(i)}>
-                      {formatWeekdayLong(i, calLocale)}
-                    </option>
-                  ))}
-                </select>
+                </div>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      aria-labelledby="wh-day-label"
+                      className="w-full justify-between font-normal"
+                    >
+                      <span className="truncate">
+                        {formatWeekdayLong(Number.parseInt(dayOfWeek, 10), calLocale)}
+                      </span>
+                      <ChevronDownIcon className="size-4 shrink-0 opacity-60" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent
+                    align="start"
+                    className="min-w-[var(--radix-dropdown-menu-trigger-width)]"
+                  >
+                    {WEEKDAY_INDICES.map((i) => (
+                      <DropdownMenuItem key={i} onSelect={() => setDayOfWeek(String(i))}>
+                        {formatWeekdayLong(i, calLocale)}
+                      </DropdownMenuItem>
+                    ))}
+                  </DropdownMenuContent>
+                </DropdownMenu>
               </div>
               <FormField
                 label={t('resourceDetail.workingHours.startLabel')}
