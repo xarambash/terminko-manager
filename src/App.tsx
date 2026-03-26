@@ -1,4 +1,5 @@
 import { Routes, Route, Navigate } from 'react-router-dom'
+import { AppLayout } from './components/AppLayout'
 import { ProtectedRoute } from './components/ProtectedRoute'
 import {
   LoginPage,
@@ -15,46 +16,34 @@ function App() {
   return (
     <Routes>
       <Route path="/login" element={<LoginPage />} />
-      <Route
-        path="/"
-        element={<ProtectedRoute><DashboardPage /></ProtectedRoute>
-        }
-      />
-      <Route
-        path="/appointments"
-        element={<ProtectedRoute><AppointmentsPage /></ProtectedRoute>
-        }
-      />
-      <Route
-        path="/services"
-        element={
-          <ProtectedRoute>
+      <Route path="/" element={<ProtectedRoute><AppLayout /></ProtectedRoute>}>
+        <Route index element={<DashboardPage />} />
+        <Route path="appointments" element={<AppointmentsPage />} />
+        <Route
+          path="services"
+          element={
             <OwnerRoute>
               <ServicesPage />
             </OwnerRoute>
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="/resources"
-        element={
-          <ProtectedRoute>
+          }
+        />
+        <Route
+          path="resources"
+          element={
             <OwnerRoute>
               <ResourcesPage />
             </OwnerRoute>
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="/resources/:resourceId"
-        element={
-          <ProtectedRoute>
+          }
+        />
+        <Route
+          path="resources/:resourceId"
+          element={
             <OwnerRoute>
               <ResourceDetailPage />
             </OwnerRoute>
-          </ProtectedRoute>
-        }
-      />
+          }
+        />
+      </Route>
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   )

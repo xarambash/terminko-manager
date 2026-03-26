@@ -38,7 +38,17 @@
   },
   "nav": {
     "backDashboard": "← Kontrolna tabla",
-    "backResources": "← Resursi"
+    "backResources": "← Resursi",
+    "mainAria": "Glavna navigacija",
+    "dashboard": "Kontrolna tabla",
+    "appointments": "Termini",
+    "services": "Usluge",
+    "resources": "Resursi"
+  },
+  "languages": {
+    "switcherLabel": "Jezik aplikacije",
+    "sr": "Srpski",
+    "en": "Engleski"
   },
   "loading": {
     "resources": "Učitavanje resursa…",

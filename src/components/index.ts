@@ -1,3 +1,5 @@
+export { AppLayout } from './AppLayout'
+export { AppNav } from './AppNav'
 export { ProtectedRoute } from './ProtectedRoute'
 export { OwnerRoute } from './OwnerRoute'
 export { CreateResourceModal } from './CreateResourceModal'
@@ -13,6 +15,7 @@ export { Modal } from './ui/Modal'
 export { PageSectionHeader } from './ui/PageSectionHeader'
 export { PageTitle } from './ui/PageTitle'
 export { QueryStatusBanner } from './ui/QueryStatusBanner'
+export { LanguageSwitcher } from './ui/LanguageSwitcher'
 export {
   DataTable,
   DataTableBodyRow,

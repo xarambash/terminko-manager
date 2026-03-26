@@ -38,7 +38,17 @@
   },
   "nav": {
     "backDashboard": "← Dashboard",
-    "backResources": "← Resources"
+    "backResources": "← Resources",
+    "mainAria": "Main navigation",
+    "dashboard": "Dashboard",
+    "appointments": "Appointments",
+    "services": "Services",
+    "resources": "Resources"
+  },
+  "languages": {
+    "switcherLabel": "Application language",
+    "sr": "Serbian",
+    "en": "English"
   },
   "loading": {
     "resources": "Loading resources…",
