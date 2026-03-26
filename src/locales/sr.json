@@ -47,7 +47,8 @@
     "freeDays": "Učitavanje slobodnih dana…",
     "workingHours": "Učitavanje radnog vremena…",
     "assignedServices": "Učitavanje dodeljenih usluga…",
-    "tenantServices": "Učitavanje usluga salona…"
+    "tenantServices": "Učitavanje usluga salona…",
+    "services": "Učitavanje usluga…"
   },
   "login": {
     "title": "Prijava",
@@ -65,7 +66,9 @@
     "appointmentsTitle": "Termini",
     "appointmentsDesc": "Pregled i upravljanje terminima",
     "resourcesTitle": "Resursi",
-    "resourcesDesc": "Upravljanje osobljem i resursima vašeg posla"
+    "resourcesDesc": "Upravljanje osobljem i resursima vašeg posla",
+    "servicesTitle": "Usluge",
+    "servicesDesc": "Definišite usluge koje vaš biznis nudi"
   },
   "appointments": {
     "title": "Termini",
@@ -73,6 +76,16 @@
     "statusScheduled": "Zakazano",
     "statusCompleted": "Završeno",
     "statusCanceled": "Otkazano"
+  },
+  "services": {
+    "title": "Usluge",
+    "createService": "Nova usluga",
+    "empty": "Još niste kreirali nijednu uslugu.",
+    "edit": "Izmeni",
+    "delete": "Obriši",
+    "description": "Opis",
+    "sortOrder": "Redosled",
+    "durationMinutes": "Trajanje (minuti)"
   },
   "resources": {
     "title": "Resursi",
@@ -130,6 +143,29 @@
       "errorAssign": "Nije moguće dodeliti uslugu",
       "noTenantServices": "Pre dodele kreirajte usluge za vaš salon."
     }
+  },
+  "createService": {
+    "title": "Nova usluga",
+    "intro": "Dodajte uslugu koju klijenti mogu da rezervišu.",
+    "name": "Naziv",
+    "descriptionOptional": "Opis (opciono)",
+    "sortOrderOptional": "Redosled (opciono)",
+    "isActive": "Aktivna",
+    "errorCreate": "Nije moguće kreirati uslugu",
+    "validation": {
+      "name": "Naziv je obavezan",
+      "duration": "Unesite pozitivan ceo broj minuta"
+    }
+  },
+  "editService": {
+    "title": "Izmena usluge",
+    "save": "Sačuvaj",
+    "saveDisabledTitle": "Čuvanje će biti dostupno kada API podrži izmene"
+  },
+  "deleteService": {
+    "title": "Brisanje usluge",
+    "body": "Ukloniti „{{name}}“? Server se neće ažurirati dok brisanje ne bude implementirano.",
+    "confirm": "U redu"
   },
   "createResource": {
     "title": "Novi resurs",

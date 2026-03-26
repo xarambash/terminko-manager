@@ -6,6 +6,7 @@ import {
   AppointmentsPage,
   ResourcesPage,
   ResourceDetailPage,
+  ServicesPage,
 } from './pages'
 import { OwnerRoute } from './components/OwnerRoute'
 import './App.css'
@@ -22,6 +23,16 @@ function App() {
       <Route
         path="/appointments"
         element={<ProtectedRoute><AppointmentsPage /></ProtectedRoute>
+        }
+      />
+      <Route
+        path="/services"
+        element={
+          <ProtectedRoute>
+            <OwnerRoute>
+              <ServicesPage />
+            </OwnerRoute>
+          </ProtectedRoute>
         }
       />
       <Route

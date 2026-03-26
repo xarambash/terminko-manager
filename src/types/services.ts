@@ -9,3 +9,12 @@ export type Service = {
   createdAt: string
   updatedAt: string
 }
+
+/** Body for POST /tenants/:tenantId/services */
+export type CreateServicePayload = {
+  name: string
+  durationMinutes: number
+  description?: string
+  isActive?: boolean
+  sortOrder?: number
+}

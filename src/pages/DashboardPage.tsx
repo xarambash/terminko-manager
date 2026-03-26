@@ -25,12 +25,20 @@ function DashboardPage() {
           <p className="text-sm text-[var(--text)]">{t('dashboard.appointmentsDesc')}</p>
         </Card>
         {user?.role === 'owner' && (
-          <Card to="/resources" className="p-4 sm:p-6">
-            <h2 className="mb-2 text-lg font-medium text-[var(--text-h)]">
-              {t('dashboard.resourcesTitle')}
-            </h2>
-            <p className="text-sm text-[var(--text)]">{t('dashboard.resourcesDesc')}</p>
-          </Card>
+          <>
+            <Card to="/services" className="p-4 sm:p-6">
+              <h2 className="mb-2 text-lg font-medium text-[var(--text-h)]">
+                {t('dashboard.servicesTitle')}
+              </h2>
+              <p className="text-sm text-[var(--text)]">{t('dashboard.servicesDesc')}</p>
+            </Card>
+            <Card to="/resources" className="p-4 sm:p-6">
+              <h2 className="mb-2 text-lg font-medium text-[var(--text-h)]">
+                {t('dashboard.resourcesTitle')}
+              </h2>
+              <p className="text-sm text-[var(--text)]">{t('dashboard.resourcesDesc')}</p>
+            </Card>
+          </>
         )}
       </div>
     </main>

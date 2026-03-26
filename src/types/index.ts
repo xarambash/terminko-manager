@@ -7,7 +7,7 @@ export type {
   AppointmentService,
 } from './appointments'
 
-export type { Service } from './services'
+export type { Service, CreateServicePayload } from './services'
 export type {
   ResourceServiceAssignment,
   ResourceWorkingHour,
@@ -105,4 +105,22 @@ export type ModalProps = {
 export type CreateResourceModalProps = {
   open: boolean
   onClose: () => void
+}
+
+export type CreateServiceModalProps = {
+  open: boolean
+  onClose: () => void
+}
+
+export type EditServiceModalProps = {
+  open: boolean
+  onClose: () => void
+  service: import('./services').Service | null
+}
+
+export type DeleteServiceConfirmModalProps = {
+  open: boolean
+  onClose: () => void
+  serviceName: string
+  onConfirm: () => void
 }

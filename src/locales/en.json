@@ -47,7 +47,8 @@
     "freeDays": "Loading free days…",
     "workingHours": "Loading working hours…",
     "assignedServices": "Loading assigned services…",
-    "tenantServices": "Loading tenant services…"
+    "tenantServices": "Loading tenant services…",
+    "services": "Loading services…"
   },
   "login": {
     "title": "Login",
@@ -65,7 +66,9 @@
     "appointmentsTitle": "Appointments",
     "appointmentsDesc": "View and manage appointments",
     "resourcesTitle": "Resources",
-    "resourcesDesc": "Manage staff and resources for your business"
+    "resourcesDesc": "Manage staff and resources for your business",
+    "servicesTitle": "Services",
+    "servicesDesc": "Define the services your business offers"
   },
   "appointments": {
     "title": "Appointments",
@@ -73,6 +76,16 @@
     "statusScheduled": "Scheduled",
     "statusCompleted": "Completed",
     "statusCanceled": "Canceled"
+  },
+  "services": {
+    "title": "Services",
+    "createService": "Create service",
+    "empty": "You don't have any services created.",
+    "edit": "Edit",
+    "delete": "Delete",
+    "description": "Description",
+    "sortOrder": "Sort order",
+    "durationMinutes": "Duration (minutes)"
   },
   "resources": {
     "title": "Resources",
@@ -130,6 +143,29 @@
       "errorAssign": "Could not assign service",
       "noTenantServices": "Create services under your tenant before assigning them here."
     }
+  },
+  "createService": {
+    "title": "New service",
+    "intro": "Add a bookable service for your tenant.",
+    "name": "Name",
+    "descriptionOptional": "Description (optional)",
+    "sortOrderOptional": "Sort order (optional)",
+    "isActive": "Active",
+    "errorCreate": "Could not create service",
+    "validation": {
+      "name": "Name is required",
+      "duration": "Enter a positive whole number of minutes"
+    }
+  },
+  "editService": {
+    "title": "Edit service",
+    "save": "Save",
+    "saveDisabledTitle": "Saving will be available when the API supports updates"
+  },
+  "deleteService": {
+    "title": "Delete service",
+    "body": "Remove \"{{name}}\"? The server will not be updated until delete is implemented.",
+    "confirm": "OK"
   },
   "createResource": {
     "title": "New resource",
