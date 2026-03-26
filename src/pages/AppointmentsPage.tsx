@@ -1,31 +1,36 @@
+import { useMemo } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Card, PageSectionHeader, QueryStatusBanner } from '../components'
+import { calendarLocaleFromLng } from '../lib/dateLocale'
 import { useAppointments } from '../hooks'
 import type { AppointmentStatus } from '../types'
 
-const statusLabels: Record<AppointmentStatus, string> = {
-  scheduled: 'Scheduled',
-  completed: 'Completed',
-  canceled: 'Canceled',
+const pageClass = 'flex flex-1 flex-col gap-4 p-4 text-left sm:gap-6 sm:p-6 md:gap-8 md:p-8'
+
+function useAppointmentStatusLabels() {
+  const { t } = useTranslation()
+  return useMemo(
+    (): Record<AppointmentStatus, string> => ({
+      scheduled: t('appointments.statusScheduled'),
+      completed: t('appointments.statusCompleted'),
+      canceled: t('appointments.statusCanceled'),
+    }),
+    [t]
+  )
 }
 
-const statusStyles: Record<AppointmentStatus, string> = {
-  scheduled: 'bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-400',
-  completed: 'bg-slate-100 text-slate-700 dark:bg-slate-700/50 dark:text-slate-300',
-  canceled: 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400',
-}
-
-function formatAppointmentDate(iso: string) {
+function formatAppointmentDate(iso: string, locale: string) {
   const date = new Date(iso)
-  return date.toLocaleDateString('en-GB', {
+  return date.toLocaleDateString(locale, {
     weekday: 'short',
     day: 'numeric',
     month: 'short',
   })
 }
 
-function formatAppointmentTime(iso: string) {
+function formatAppointmentTime(iso: string, locale: string) {
   const date = new Date(iso)
-  return date.toLocaleTimeString('en-GB', {
+  return date.toLocaleTimeString(locale, {
     hour: '2-digit',
     minute: '2-digit',
   })
@@ -38,11 +43,23 @@ function normalizeStatus(status: string): AppointmentStatus | null {
   return null
 }
 
-function StatusBadge({ status }: { status: string }) {
+function StatusBadge({
+  status,
+  labels,
+}: {
+  status: string
+  labels: Record<AppointmentStatus, string>
+}) {
   const normalized = normalizeStatus(status)
-  const label = normalized ? statusLabels[normalized] : status
+  const label = normalized ? labels[normalized] : status
   const styleClass = normalized
-    ? statusStyles[normalized]
+    ? {
+        scheduled:
+          'bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-400',
+        completed:
+          'bg-slate-100 text-slate-700 dark:bg-slate-700/50 dark:text-slate-300',
+        canceled: 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400',
+      }[normalized]
     : 'bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300'
 
   return (
@@ -53,17 +70,20 @@ function StatusBadge({ status }: { status: string }) {
 }
 
 function AppointmentsPage() {
+  const { t, i18n } = useTranslation()
+  const statusLabels = useAppointmentStatusLabels()
+  const calLocale = calendarLocaleFromLng(i18n.language)
   const { data: appointments, isPending, isError, error } = useAppointments()
 
   return (
-    <main className="flex flex-1 flex-col gap-8 p-8 text-left">
-      <PageSectionHeader title="Appointments" />
+    <main className={pageClass}>
+      <PageSectionHeader title={t('appointments.title')} />
 
       <QueryStatusBanner
         isPending={isPending}
         isError={isError}
         error={error}
-        loadingText="Loading appointments…"
+        loadingText={t('loading.appointments')}
       />
 
       {!isPending && !isError && (
@@ -72,23 +92,23 @@ function AppointmentsPage() {
             <table className="w-full min-w-[600px] border-collapse">
               <thead>
                 <tr className="border-b border-[var(--border)]">
-                  <th className="px-4 py-3 text-left text-sm font-medium text-[var(--text-h)]">
-                    Date
+                  <th className="px-3 py-3 text-left text-sm font-medium text-[var(--text-h)] sm:px-4">
+                    {t('common.date')}
                   </th>
-                  <th className="px-4 py-3 text-left text-sm font-medium text-[var(--text-h)]">
-                    Time
+                  <th className="px-3 py-3 text-left text-sm font-medium text-[var(--text-h)] sm:px-4">
+                    {t('common.time')}
                   </th>
-                  <th className="px-4 py-3 text-left text-sm font-medium text-[var(--text-h)]">
-                    Client
+                  <th className="px-3 py-3 text-left text-sm font-medium text-[var(--text-h)] sm:px-4">
+                    {t('common.client')}
                   </th>
-                  <th className="px-4 py-3 text-left text-sm font-medium text-[var(--text-h)]">
-                    Service
+                  <th className="px-3 py-3 text-left text-sm font-medium text-[var(--text-h)] sm:px-4">
+                    {t('common.service')}
                   </th>
-                  <th className="px-4 py-3 text-left text-sm font-medium text-[var(--text-h)]">
-                    Status
+                  <th className="px-3 py-3 text-left text-sm font-medium text-[var(--text-h)] sm:px-4">
+                    {t('common.status')}
                   </th>
-                  <th className="px-4 py-3 text-left text-sm font-medium text-[var(--text-h)]">
-                    Notes
+                  <th className="px-3 py-3 text-left text-sm font-medium text-[var(--text-h)] sm:px-4">
+                    {t('common.notes')}
                   </th>
                 </tr>
               </thead>
@@ -97,9 +117,9 @@ function AppointmentsPage() {
                   <tr>
                     <td
                       colSpan={6}
-                      className="px-4 py-8 text-center text-sm text-[var(--text)]"
+                      className="px-3 py-8 text-center text-sm text-[var(--text)] sm:px-4"
                     >
-                      No appointments yet.
+                      {t('appointments.empty')}
                     </td>
                   </tr>
                 ) : (
@@ -108,13 +128,13 @@ function AppointmentsPage() {
                       key={apt.id}
                       className="border-b border-[var(--border)] last:border-b-0 transition hover:bg-[var(--bg)]"
                     >
-                      <td className="px-4 py-3 text-sm text-[var(--text-h)]">
-                        {formatAppointmentDate(apt.startAt)}
+                      <td className="px-3 py-3 text-sm text-[var(--text-h)] sm:px-4">
+                        {formatAppointmentDate(apt.startAt, calLocale)}
                       </td>
-                      <td className="px-4 py-3 text-sm text-[var(--text)]">
-                        {formatAppointmentTime(apt.startAt)}
+                      <td className="px-3 py-3 text-sm text-[var(--text)] sm:px-4">
+                        {formatAppointmentTime(apt.startAt, calLocale)}
                       </td>
-                      <td className="px-4 py-3">
+                      <td className="px-3 py-3 sm:px-4">
                         <div>
                           <p className="text-sm font-medium text-[var(--text-h)]">
                             {apt.guest.name}
@@ -122,14 +142,14 @@ function AppointmentsPage() {
                           <p className="text-xs text-[var(--text)]">{apt.guest.email}</p>
                         </div>
                       </td>
-                      <td className="px-4 py-3 text-sm text-[var(--text)]">
+                      <td className="px-3 py-3 text-sm text-[var(--text)] sm:px-4">
                         {apt.service.name}
                       </td>
-                      <td className="px-4 py-3">
-                        <StatusBadge status={apt.status} />
+                      <td className="px-3 py-3 sm:px-4">
+                        <StatusBadge status={apt.status} labels={statusLabels} />
                       </td>
-                      <td className="px-4 py-3 text-sm text-[var(--text)] max-w-[200px] truncate">
-                        {apt.notes ?? '—'}
+                      <td className="max-w-[200px] truncate px-3 py-3 text-sm text-[var(--text)] sm:px-4">
+                        {apt.notes ?? t('common.dash')}
                       </td>
                     </tr>
                   ))

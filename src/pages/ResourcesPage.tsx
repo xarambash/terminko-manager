@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
 import {
   Button,
@@ -9,18 +10,21 @@ import {
 } from '../components'
 import { useResources } from '../hooks'
 
+const pageClass = 'flex flex-1 flex-col gap-4 p-4 text-left sm:gap-6 sm:p-6 md:gap-8 md:p-8'
+
 function ResourcesPage() {
+  const { t } = useTranslation()
   const navigate = useNavigate()
   const [modalOpen, setModalOpen] = useState(false)
   const { data: resources, isPending, isError, error } = useResources()
 
   return (
-    <main className="flex flex-1 flex-col gap-8 p-8 text-left">
+    <main className={pageClass}>
       <PageSectionHeader
-        title="Resources"
+        title={t('resources.title')}
         actions={
           <Button type="button" onClick={() => setModalOpen(true)}>
-            Create resource
+            {t('resources.createResource')}
           </Button>
         }
       />
@@ -29,7 +33,7 @@ function ResourcesPage() {
         isPending={isPending}
         isError={isError}
         error={error}
-        loadingText="Loading resources…"
+        loadingText={t('loading.resources')}
       />
 
       {!isPending && !isError && (
@@ -38,20 +42,20 @@ function ResourcesPage() {
             <table className="w-full min-w-[640px] border-collapse">
               <thead>
                 <tr className="border-b border-[var(--border)]">
-                  <th className="px-4 py-3 text-left text-sm font-medium text-[var(--text-h)]">
-                    Name
+                  <th className="px-3 py-3 text-left text-sm font-medium text-[var(--text-h)] sm:px-4">
+                    {t('common.name')}
                   </th>
-                  <th className="px-4 py-3 text-left text-sm font-medium text-[var(--text-h)]">
-                    Email
+                  <th className="px-3 py-3 text-left text-sm font-medium text-[var(--text-h)] sm:px-4">
+                    {t('common.email')}
                   </th>
-                  <th className="px-4 py-3 text-left text-sm font-medium text-[var(--text-h)]">
-                    Phone
+                  <th className="px-3 py-3 text-left text-sm font-medium text-[var(--text-h)] sm:px-4">
+                    {t('common.phone')}
                   </th>
-                  <th className="px-4 py-3 text-left text-sm font-medium text-[var(--text-h)]">
-                    Active
+                  <th className="px-3 py-3 text-left text-sm font-medium text-[var(--text-h)] sm:px-4">
+                    {t('common.active')}
                   </th>
-                  <th className="px-4 py-3 text-right text-sm font-medium text-[var(--text-h)]">
-                    Actions
+                  <th className="px-3 py-3 text-right text-sm font-medium text-[var(--text-h)] sm:px-4">
+                    {t('common.actions')}
                   </th>
                 </tr>
               </thead>
@@ -60,9 +64,9 @@ function ResourcesPage() {
                   <tr>
                     <td
                       colSpan={5}
-                      className="px-4 py-8 text-center text-sm text-[var(--text)]"
+                      className="px-3 py-8 text-center text-sm text-[var(--text)] sm:px-4"
                     >
-                      No resources yet. Create one to get started.
+                      {t('resources.empty')}
                     </td>
                   </tr>
                 ) : (
@@ -80,28 +84,28 @@ function ResourcesPage() {
                         }
                       }}
                     >
-                      <td className="px-4 py-3 text-sm text-[var(--text-h)]">
+                      <td className="px-3 py-3 text-sm text-[var(--text-h)] sm:px-4">
                         {r.firstName} {r.lastName}
                       </td>
-                      <td className="px-4 py-3 text-sm text-[var(--text)]">
-                        {r.email ?? '—'}
+                      <td className="px-3 py-3 text-sm text-[var(--text)] sm:px-4">
+                        {r.email ?? t('common.dash')}
                       </td>
-                      <td className="px-4 py-3 text-sm text-[var(--text)]">
-                        {r.phone ?? '—'}
+                      <td className="px-3 py-3 text-sm text-[var(--text)] sm:px-4">
+                        {r.phone ?? t('common.dash')}
                       </td>
-                      <td className="px-4 py-3 text-sm text-[var(--text)]">
-                        {r.isActive ? 'Yes' : 'No'}
+                      <td className="px-3 py-3 text-sm text-[var(--text)] sm:px-4">
+                        {r.isActive ? t('common.yes') : t('common.no')}
                       </td>
-                      <td className="px-4 py-3 text-right">
+                      <td className="px-3 py-3 text-right sm:px-4">
                         <div className="flex justify-end gap-2">
                           <Button
                             type="button"
                             variant="secondary"
                             disabled
-                            title="Delete will be available in a future update"
+                            title={t('resources.deleteTitle')}
                             className="px-3 py-1.5 text-xs"
                           >
-                            Delete
+                            {t('resources.delete')}
                           </Button>
                         </div>
                       </td>

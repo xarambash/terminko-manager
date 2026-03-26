@@ -1,4 +1,4 @@
-import { useEffect } from 'react'
+import { useEffect, useMemo } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
@@ -9,16 +9,20 @@ import { AuthLayout, Button, Card, FormError, FormField, PageTitle } from '../co
 import { extractServerError } from '../lib/errors'
 import type { LoginForm } from '../types'
 
-const loginSchema = z.object({
-  email: z.string().min(1, 'Email is required').email('Invalid email'),
-  password: z.string().min(1, 'Password is required'),
-})
-
-function LoginPage() {
+function LoginForm() {
   const { t } = useTranslation()
-  const { login, isAuthenticated } = useAuth()
+  const { login } = useAuth()
   const navigate = useNavigate()
   const location = useLocation()
+
+  const loginSchema = useMemo(
+    () =>
+      z.object({
+        email: z.string().min(1, t('login.validation.emailRequired')).email(t('login.validation.invalidEmail')),
+        password: z.string().min(1, t('login.validation.passwordRequired')),
+      }),
+    [t]
+  )
 
   const {
     register,
@@ -32,6 +36,56 @@ function LoginPage() {
     reValidateMode: 'onSubmit',
   })
 
+  const onSubmit = async (data: LoginForm) => {
+    try {
+      await login(data.email, data.password)
+      const from = (location.state as { from?: { pathname: string } })?.from?.pathname ?? '/'
+      navigate(from, { replace: true })
+    } catch (err: unknown) {
+      const message = extractServerError(err)
+      setValue('password', '')
+      setError('root', { message: message ?? t('login.failed') })
+    }
+  }
+
+  return (
+    <>
+      <PageTitle className="mb-6">{t('login.title')}</PageTitle>
+      <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
+        <FormField
+          label={t('common.email')}
+          id="email"
+          type="email"
+          autoComplete="email"
+          {...register('email')}
+        />
+        <FormField
+          label={t('common.password')}
+          id="password"
+          type="password"
+          autoComplete="current-password"
+          {...register('password')}
+        />
+        <FormError
+          message={
+            errors.root?.message ??
+            errors.email?.message ??
+            errors.password?.message
+          }
+        />
+        <Button type="submit" disabled={isSubmitting} className="mt-2">
+          {isSubmitting ? t('login.loggingIn') : t('login.logIn')}
+        </Button>
+      </form>
+    </>
+  )
+}
+
+function LoginPage() {
+  const { i18n } = useTranslation()
+  const { isAuthenticated } = useAuth()
+  const navigate = useNavigate()
+
   useEffect(() => {
     if (isAuthenticated) {
       navigate('/', { replace: true })
@@ -42,48 +96,10 @@ function LoginPage() {
     return null
   }
 
-  const onSubmit = async (data: LoginForm) => {
-    try {
-      await login(data.email, data.password)
-      const from = (location.state as { from?: { pathname: string } })?.from?.pathname ?? '/'
-      navigate(from, { replace: true })
-    } catch (err: unknown) {
-      const message = extractServerError(err)
-      setValue('password', '')
-      setError('root', { message: message ?? 'Login failed. Please try again.' })
-    }
-  }
-
   return (
     <AuthLayout>
-      <Card className="w-full max-w-sm p-8">
-        <PageTitle className="mb-6">{t('login.title', 'Login')}</PageTitle>
-        <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
-          <FormField
-            label="Email"
-            id="email"
-            type="email"
-            autoComplete="email"
-            {...register('email')}
-          />
-          <FormField
-            label="Password"
-            id="password"
-            type="password"
-            autoComplete="current-password"
-            {...register('password')}
-          />
-          <FormError
-            message={
-              errors.root?.message ??
-              errors.email?.message ??
-              errors.password?.message
-            }
-          />
-          <Button type="submit" disabled={isSubmitting} className="mt-2">
-            {isSubmitting ? 'Logging in...' : 'Log in'}
-          </Button>
-        </form>
+      <Card className="w-full max-w-sm p-6 sm:p-8">
+        <LoginForm key={i18n.language} />
       </Card>
     </AuthLayout>
   )

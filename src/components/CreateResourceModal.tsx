@@ -1,6 +1,8 @@
+import { useMemo } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useNavigate } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { z } from 'zod'
 import { Button } from './ui/Button'
 import { FormError } from './ui/FormError'
@@ -10,20 +12,36 @@ import { useCreateResource } from '../hooks'
 import { extractServerError } from '../lib/errors'
 import type { CreateResourceModalProps } from '../types'
 
-const createResourceSchema = z.object({
-  firstName: z.string().min(1, 'First name is required'),
-  lastName: z.string().min(1, 'Last name is required'),
-  email: z.string().min(1, 'Email is required').email('Invalid email'),
-  password: z.string().min(8, 'Password must be at least 8 characters'),
-  phone: z.string().optional(),
-  profilePicture: z.string().optional(),
-})
+type CreateResourceForm = {
+  firstName: string
+  lastName: string
+  email: string
+  password: string
+  phone?: string
+  profilePicture?: string
+}
 
-type CreateResourceForm = z.infer<typeof createResourceSchema>
-
-export function CreateResourceModal({ open, onClose }: CreateResourceModalProps) {
+function CreateResourceFormContent({
+  onClose,
+}: {
+  onClose: () => void
+}) {
+  const { t } = useTranslation()
   const navigate = useNavigate()
   const createMutation = useCreateResource()
+
+  const createResourceSchema = useMemo(
+    () =>
+      z.object({
+        firstName: z.string().min(1, t('createResource.validation.firstName')),
+        lastName: z.string().min(1, t('createResource.validation.lastName')),
+        email: z.string().min(1, t('createResource.validation.emailRequired')).email(t('createResource.validation.invalidEmail')),
+        password: z.string().min(8, t('createResource.validation.password')),
+        phone: z.string().optional(),
+        profilePicture: z.string().optional(),
+      }),
+    [t]
+  )
 
   const {
     register,
@@ -44,9 +62,9 @@ export function CreateResourceModal({ open, onClose }: CreateResourceModalProps)
   })
 
   const closeModal = () => {
-    onClose()
     reset()
     createMutation.reset()
+    onClose()
   }
 
   const onSubmit = async (data: CreateResourceForm) => {
@@ -65,54 +83,46 @@ export function CreateResourceModal({ open, onClose }: CreateResourceModalProps)
       navigate(`/resources/${created.id}`)
     } catch (err: unknown) {
       setError('root', {
-        message: extractServerError(err) ?? 'Could not create resource',
+        message: extractServerError(err) ?? t('createResource.errorCreate'),
       })
     }
   }
 
   return (
-    <Modal
-      open={open}
-      onClose={closeModal}
-      title="New resource"
-      titleId="resource-modal-title"
-    >
-      <p className="mb-4 text-sm text-[var(--text)]">
-        Creates a staff login for this person. They can sign in with the email
-        and password you set here.
-      </p>
+    <>
+      <p className="mb-4 text-sm text-[var(--text)]">{t('createResource.intro')}</p>
       <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
         <FormField
-          label="First name"
+          label={t('common.firstName')}
           {...register('firstName')}
           error={errors.firstName?.message}
         />
         <FormField
-          label="Last name"
+          label={t('common.lastName')}
           {...register('lastName')}
           error={errors.lastName?.message}
         />
         <FormField
-          label="Email"
+          label={t('common.email')}
           type="email"
           autoComplete="off"
           {...register('email')}
           error={errors.email?.message}
         />
         <FormField
-          label="Password"
+          label={t('common.password')}
           type="password"
           autoComplete="new-password"
           {...register('password')}
           error={errors.password?.message}
         />
         <FormField
-          label="Phone (optional)"
+          label={t('createResource.phoneOptional')}
           {...register('phone')}
           error={errors.phone?.message}
         />
         <FormField
-          label="Profile picture URL (optional)"
+          label={t('createResource.profileUrlOptional')}
           {...register('profilePicture')}
           error={errors.profilePicture?.message}
         />
@@ -126,13 +136,28 @@ export function CreateResourceModal({ open, onClose }: CreateResourceModalProps)
         />
         <div className="flex justify-end gap-2 pt-2">
           <Button type="button" variant="secondary" onClick={closeModal}>
-            Cancel
+            {t('common.cancel')}
           </Button>
           <Button type="submit" disabled={isSubmitting}>
-            {isSubmitting ? 'Creating…' : 'Create'}
+            {isSubmitting ? t('common.creating') : t('common.create')}
           </Button>
         </div>
       </form>
+    </>
+  )
+}
+
+export function CreateResourceModal({ open, onClose }: CreateResourceModalProps) {
+  const { t, i18n } = useTranslation()
+
+  return (
+    <Modal
+      open={open}
+      onClose={onClose}
+      title={t('createResource.title')}
+      titleId="resource-modal-title"
+    >
+      <CreateResourceFormContent key={i18n.language} onClose={onClose} />
     </Modal>
   )
 }

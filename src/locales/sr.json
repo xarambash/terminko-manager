@@ -1,8 +1,148 @@
 {
   "common": {
-    "appName": "Terminko Manager"
+    "appName": "Terminko menadžer",
+    "yes": "Da",
+    "no": "Ne",
+    "dash": "—",
+    "cancel": "Otkaži",
+    "add": "Dodaj",
+    "adding": "Dodavanje…",
+    "assign": "Dodeli",
+    "assigning": "Dodeljivanje…",
+    "create": "Kreiraj",
+    "creating": "Kreiranje…",
+    "selectPlaceholder": "Izaberi…",
+    "email": "E-pošta",
+    "password": "Lozinka",
+    "phone": "Telefon",
+    "active": "Aktivan",
+    "name": "Ime",
+    "actions": "Akcije",
+    "date": "Datum",
+    "time": "Vreme",
+    "client": "Klijent",
+    "service": "Usluga",
+    "status": "Status",
+    "notes": "Napomene",
+    "reason": "Razlog",
+    "day": "Dan",
+    "start": "Početak",
+    "end": "Kraj",
+    "duration": "Trajanje",
+    "price": "Cena",
+    "logout": "Odjavi se",
+    "firstName": "Ime",
+    "lastName": "Prezime",
+    "minutes": "{{count}} min",
+    "minutesShort": "min"
+  },
+  "nav": {
+    "backDashboard": "← Kontrolna tabla",
+    "backResources": "← Resursi"
+  },
+  "loading": {
+    "resources": "Učitavanje resursa…",
+    "resource": "Učitavanje resursa…",
+    "appointments": "Učitavanje termina…",
+    "freeDays": "Učitavanje slobodnih dana…",
+    "workingHours": "Učitavanje radnog vremena…",
+    "assignedServices": "Učitavanje dodeljenih usluga…",
+    "tenantServices": "Učitavanje usluga salona…"
   },
   "login": {
-    "title": "Prijava"
+    "title": "Prijava",
+    "logIn": "Prijavi se",
+    "loggingIn": "Prijava…",
+    "failed": "Prijava nije uspela. Pokušajte ponovo.",
+    "validation": {
+      "emailRequired": "E-pošta je obavezna",
+      "invalidEmail": "Neispravna e-pošta",
+      "passwordRequired": "Lozinka je obavezna"
+    }
+  },
+  "dashboard": {
+    "title": "Kontrolna tabla",
+    "appointmentsTitle": "Termini",
+    "appointmentsDesc": "Pregled i upravljanje terminima",
+    "resourcesTitle": "Resursi",
+    "resourcesDesc": "Upravljanje osobljem i resursima vašeg posla"
+  },
+  "appointments": {
+    "title": "Termini",
+    "empty": "Još nema termina.",
+    "statusScheduled": "Zakazano",
+    "statusCompleted": "Završeno",
+    "statusCanceled": "Otkazano"
+  },
+  "resources": {
+    "title": "Resursi",
+    "createResource": "Novi resurs",
+    "empty": "Još nema resursa. Kreirajte jedan da počnete.",
+    "delete": "Obriši",
+    "deleteTitle": "Brisanje će biti dostupno u budućem ažuriranju"
+  },
+  "resourceDetail": {
+    "title": "Resurs",
+    "notFoundTitle": "Resurs nije pronađen",
+    "notFoundBody": "Ovaj resurs nije na vašoj listi. Možda je uklonjen ili je link neispravan.",
+    "backToResources": "Nazad na resurse",
+    "summary": {
+      "email": "E-pošta",
+      "phone": "Telefon",
+      "active": "Aktivan"
+    },
+    "freeDays": {
+      "title": "Slobodni dani",
+      "description": "Dani kada ovaj resurs nije dostupan za rezervaciju.",
+      "empty": "Još nema slobodnih dana.",
+      "addTitle": "Dodaj slobodan dan",
+      "reasonOptional": "Razlog (opciono)",
+      "reasonPlaceholder": "npr. praznik",
+      "validationDate": "Koristite YYYY-MM-DD za datum",
+      "errorAdd": "Nije moguće dodati slobodan dan"
+    },
+    "workingHours": {
+      "title": "Radno vreme",
+      "description": "Dodajte jedan ili više intervala po danu u nedelji. Dan: 0 = nedelja do 6 = subota.",
+      "empty": "Još nema radnog vremena.",
+      "addInterval": "Dodaj interval",
+      "startLabel": "Početak (HH:MM)",
+      "endLabel": "Kraj (HH:MM)",
+      "validationTime": "Koristite format HH:MM za vreme (npr. 09:00)",
+      "validationOrder": "Kraj mora biti posle početka",
+      "errorAdd": "Nije moguće dodati radno vreme"
+    },
+    "services": {
+      "title": "Usluge za ovaj resurs",
+      "description": "Dodelite usluge salona i cenu koju ovaj resurs naplaćuje za svaku.",
+      "empty": "Još nema dodeljenih usluga.",
+      "assignFirst": "Dodeli uslugu",
+      "assignAnother": "Dodeli još jednu uslugu",
+      "hint": "Ispod su sve usluge vašeg salona. Već dodeljene su onemogućene.",
+      "durationOverride": "Drugo trajanje (opciono)",
+      "durationPlaceholder": "Minuti",
+      "pricePlaceholder": "npr. 25.00",
+      "optionAssigned": " — već dodeljeno",
+      "validationSelect": "Izaberite uslugu",
+      "validationDuplicate": "Ova usluga je već dodeljena ovom resursu",
+      "validationPrice": "Unesite ispravnu cenu (0 ili više)",
+      "validationDuration": "Drugo trajanje mora biti pozitivan ceo broj minuta",
+      "errorAssign": "Nije moguće dodeliti uslugu",
+      "noTenantServices": "Pre dodele kreirajte usluge za vaš salon."
+    }
+  },
+  "createResource": {
+    "title": "Novi resurs",
+    "intro": "Pravi nalog za prijavu za ovu osobu. Može se prijaviti e-poštom i lozinkom koju ovde postavite.",
+    "phoneOptional": "Telefon (opciono)",
+    "profileUrlOptional": "URL slike profila (opciono)",
+    "errorCreate": "Nije moguće kreirati resurs",
+    "validation": {
+      "firstName": "Ime je obavezno",
+      "lastName": "Prezime je obavezno",
+      "emailRequired": "E-pošta je obavezna",
+      "invalidEmail": "Neispravna e-pošta",
+      "password": "Lozinka mora imati najmanje 8 karaktera"
+    }
   }
 }

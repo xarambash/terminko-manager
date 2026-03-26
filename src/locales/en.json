@@ -1,8 +1,148 @@
 {
   "common": {
-    "appName": "Terminko Manager"
+    "appName": "Terminko Manager",
+    "yes": "Yes",
+    "no": "No",
+    "dash": "—",
+    "cancel": "Cancel",
+    "add": "Add",
+    "adding": "Adding…",
+    "assign": "Assign",
+    "assigning": "Assigning…",
+    "create": "Create",
+    "creating": "Creating…",
+    "selectPlaceholder": "Select…",
+    "email": "Email",
+    "password": "Password",
+    "phone": "Phone",
+    "active": "Active",
+    "name": "Name",
+    "actions": "Actions",
+    "date": "Date",
+    "time": "Time",
+    "client": "Client",
+    "service": "Service",
+    "status": "Status",
+    "notes": "Notes",
+    "reason": "Reason",
+    "day": "Day",
+    "start": "Start",
+    "end": "End",
+    "duration": "Duration",
+    "price": "Price",
+    "logout": "Log out",
+    "firstName": "First name",
+    "lastName": "Last name",
+    "minutes": "{{count}} min",
+    "minutesShort": "min"
+  },
+  "nav": {
+    "backDashboard": "← Dashboard",
+    "backResources": "← Resources"
+  },
+  "loading": {
+    "resources": "Loading resources…",
+    "resource": "Loading resource…",
+    "appointments": "Loading appointments…",
+    "freeDays": "Loading free days…",
+    "workingHours": "Loading working hours…",
+    "assignedServices": "Loading assigned services…",
+    "tenantServices": "Loading tenant services…"
   },
   "login": {
-    "title": "Login"
+    "title": "Login",
+    "logIn": "Log in",
+    "loggingIn": "Logging in…",
+    "failed": "Login failed. Please try again.",
+    "validation": {
+      "emailRequired": "Email is required",
+      "invalidEmail": "Invalid email",
+      "passwordRequired": "Password is required"
+    }
+  },
+  "dashboard": {
+    "title": "Dashboard",
+    "appointmentsTitle": "Appointments",
+    "appointmentsDesc": "View and manage appointments",
+    "resourcesTitle": "Resources",
+    "resourcesDesc": "Manage staff and resources for your business"
+  },
+  "appointments": {
+    "title": "Appointments",
+    "empty": "No appointments yet.",
+    "statusScheduled": "Scheduled",
+    "statusCompleted": "Completed",
+    "statusCanceled": "Canceled"
+  },
+  "resources": {
+    "title": "Resources",
+    "createResource": "Create resource",
+    "empty": "No resources yet. Create one to get started.",
+    "delete": "Delete",
+    "deleteTitle": "Delete will be available in a future update"
+  },
+  "resourceDetail": {
+    "title": "Resource",
+    "notFoundTitle": "Resource not found",
+    "notFoundBody": "This resource is not in your list. It may have been removed or the link is invalid.",
+    "backToResources": "Back to resources",
+    "summary": {
+      "email": "Email",
+      "phone": "Phone",
+      "active": "Active"
+    },
+    "freeDays": {
+      "title": "Free days",
+      "description": "Days when this resource is not available for booking.",
+      "empty": "No free days yet.",
+      "addTitle": "Add free day",
+      "reasonOptional": "Reason (optional)",
+      "reasonPlaceholder": "e.g. Holiday",
+      "validationDate": "Use YYYY-MM-DD for the date",
+      "errorAdd": "Could not add free day"
+    },
+    "workingHours": {
+      "title": "Working hours",
+      "description": "Add one or more intervals per weekday. Day: 0 = Sunday through 6 = Saturday.",
+      "empty": "No working hours yet.",
+      "addInterval": "Add interval",
+      "startLabel": "Start (HH:MM)",
+      "endLabel": "End (HH:MM)",
+      "validationTime": "Use HH:MM format for times (e.g. 09:00)",
+      "validationOrder": "End time must be after start time",
+      "errorAdd": "Could not add working hours"
+    },
+    "services": {
+      "title": "Services for this resource",
+      "description": "Assign salon services and set the price this resource charges for each.",
+      "empty": "No services assigned yet.",
+      "assignFirst": "Assign a service",
+      "assignAnother": "Assign another service",
+      "hint": "All services for your salon are listed below. Already assigned ones are disabled.",
+      "durationOverride": "Duration override (optional)",
+      "durationPlaceholder": "Minutes",
+      "pricePlaceholder": "e.g. 25.00",
+      "optionAssigned": " — already assigned",
+      "validationSelect": "Select a service",
+      "validationDuplicate": "This service is already assigned to this resource",
+      "validationPrice": "Enter a valid price (0 or greater)",
+      "validationDuration": "Duration override must be a positive whole number of minutes",
+      "errorAssign": "Could not assign service",
+      "noTenantServices": "Create services under your tenant before assigning them here."
+    }
+  },
+  "createResource": {
+    "title": "New resource",
+    "intro": "Creates a staff login for this person. They can sign in with the email and password you set here.",
+    "phoneOptional": "Phone (optional)",
+    "profileUrlOptional": "Profile picture URL (optional)",
+    "errorCreate": "Could not create resource",
+    "validation": {
+      "firstName": "First name is required",
+      "lastName": "Last name is required",
+      "emailRequired": "Email is required",
+      "invalidEmail": "Invalid email",
+      "password": "Password must be at least 8 characters"
+    }
   }
 }

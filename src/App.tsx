@@ -1,10 +1,12 @@
 import { Routes, Route, Navigate } from 'react-router-dom'
 import { ProtectedRoute } from './components/ProtectedRoute'
-import LoginPage from './pages/LoginPage'
-import DashboardPage from './pages/DashboardPage'
-import AppointmentsPage from './pages/AppointmentsPage'
-import ResourcesPage from './pages/ResourcesPage'
-import ResourceDetailPage from './pages/ResourceDetailPage'
+import {
+  LoginPage,
+  DashboardPage,
+  AppointmentsPage,
+  ResourcesPage,
+  ResourceDetailPage,
+} from './pages'
 import { OwnerRoute } from './components/OwnerRoute'
 import './App.css'
 

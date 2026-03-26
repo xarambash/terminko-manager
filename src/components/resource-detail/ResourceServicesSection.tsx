@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Button } from '../ui/Button'
 import { Card } from '../ui/Card'
 import { FormError } from '../ui/FormError'
@@ -10,9 +11,10 @@ import {
   useServices,
 } from '../../hooks'
 import { extractServerError } from '../../lib/errors'
-import { formatPrice, inputSelectClass } from './resourceDetailUtils'
+import { formatPrice, inputSelectClass } from '../../lib/resourceDetailUtils'
 
 export function ResourceServicesSection({ resourceId }: { resourceId: string }) {
+  const { t } = useTranslation()
   const { data: assignments, isPending, isError, error } = useResourceServices(resourceId)
   const {
     data: allServices,
@@ -52,23 +54,23 @@ export function ResourceServicesSection({ resourceId }: { resourceId: string }) 
   const onAssign = async () => {
     setFormError(undefined)
     if (!serviceId) {
-      setFormError('Select a service')
+      setFormError(t('resourceDetail.services.validationSelect'))
       return
     }
     if (assignedServiceIds.has(serviceId)) {
-      setFormError('This service is already assigned to this resource')
+      setFormError(t('resourceDetail.services.validationDuplicate'))
       return
     }
     const priceNum = Number.parseFloat(price)
     if (Number.isNaN(priceNum) || priceNum < 0) {
-      setFormError('Enter a valid price (0 or greater)')
+      setFormError(t('resourceDetail.services.validationPrice'))
       return
     }
     let duration: number | undefined
     if (durationOverride.trim()) {
       const d = Number.parseInt(durationOverride, 10)
       if (Number.isNaN(d) || d <= 0) {
-        setFormError('Duration override must be a positive whole number of minutes')
+        setFormError(t('resourceDetail.services.validationDuration'))
         return
       }
       duration = d
@@ -81,22 +83,20 @@ export function ResourceServicesSection({ resourceId }: { resourceId: string }) 
       })
       resetForm()
     } catch (err: unknown) {
-      setFormError(extractServerError(err) ?? 'Could not assign service')
+      setFormError(extractServerError(err) ?? t('resourceDetail.services.errorAssign'))
     }
   }
 
   return (
-    <Card className="flex flex-col gap-4 p-6">
-      <h2 className="text-lg font-medium text-[var(--text-h)]">Services for this resource</h2>
-      <p className="text-sm text-[var(--text)]">
-        Assign salon services and set the price this resource charges for each.
-      </p>
+    <Card className="flex flex-col gap-4 p-4 sm:p-6">
+      <h2 className="text-lg font-medium text-[var(--text-h)]">{t('resourceDetail.services.title')}</h2>
+      <p className="text-sm text-[var(--text)]">{t('resourceDetail.services.description')}</p>
 
       <QueryStatusBanner
         isPending={isPending}
         isError={isError}
         error={error}
-        loadingText="Loading assigned services…"
+        loadingText={t('loading.assignedServices')}
       />
 
       {!isPending && !isError && (
@@ -105,24 +105,32 @@ export function ResourceServicesSection({ resourceId }: { resourceId: string }) 
             isPending={servicesPending}
             isError={servicesError}
             error={servicesQueryError}
-            loadingText="Loading tenant services…"
+            loadingText={t('loading.tenantServices')}
           />
 
           <div className="overflow-x-auto rounded border border-[var(--border)]">
             <table className="w-full min-w-[480px] border-collapse text-sm">
               <thead>
                 <tr className="border-b border-[var(--border)] bg-[var(--code-bg)]">
-                  <th className="px-3 py-2 text-left font-medium text-[var(--text-h)]">Service</th>
-                  <th className="px-3 py-2 text-left font-medium text-[var(--text-h)]">Duration</th>
-                  <th className="px-3 py-2 text-left font-medium text-[var(--text-h)]">Price</th>
-                  <th className="px-3 py-2 text-left font-medium text-[var(--text-h)]">Active</th>
+                  <th className="px-3 py-2 text-left font-medium text-[var(--text-h)]">
+                    {t('common.service')}
+                  </th>
+                  <th className="px-3 py-2 text-left font-medium text-[var(--text-h)]">
+                    {t('common.duration')}
+                  </th>
+                  <th className="px-3 py-2 text-left font-medium text-[var(--text-h)]">
+                    {t('common.price')}
+                  </th>
+                  <th className="px-3 py-2 text-left font-medium text-[var(--text-h)]">
+                    {t('common.active')}
+                  </th>
                 </tr>
               </thead>
               <tbody>
                 {(assignments ?? []).length === 0 ? (
                   <tr>
                     <td colSpan={4} className="px-3 py-6 text-center text-[var(--text)]">
-                      No services assigned yet.
+                      {t('resourceDetail.services.empty')}
                     </td>
                   </tr>
                 ) : (
@@ -130,10 +138,14 @@ export function ResourceServicesSection({ resourceId }: { resourceId: string }) 
                     <tr key={a.id} className="border-b border-[var(--border)] last:border-b-0">
                       <td className="px-3 py-2 text-[var(--text-h)]">{a.service.name}</td>
                       <td className="px-3 py-2 text-[var(--text)]">
-                        {a.durationOverride ?? a.service.durationMinutes} min
+                        {t('common.minutes', {
+                          count: a.durationOverride ?? a.service.durationMinutes,
+                        })}
                       </td>
                       <td className="px-3 py-2 text-[var(--text)]">{formatPrice(a.price)}</td>
-                      <td className="px-3 py-2 text-[var(--text)]">{a.isActive ? 'Yes' : 'No'}</td>
+                      <td className="px-3 py-2 text-[var(--text)]">
+                        {a.isActive ? t('common.yes') : t('common.no')}
+                      </td>
                     </tr>
                   ))
                 )}
@@ -144,15 +156,15 @@ export function ResourceServicesSection({ resourceId }: { resourceId: string }) 
           {!servicesPending && !servicesError && tenantServicesOrdered.length > 0 ? (
             <div className="flex flex-col gap-3 border-t border-[var(--border)] pt-4">
               <p className="text-sm font-medium text-[var(--text-h)]">
-                {(assignments ?? []).length === 0 ? 'Assign a service' : 'Assign another service'}
+                {(assignments ?? []).length === 0
+                  ? t('resourceDetail.services.assignFirst')
+                  : t('resourceDetail.services.assignAnother')}
               </p>
-              <p className="text-xs text-[var(--text)]">
-                All services for your salon are listed below. Already assigned ones are disabled.
-              </p>
+              <p className="text-xs text-[var(--text)]">{t('resourceDetail.services.hint')}</p>
               <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
                 <div>
                   <label htmlFor="assign-service" className="mb-1 block text-sm text-[var(--text)]">
-                    Service
+                    {t('common.service')}
                   </label>
                   <select
                     id="assign-service"
@@ -160,33 +172,33 @@ export function ResourceServicesSection({ resourceId }: { resourceId: string }) 
                     value={serviceId}
                     onChange={(e) => setServiceId(e.target.value)}
                   >
-                    <option value="">Select…</option>
+                    <option value="">{t('common.selectPlaceholder')}</option>
                     {tenantServicesOrdered.map((s) => {
                       const taken = assignedServiceIds.has(s.id)
                       return (
                         <option key={s.id} value={s.id} disabled={taken}>
-                          {s.name} ({s.durationMinutes} min)
-                          {taken ? ' — already assigned' : ''}
+                          {s.name} ({t('common.minutes', { count: s.durationMinutes })})
+                          {taken ? t('resourceDetail.services.optionAssigned') : ''}
                         </option>
                       )
                     })}
                   </select>
                 </div>
                 <FormField
-                  label="Price"
+                  label={t('common.price')}
                   type="text"
                   inputMode="decimal"
                   value={price}
                   onChange={(e) => setPrice(e.target.value)}
-                  placeholder="e.g. 25.00"
+                  placeholder={t('resourceDetail.services.pricePlaceholder')}
                 />
                 <FormField
-                  label="Duration override (optional)"
+                  label={t('resourceDetail.services.durationOverride')}
                   type="number"
                   min={1}
                   value={durationOverride}
                   onChange={(e) => setDurationOverride(e.target.value)}
-                  placeholder="Minutes"
+                  placeholder={t('resourceDetail.services.durationPlaceholder')}
                 />
                 <div className="flex items-end">
                   <Button
@@ -199,7 +211,7 @@ export function ResourceServicesSection({ resourceId }: { resourceId: string }) 
                     }
                     onClick={() => void onAssign()}
                   >
-                    {assignMutation.isPending ? 'Assigning…' : 'Assign'}
+                    {assignMutation.isPending ? t('common.assigning') : t('common.assign')}
                   </Button>
                 </div>
               </div>
@@ -207,9 +219,7 @@ export function ResourceServicesSection({ resourceId }: { resourceId: string }) 
             </div>
           ) : !servicesPending && !servicesError ? (
             <p className="text-sm text-[var(--text)]">
-              {tenantServicesOrdered.length === 0
-                ? 'Create services under your tenant before assigning them here.'
-                : null}
+              {tenantServicesOrdered.length === 0 ? t('resourceDetail.services.noTenantServices') : null}
             </p>
           ) : null}
         </>

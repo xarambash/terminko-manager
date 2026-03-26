@@ -1,13 +1,17 @@
 import { Link } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { PageTitle } from './PageTitle'
 import type { PageSectionHeaderProps } from '../../types'
 
 export function PageSectionHeader({
   title,
   backTo = '/',
-  backLabel = '← Dashboard',
+  backLabel,
   actions,
 }: PageSectionHeaderProps) {
+  const { t } = useTranslation()
+  const resolvedBack = backLabel ?? t('nav.backDashboard')
+
   return (
     <div className="flex flex-wrap items-center justify-between gap-4">
       <div className="flex items-center gap-4">
@@ -15,7 +19,7 @@ export function PageSectionHeader({
           to={backTo}
           className="text-sm text-[var(--text)] transition hover:text-[var(--text-h)]"
         >
-          {backLabel}
+          {resolvedBack}
         </Link>
         <PageTitle>{title}</PageTitle>
       </div>

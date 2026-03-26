@@ -1,19 +1,25 @@
 import { useMemo, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Button } from '../ui/Button'
 import { Card } from '../ui/Card'
 import { FormError } from '../ui/FormError'
 import { FormField } from '../ui/FormField'
 import { QueryStatusBanner } from '../ui/QueryStatusBanner'
 import { useCreateWorkingHour, useResourceWorkingHours } from '../../hooks'
+import { calendarLocaleFromLng } from '../../lib/dateLocale'
 import { extractServerError } from '../../lib/errors'
 import {
-  DAY_NAMES,
+  formatWeekdayLong,
   inputSelectClass,
   parseTimeToMinutes,
   timeRe,
-} from './resourceDetailUtils'
+} from '../../lib/resourceDetailUtils'
+
+const WEEKDAY_INDICES = [0, 1, 2, 3, 4, 5, 6] as const
 
 export function ResourceWorkingHoursSection({ resourceId }: { resourceId: string }) {
+  const { t, i18n } = useTranslation()
+  const calLocale = calendarLocaleFromLng(i18n.language)
   const { data: rows, isPending, isError, error } = useResourceWorkingHours(resourceId)
   const createMutation = useCreateWorkingHour(resourceId)
 
@@ -30,11 +36,11 @@ export function ResourceWorkingHoursSection({ resourceId }: { resourceId: string
   const onAdd = async () => {
     resetMutationState()
     if (!timeRe.test(startTime) || !timeRe.test(endTime)) {
-      setFormError('Use HH:MM format for times (e.g. 09:00)')
+      setFormError(t('resourceDetail.workingHours.validationTime'))
       return
     }
     if (parseTimeToMinutes(endTime) <= parseTimeToMinutes(startTime)) {
-      setFormError('End time must be after start time')
+      setFormError(t('resourceDetail.workingHours.validationOrder'))
       return
     }
     const day = Number.parseInt(dayOfWeek, 10)
@@ -45,7 +51,7 @@ export function ResourceWorkingHoursSection({ resourceId }: { resourceId: string
         endTime,
       })
     } catch (err: unknown) {
-      setFormError(extractServerError(err) ?? 'Could not add working hours')
+      setFormError(extractServerError(err) ?? t('resourceDetail.workingHours.errorAdd'))
     }
   }
 
@@ -59,17 +65,15 @@ export function ResourceWorkingHoursSection({ resourceId }: { resourceId: string
   }, [rows])
 
   return (
-    <Card className="flex flex-col gap-4 p-6">
-      <h2 className="text-lg font-medium text-[var(--text-h)]">Working hours</h2>
-      <p className="text-sm text-[var(--text)]">
-        Add one or more intervals per weekday. Day: 0 = Sunday through 6 = Saturday.
-      </p>
+    <Card className="flex flex-col gap-4 p-4 sm:p-6">
+      <h2 className="text-lg font-medium text-[var(--text-h)]">{t('resourceDetail.workingHours.title')}</h2>
+      <p className="text-sm text-[var(--text)]">{t('resourceDetail.workingHours.description')}</p>
 
       <QueryStatusBanner
         isPending={isPending}
         isError={isError}
         error={error}
-        loadingText="Loading working hours…"
+        loadingText={t('loading.workingHours')}
       />
 
       {!isPending && !isError && (
@@ -78,23 +82,29 @@ export function ResourceWorkingHoursSection({ resourceId }: { resourceId: string
             <table className="w-full min-w-[400px] border-collapse text-sm">
               <thead>
                 <tr className="border-b border-[var(--border)] bg-[var(--code-bg)]">
-                  <th className="px-3 py-2 text-left font-medium text-[var(--text-h)]">Day</th>
-                  <th className="px-3 py-2 text-left font-medium text-[var(--text-h)]">Start</th>
-                  <th className="px-3 py-2 text-left font-medium text-[var(--text-h)]">End</th>
+                  <th className="px-3 py-2 text-left font-medium text-[var(--text-h)]">
+                    {t('common.day')}
+                  </th>
+                  <th className="px-3 py-2 text-left font-medium text-[var(--text-h)]">
+                    {t('common.start')}
+                  </th>
+                  <th className="px-3 py-2 text-left font-medium text-[var(--text-h)]">
+                    {t('common.end')}
+                  </th>
                 </tr>
               </thead>
               <tbody>
                 {sorted.length === 0 ? (
                   <tr>
                     <td colSpan={3} className="px-3 py-6 text-center text-[var(--text)]">
-                      No working hours yet.
+                      {t('resourceDetail.workingHours.empty')}
                     </td>
                   </tr>
                 ) : (
                   sorted.map((w) => (
                     <tr key={w.id} className="border-b border-[var(--border)] last:border-b-0">
                       <td className="px-3 py-2 text-[var(--text-h)]">
-                        {DAY_NAMES[w.dayOfWeek] ?? w.dayOfWeek}
+                        {formatWeekdayLong(w.dayOfWeek, calLocale)}
                       </td>
                       <td className="px-3 py-2 text-[var(--text)]">{w.startTime}</td>
                       <td className="px-3 py-2 text-[var(--text)]">{w.endTime}</td>
@@ -106,11 +116,13 @@ export function ResourceWorkingHoursSection({ resourceId }: { resourceId: string
           </div>
 
           <div className="flex flex-col gap-3 border-t border-[var(--border)] pt-4">
-            <p className="text-sm font-medium text-[var(--text-h)]">Add interval</p>
+            <p className="text-sm font-medium text-[var(--text-h)]">
+              {t('resourceDetail.workingHours.addInterval')}
+            </p>
             <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
               <div>
                 <label htmlFor="wh-day" className="mb-1 block text-sm text-[var(--text)]">
-                  Day
+                  {t('common.day')}
                 </label>
                 <select
                   id="wh-day"
@@ -118,21 +130,21 @@ export function ResourceWorkingHoursSection({ resourceId }: { resourceId: string
                   value={dayOfWeek}
                   onChange={(e) => setDayOfWeek(e.target.value)}
                 >
-                  {DAY_NAMES.map((name, i) => (
-                    <option key={name} value={String(i)}>
-                      {name}
+                  {WEEKDAY_INDICES.map((i) => (
+                    <option key={i} value={String(i)}>
+                      {formatWeekdayLong(i, calLocale)}
                     </option>
                   ))}
                 </select>
               </div>
               <FormField
-                label="Start (HH:MM)"
+                label={t('resourceDetail.workingHours.startLabel')}
                 value={startTime}
                 onChange={(e) => setStartTime(e.target.value)}
                 placeholder="09:00"
               />
               <FormField
-                label="End (HH:MM)"
+                label={t('resourceDetail.workingHours.endLabel')}
                 value={endTime}
                 onChange={(e) => setEndTime(e.target.value)}
                 placeholder="17:00"
@@ -144,7 +156,7 @@ export function ResourceWorkingHoursSection({ resourceId }: { resourceId: string
                   disabled={createMutation.isPending}
                   onClick={() => void onAdd()}
                 >
-                  {createMutation.isPending ? 'Adding…' : 'Add'}
+                  {createMutation.isPending ? t('common.adding') : t('common.add')}
                 </Button>
               </div>
             </div>

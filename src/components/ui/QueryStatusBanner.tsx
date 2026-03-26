@@ -9,7 +9,11 @@ export function QueryStatusBanner({
 }: QueryStatusBannerProps) {
   if (isPending) {
     return (
-      <p className="text-sm text-[var(--text)]" role="status">
+      <p className="flex items-center gap-2 text-sm text-[var(--text)]" role="status">
+        <span
+          className="inline-block size-4 shrink-0 animate-spin rounded-full border-2 border-[var(--border)] border-t-[var(--accent)]"
+          aria-hidden
+        />
         {loadingText}
       </p>
     )
