@@ -34,7 +34,9 @@
     "firstName": "First name",
     "lastName": "Last name",
     "minutes": "{{count}} min",
-    "minutesShort": "min"
+    "minutesShort": "min",
+    "search": "Search",
+    "emptySearch": "No results match your search."
   },
   "nav": {
     "backDashboard": "← Dashboard",
@@ -43,6 +45,7 @@
     "dashboard": "Dashboard",
     "appointments": "Appointments",
     "services": "Services",
+    "guests": "Guests",
     "resources": "Resources"
   },
   "languages": {
@@ -58,7 +61,8 @@
     "workingHours": "Loading working hours…",
     "assignedServices": "Loading assigned services…",
     "tenantServices": "Loading tenant services…",
-    "services": "Loading services…"
+    "services": "Loading services…",
+    "guests": "Loading guests…"
   },
   "login": {
     "title": "Login",
@@ -78,11 +82,14 @@
     "resourcesTitle": "Resources",
     "resourcesDesc": "Manage staff and resources for your business",
     "servicesTitle": "Services",
-    "servicesDesc": "Define the services your business offers"
+    "servicesDesc": "Define the services your business offers",
+    "guestsTitle": "Guests",
+    "guestsDesc": "View registered guests, scores, and ban status"
   },
   "appointments": {
     "title": "Appointments",
     "empty": "No appointments yet.",
+    "searchPlaceholder": "Search by client, service, staff, status, notes…",
     "statusScheduled": "Scheduled",
     "statusCompleted": "Completed",
     "statusCanceled": "Canceled"
@@ -90,6 +97,7 @@
   "services": {
     "title": "Services",
     "createService": "Create service",
+    "searchPlaceholder": "Search by name, description…",
     "empty": "You don't have any services created.",
     "edit": "Edit",
     "delete": "Delete",
@@ -100,6 +108,7 @@
   "resources": {
     "title": "Resources",
     "createResource": "Create resource",
+    "searchPlaceholder": "Search by name, email, phone…",
     "empty": "No resources yet. Create one to get started.",
     "delete": "Delete",
     "deleteTitle": "Delete will be available in a future update"
@@ -176,6 +185,26 @@
     "title": "Delete service",
     "body": "Remove \"{{name}}\"? The server will not be updated until delete is implemented.",
     "confirm": "OK"
+  },
+  "guests": {
+    "title": "Guests",
+    "empty": "No guests registered yet.",
+    "searchPlaceholder": "Search by name, email, phone…",
+    "penaltyPoints": "Penalty points",
+    "bannedUntil": "Banned until",
+    "statusActive": "Active",
+    "statusBanned": "Banned",
+    "placeholderClose": "Close",
+    "ban": {
+      "title": "Ban guest",
+      "body": "Ban controls for \"{{name}}\" are not connected to the server yet. This dialog is a placeholder.",
+      "action": "Ban"
+    },
+    "unban": {
+      "title": "Unban guest",
+      "body": "Unban controls for \"{{name}}\" are not connected to the server yet. This dialog is a placeholder.",
+      "action": "Unban"
+    }
   },
   "createResource": {
     "title": "New resource",

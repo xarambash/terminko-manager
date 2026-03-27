@@ -3,7 +3,6 @@ import { useTranslation } from 'react-i18next'
 import {
   Button,
   Card,
-  CreateServiceModal,
   DataTable,
   DataTableBodyRow,
   DataTableEmptyCell,
@@ -11,58 +10,54 @@ import {
   DataTableScroll,
   DataTableTd,
   DataTableTh,
-  DeleteServiceConfirmModal,
-  EditServiceModal,
+  GuestActionPlaceholderModal,
   ListSearchField,
   PageSectionHeader,
   QueryStatusBanner,
 } from '../components'
 import { matchesTableSearch } from '../lib/tableSearch'
-import { useServices } from '../hooks'
-import type { Service } from '../types'
+import { useGuests } from '../hooks'
+import type { Guest } from '../types/guests'
 
 const pageClass = 'flex flex-1 flex-col gap-4 p-4 text-left sm:gap-6 sm:p-6 md:gap-8 md:p-8'
 
-function ServicesPage() {
-  const { t } = useTranslation()
-  const { data: services, isPending, isError, error } = useServices()
+function formatDate(iso: string | null, locale: string) {
+  if (!iso) return null
+  const d = new Date(iso)
+  if (Number.isNaN(d.getTime())) return null
+  return d.toLocaleDateString(locale, { day: 'numeric', month: 'short', year: 'numeric' })
+}
+
+function GuestsPage() {
+  const { t, i18n } = useTranslation()
+  const { data: guests, isPending, isError, error } = useGuests()
   const [search, setSearch] = useState('')
-  const [createOpen, setCreateOpen] = useState(false)
-  const [editService, setEditService] = useState<Service | null>(null)
-  const [deleteService, setDeleteService] = useState<Service | null>(null)
+  const [modal, setModal] = useState<{ guest: Guest; action: 'ban' | 'unban' } | null>(null)
 
   const sorted = useMemo(() => {
-    const list = [...(services ?? [])]
-    list.sort((a, b) => {
-      if (a.sortOrder !== b.sortOrder) return a.sortOrder - b.sortOrder
-      return a.name.localeCompare(b.name)
-    })
+    const list = [...(guests ?? [])]
+    list.sort((a, b) => a.name.localeCompare(b.name))
     return list
-  }, [services])
+  }, [guests])
 
   const filtered = useMemo(
     () =>
-      sorted.filter((s) =>
-        matchesTableSearch(search, [s.name, s.description ?? '', s.durationMinutes, s.sortOrder])
+      sorted.filter((g) =>
+        matchesTableSearch(search, [g.name, g.email, g.phone, g.notes ?? ''])
       ),
     [sorted, search]
   )
 
+  const locale = i18n.language === 'sr' ? 'sr-Latn-RS' : 'en-GB'
+
   return (
     <main className={pageClass}>
       <div className="flex flex-col gap-4">
-        <PageSectionHeader
-          title={t('services.title')}
-          actions={
-            <Button type="button" onClick={() => setCreateOpen(true)}>
-              {t('services.createService')}
-            </Button>
-          }
-        />
+        <PageSectionHeader title={t('guests.title')} />
         <ListSearchField
-          id="services-search"
+          id="guests-search"
           label={t('common.search')}
-          placeholder={t('services.searchPlaceholder')}
+          placeholder={t('guests.searchPlaceholder')}
           value={search}
           onChange={setSearch}
         />
@@ -72,20 +67,21 @@ function ServicesPage() {
         isPending={isPending}
         isError={isError}
         error={error}
-        loadingText={t('loading.services')}
+        loadingText={t('loading.guests')}
       />
 
       {!isPending && !isError && (
         <Card className="overflow-hidden p-0">
           <DataTableScroll variant="page">
-            <DataTable variant="page" minWidth={880}>
+            <DataTable variant="page" minWidth={960}>
               <thead>
                 <DataTableHeadRow variant="page">
                   <DataTableTh variant="page">{t('common.name')}</DataTableTh>
-                  <DataTableTh variant="page">{t('common.duration')}</DataTableTh>
-                  <DataTableTh variant="page">{t('services.description')}</DataTableTh>
-                  <DataTableTh variant="page">{t('common.active')}</DataTableTh>
-                  <DataTableTh variant="page">{t('services.sortOrder')}</DataTableTh>
+                  <DataTableTh variant="page">{t('common.email')}</DataTableTh>
+                  <DataTableTh variant="page">{t('common.phone')}</DataTableTh>
+                  <DataTableTh variant="page">{t('guests.penaltyPoints')}</DataTableTh>
+                  <DataTableTh variant="page">{t('common.status')}</DataTableTh>
+                  <DataTableTh variant="page">{t('guests.bannedUntil')}</DataTableTh>
                   <DataTableTh variant="page" align="right">
                     {t('common.actions')}
                   </DataTableTh>
@@ -94,33 +90,38 @@ function ServicesPage() {
               <tbody>
                 {sorted.length === 0 ? (
                   <tr>
-                    <DataTableEmptyCell variant="page" colSpan={6}>
-                      {t('services.empty')}
+                    <DataTableEmptyCell variant="page" colSpan={7}>
+                      {t('guests.empty')}
                     </DataTableEmptyCell>
                   </tr>
                 ) : filtered.length === 0 ? (
                   <tr>
-                    <DataTableEmptyCell variant="page" colSpan={6}>
+                    <DataTableEmptyCell variant="page" colSpan={7}>
                       {t('common.emptySearch')}
                     </DataTableEmptyCell>
                   </tr>
                 ) : (
-                  filtered.map((s) => (
-                    <DataTableBodyRow key={s.id}>
+                  filtered.map((g) => (
+                    <DataTableBodyRow key={g.id}>
                       <DataTableTd variant="page" className="text-[var(--text-h)]">
-                        {s.name}
+                        {g.name}
                       </DataTableTd>
                       <DataTableTd variant="page" className="text-[var(--text)]">
-                        {t('common.minutes', { count: s.durationMinutes })}
-                      </DataTableTd>
-                      <DataTableTd variant="page" className="max-w-[220px] truncate text-[var(--text)]">
-                        {s.description ?? t('common.dash')}
+                        {g.email}
                       </DataTableTd>
                       <DataTableTd variant="page" className="text-[var(--text)]">
-                        {s.isActive ? t('common.yes') : t('common.no')}
+                        {g.phone}
                       </DataTableTd>
                       <DataTableTd variant="page" className="text-[var(--text)]">
-                        {s.sortOrder}
+                        {g.penaltyPoints}
+                      </DataTableTd>
+                      <DataTableTd variant="page" className="text-[var(--text)]">
+                        {g.isBanned ? t('guests.statusBanned') : t('guests.statusActive')}
+                      </DataTableTd>
+                      <DataTableTd variant="page" className="text-[var(--text)]">
+                        {g.isBanned && g.bannedUntil
+                          ? formatDate(g.bannedUntil, locale) ?? t('common.dash')
+                          : t('common.dash')}
                       </DataTableTd>
                       <DataTableTd variant="page" align="right">
                         <div className="flex justify-end gap-2">
@@ -128,17 +129,19 @@ function ServicesPage() {
                             type="button"
                             variant="secondary"
                             className="px-3 py-1.5 text-xs"
-                            onClick={() => setEditService(s)}
+                            disabled={g.isBanned}
+                            onClick={() => setModal({ guest: g, action: 'ban' })}
                           >
-                            {t('services.edit')}
+                            {t('guests.ban.action')}
                           </Button>
                           <Button
                             type="button"
                             variant="secondary"
                             className="px-3 py-1.5 text-xs"
-                            onClick={() => setDeleteService(s)}
+                            disabled={!g.isBanned}
+                            onClick={() => setModal({ guest: g, action: 'unban' })}
                           >
-                            {t('services.delete')}
+                            {t('guests.unban.action')}
                           </Button>
                         </div>
                       </DataTableTd>
@@ -151,22 +154,14 @@ function ServicesPage() {
         </Card>
       )}
 
-      <CreateServiceModal open={createOpen} onClose={() => setCreateOpen(false)} />
-
-      <EditServiceModal
-        open={editService != null}
-        onClose={() => setEditService(null)}
-        service={editService}
-      />
-
-      <DeleteServiceConfirmModal
-        open={deleteService != null}
-        onClose={() => setDeleteService(null)}
-        serviceName={deleteService?.name ?? ''}
-        onConfirm={() => {}}
+      <GuestActionPlaceholderModal
+        open={modal != null}
+        onClose={() => setModal(null)}
+        guestName={modal?.guest.name ?? ''}
+        action={modal?.action ?? 'ban'}
       />
     </main>
   )
 }
 
-export default ServicesPage
+export default GuestsPage

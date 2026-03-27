@@ -1,4 +1,4 @@
-import { useState, type KeyboardEvent } from 'react'
+import { useMemo, useState, type KeyboardEvent } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
 import {
@@ -12,9 +12,11 @@ import {
   DataTableScroll,
   DataTableTd,
   DataTableTh,
+  ListSearchField,
   PageSectionHeader,
   QueryStatusBanner,
 } from '../components'
+import { matchesTableSearch } from '../lib/tableSearch'
 import { useResources } from '../hooks'
 
 const pageClass = 'flex flex-1 flex-col gap-4 p-4 text-left sm:gap-6 sm:p-6 md:gap-8 md:p-8'
@@ -22,19 +24,47 @@ const pageClass = 'flex flex-1 flex-col gap-4 p-4 text-left sm:gap-6 sm:p-6 md:g
 function ResourcesPage() {
   const { t } = useTranslation()
   const navigate = useNavigate()
+  const [search, setSearch] = useState('')
   const [modalOpen, setModalOpen] = useState(false)
   const { data: resources, isPending, isError, error } = useResources()
 
+  const sorted = useMemo(() => {
+    const list = [...(resources ?? [])]
+    list.sort((a, b) => {
+      const an = `${a.firstName} ${a.lastName}`.trim()
+      const bn = `${b.firstName} ${b.lastName}`.trim()
+      return an.localeCompare(bn)
+    })
+    return list
+  }, [resources])
+
+  const filtered = useMemo(
+    () =>
+      sorted.filter((r) =>
+        matchesTableSearch(search, [r.firstName, r.lastName, r.email ?? '', r.phone ?? ''])
+      ),
+    [sorted, search]
+  )
+
   return (
     <main className={pageClass}>
-      <PageSectionHeader
-        title={t('resources.title')}
-        actions={
-          <Button type="button" onClick={() => setModalOpen(true)}>
-            {t('resources.createResource')}
-          </Button>
-        }
-      />
+      <div className="flex flex-col gap-4">
+        <PageSectionHeader
+          title={t('resources.title')}
+          actions={
+            <Button type="button" onClick={() => setModalOpen(true)}>
+              {t('resources.createResource')}
+            </Button>
+          }
+        />
+        <ListSearchField
+          id="resources-search"
+          label={t('common.search')}
+          placeholder={t('resources.searchPlaceholder')}
+          value={search}
+          onChange={setSearch}
+        />
+      </div>
 
       <QueryStatusBanner
         isPending={isPending}
@@ -59,14 +89,20 @@ function ResourcesPage() {
                 </DataTableHeadRow>
               </thead>
               <tbody>
-                {(resources ?? []).length === 0 ? (
+                {sorted.length === 0 ? (
                   <tr>
                     <DataTableEmptyCell variant="page" colSpan={5}>
                       {t('resources.empty')}
                     </DataTableEmptyCell>
                   </tr>
+                ) : filtered.length === 0 ? (
+                  <tr>
+                    <DataTableEmptyCell variant="page" colSpan={5}>
+                      {t('common.emptySearch')}
+                    </DataTableEmptyCell>
+                  </tr>
                 ) : (
-                  (resources ?? []).map((r) => (
+                  filtered.map((r) => (
                     <DataTableBodyRow
                       key={r.id}
                       hoverable

@@ -35,6 +35,9 @@ export function AppNav() {
             <NavLink to="/services" className={navClass}>
               {t('nav.services')}
             </NavLink>
+            <NavLink to="/guests" className={navClass}>
+              {t('nav.guests')}
+            </NavLink>
             <NavLink to="/resources" className={navClass}>
               {t('nav.resources')}
             </NavLink>

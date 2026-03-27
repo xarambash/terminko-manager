@@ -29,6 +29,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const logout = () => {
     queryClient.removeQueries({ queryKey: ['appointments'] })
+    queryClient.removeQueries({ queryKey: ['guests'] })
     clearAuth()
     setUser(null)
     setAuthenticated(false)

@@ -27,6 +27,12 @@ function DashboardPage() {
               </h2>
               <p className="text-sm text-[var(--text)]">{t('dashboard.servicesDesc')}</p>
             </Card>
+            <Card to="/guests" className="p-4 sm:p-6">
+              <h2 className="mb-2 text-lg font-medium text-[var(--text-h)]">
+                {t('dashboard.guestsTitle')}
+              </h2>
+              <p className="text-sm text-[var(--text)]">{t('dashboard.guestsDesc')}</p>
+            </Card>
             <Card to="/resources" className="p-4 sm:p-6">
               <h2 className="mb-2 text-lg font-medium text-[var(--text-h)]">
                 {t('dashboard.resourcesTitle')}

@@ -30,6 +30,7 @@ function ResourceDetailPage() {
     <main className={pageClass}>
       <PageSectionHeader
         title={title}
+        showBackLink
         backTo="/resources"
         backLabel={t('nav.backResources')}
       />

@@ -8,6 +8,7 @@ import {
   ResourcesPage,
   ResourceDetailPage,
   ServicesPage,
+  GuestsPage,
 } from './pages'
 import { OwnerRoute } from './components/OwnerRoute'
 
@@ -23,6 +24,14 @@ function App() {
           element={
             <OwnerRoute>
               <ServicesPage />
+            </OwnerRoute>
+          }
+        />
+        <Route
+          path="guests"
+          element={
+            <OwnerRoute>
+              <GuestsPage />
             </OwnerRoute>
           }
         />

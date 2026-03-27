@@ -34,7 +34,9 @@
     "firstName": "Ime",
     "lastName": "Prezime",
     "minutes": "{{count}} min",
-    "minutesShort": "min"
+    "minutesShort": "min",
+    "search": "Pretraga",
+    "emptySearch": "Nema rezultata koji odgovaraju pretrazi."
   },
   "nav": {
     "backDashboard": "← Kontrolna tabla",
@@ -43,6 +45,7 @@
     "dashboard": "Kontrolna tabla",
     "appointments": "Termini",
     "services": "Usluge",
+    "guests": "Gosti",
     "resources": "Resursi"
   },
   "languages": {
@@ -58,7 +61,8 @@
     "workingHours": "Učitavanje radnog vremena…",
     "assignedServices": "Učitavanje dodeljenih usluga…",
     "tenantServices": "Učitavanje usluga salona…",
-    "services": "Učitavanje usluga…"
+    "services": "Učitavanje usluga…",
+    "guests": "Učitavanje gostiju…"
   },
   "login": {
     "title": "Prijava",
@@ -78,11 +82,14 @@
     "resourcesTitle": "Resursi",
     "resourcesDesc": "Upravljanje osobljem i resursima vašeg posla",
     "servicesTitle": "Usluge",
-    "servicesDesc": "Definišite usluge koje vaš biznis nudi"
+    "servicesDesc": "Definišite usluge koje vaš biznis nudi",
+    "guestsTitle": "Gosti",
+    "guestsDesc": "Pregled registrovanih gostiju, bodova i statusa"
   },
   "appointments": {
     "title": "Termini",
     "empty": "Još nema termina.",
+    "searchPlaceholder": "Pretraži po klijentu, usluzi, osoblju, statusu, napomenama…",
     "statusScheduled": "Zakazano",
     "statusCompleted": "Završeno",
     "statusCanceled": "Otkazano"
@@ -90,6 +97,7 @@
   "services": {
     "title": "Usluge",
     "createService": "Nova usluga",
+    "searchPlaceholder": "Pretraži po nazivu, opisu…",
     "empty": "Još niste kreirali nijednu uslugu.",
     "edit": "Izmeni",
     "delete": "Obriši",
@@ -100,6 +108,7 @@
   "resources": {
     "title": "Resursi",
     "createResource": "Novi resurs",
+    "searchPlaceholder": "Pretraži po imenu, e-pošti, telefonu…",
     "empty": "Još nema resursa. Kreirajte jedan da počnete.",
     "delete": "Obriši",
     "deleteTitle": "Brisanje će biti dostupno u budućem ažuriranju"
@@ -176,6 +185,26 @@
     "title": "Brisanje usluge",
     "body": "Ukloniti „{{name}}“? Server se neće ažurirati dok brisanje ne bude implementirano.",
     "confirm": "U redu"
+  },
+  "guests": {
+    "title": "Gosti",
+    "empty": "Još nema registrovanih gostiju.",
+    "searchPlaceholder": "Pretraži po imenu, e-pošti, telefonu…",
+    "penaltyPoints": "Kazneni bodovi",
+    "bannedUntil": "Blokada do",
+    "statusActive": "Aktivan",
+    "statusBanned": "Blokiran",
+    "placeholderClose": "Zatvori",
+    "ban": {
+      "title": "Blokiranje gosta",
+      "body": "Kontrole za blokiranje „{{name}}“ još nisu povezane sa serverom. Ovaj dijalog je privremen.",
+      "action": "Blokiraj"
+    },
+    "unban": {
+      "title": "Deblokiranje gosta",
+      "body": "Kontrole za deblokiranje „{{name}}“ još nisu povezane sa serverom. Ovaj dijalog je privremen.",
+      "action": "Deblokiraj"
+    }
   },
   "createResource": {
     "title": "Novi resurs",

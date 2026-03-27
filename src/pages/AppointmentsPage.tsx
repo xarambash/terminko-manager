@@ -1,4 +1,4 @@
-import { useMemo } from 'react'
+import { useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import {
   Card,
@@ -9,12 +9,14 @@ import {
   DataTableScroll,
   DataTableTd,
   DataTableTh,
+  ListSearchField,
   PageSectionHeader,
   QueryStatusBanner,
 } from '../components'
 import { calendarLocaleFromLng } from '../lib/dateLocale'
+import { matchesTableSearch } from '../lib/tableSearch'
 import { useAppointments } from '../hooks'
-import type { AppointmentStatus } from '../types'
+import type { AppointmentStatus, AppointmentWithRelations } from '../types'
 
 const pageClass = 'flex flex-1 flex-col gap-4 p-4 text-left sm:gap-6 sm:p-6 md:gap-8 md:p-8'
 
@@ -54,6 +56,26 @@ function normalizeStatus(status: string): AppointmentStatus | null {
   return null
 }
 
+function appointmentMatchesSearch(
+  apt: AppointmentWithRelations,
+  raw: string,
+  statusLabels: Record<AppointmentStatus, string>
+) {
+  const normalized = normalizeStatus(apt.status)
+  const statusText = normalized ? statusLabels[normalized] : apt.status
+  return matchesTableSearch(raw, [
+    apt.guest.name,
+    apt.guest.email,
+    apt.service.name,
+    apt.resource.firstName,
+    apt.resource.lastName,
+    apt.status,
+    statusText,
+    apt.notes ?? '',
+    apt.startAt,
+  ])
+}
+
 function StatusBadge({
   status,
   labels,
@@ -85,10 +107,26 @@ function AppointmentsPage() {
   const statusLabels = useAppointmentStatusLabels()
   const calLocale = calendarLocaleFromLng(i18n.language)
   const { data: appointments, isPending, isError, error } = useAppointments()
+  const [search, setSearch] = useState('')
+
+  const list = appointments ?? []
+  const filtered = useMemo(
+    () => list.filter((apt) => appointmentMatchesSearch(apt, search, statusLabels)),
+    [list, search, statusLabels]
+  )
 
   return (
     <main className={pageClass}>
-      <PageSectionHeader title={t('appointments.title')} />
+      <div className="flex flex-col gap-4">
+        <PageSectionHeader title={t('appointments.title')} />
+        <ListSearchField
+          id="appointments-search"
+          label={t('common.search')}
+          placeholder={t('appointments.searchPlaceholder')}
+          value={search}
+          onChange={setSearch}
+        />
+      </div>
 
       <QueryStatusBanner
         isPending={isPending}
@@ -112,14 +150,20 @@ function AppointmentsPage() {
                 </DataTableHeadRow>
               </thead>
               <tbody>
-                {(appointments ?? []).length === 0 ? (
+                {list.length === 0 ? (
                   <tr>
                     <DataTableEmptyCell variant="page" colSpan={6}>
                       {t('appointments.empty')}
                     </DataTableEmptyCell>
                   </tr>
+                ) : filtered.length === 0 ? (
+                  <tr>
+                    <DataTableEmptyCell variant="page" colSpan={6}>
+                      {t('common.emptySearch')}
+                    </DataTableEmptyCell>
+                  </tr>
                 ) : (
-                  (appointments ?? []).map((apt) => (
+                  filtered.map((apt) => (
                     <DataTableBodyRow key={apt.id} hoverable>
                       <DataTableTd variant="page" className="text-[var(--text-h)]">
                         {formatAppointmentDate(apt.startAt, calLocale)}

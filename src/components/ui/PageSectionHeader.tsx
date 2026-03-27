@@ -1,26 +1,32 @@
 import { Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
+import { ArrowLeftIcon } from 'lucide-react'
 import { PageTitle } from './PageTitle'
 import type { PageSectionHeaderProps } from '../../types'
 
 export function PageSectionHeader({
   title,
+  showBackLink = false,
   backTo = '/',
   backLabel,
   actions,
 }: PageSectionHeaderProps) {
   const { t } = useTranslation()
-  const resolvedBack = backLabel ?? t('nav.backDashboard')
+  const backAriaLabel = backLabel ?? t('nav.backDashboard')
 
   return (
     <div className="flex flex-wrap items-center justify-between gap-4">
       <div className="flex items-center gap-4">
-        <Link
-          to={backTo}
-          className="text-sm text-[var(--text)] transition hover:text-[var(--text-h)]"
-        >
-          {resolvedBack}
-        </Link>
+        {showBackLink && (
+          <Link
+            to={backTo}
+            className="inline-flex shrink-0 items-center justify-center rounded-md p-2 text-[var(--text)] transition hover:bg-[var(--code-bg)] hover:text-[var(--text-h)]"
+            aria-label={backAriaLabel}
+            title={backAriaLabel}
+          >
+            <ArrowLeftIcon className="size-5" aria-hidden />
+          </Link>
+        )}
         <PageTitle>{title}</PageTitle>
       </div>
       {actions}
