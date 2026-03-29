@@ -1,4 +1,5 @@
 export { useAuth } from './useAuth'
+export { useTenant } from './useTenant'
 export { useAppointments } from './useAppointments'
 export { useResources, useCreateResource } from './useResources'
 export { useServices, useCreateService } from './useServices'

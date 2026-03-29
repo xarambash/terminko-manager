@@ -9,6 +9,7 @@ export type {
 
 export type { Service, CreateServicePayload } from './services'
 export type { Guest } from './guests'
+export type { Tenant } from './tenant'
 export type {
   ResourceServiceAssignment,
   ResourceWorkingHour,

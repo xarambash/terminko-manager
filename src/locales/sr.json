@@ -39,13 +39,11 @@
     "emptySearch": "Nema rezultata koji odgovaraju pretrazi."
   },
   "nav": {
-    "backDashboard": "← Kontrolna tabla",
+    "backAppointments": "← Termini",
     "backResources": "← Resursi",
     "mainAria": "Glavna navigacija",
-    "sidebarSection": "Aplikacija",
     "openMenu": "Otvori meni navigacije",
     "closeMenu": "Zatvori meni navigacije",
-    "dashboard": "Kontrolna tabla",
     "appointments": "Termini",
     "services": "Usluge",
     "guests": "Gosti",
@@ -77,17 +75,6 @@
       "invalidEmail": "Neispravna e-pošta",
       "passwordRequired": "Lozinka je obavezna"
     }
-  },
-  "dashboard": {
-    "title": "Kontrolna tabla",
-    "appointmentsTitle": "Termini",
-    "appointmentsDesc": "Pregled i upravljanje terminima",
-    "resourcesTitle": "Resursi",
-    "resourcesDesc": "Upravljanje osobljem i resursima vašeg posla",
-    "servicesTitle": "Usluge",
-    "servicesDesc": "Definišite usluge koje vaš biznis nudi",
-    "guestsTitle": "Gosti",
-    "guestsDesc": "Pregled registrovanih gostiju, bodova i statusa"
   },
   "appointments": {
     "title": "Termini",

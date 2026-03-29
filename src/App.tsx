@@ -3,7 +3,6 @@ import { AppLayout } from './components/AppLayout'
 import { ProtectedRoute } from './components/ProtectedRoute'
 import {
   LoginPage,
-  DashboardPage,
   AppointmentsPage,
   ResourcesPage,
   ResourceDetailPage,
@@ -17,7 +16,7 @@ function App() {
     <Routes>
       <Route path="/login" element={<LoginPage />} />
       <Route path="/" element={<ProtectedRoute><AppLayout /></ProtectedRoute>}>
-        <Route index element={<DashboardPage />} />
+        <Route index element={<Navigate to="/appointments" replace />} />
         <Route path="appointments" element={<AppointmentsPage />} />
         <Route
           path="services"
@@ -52,7 +51,7 @@ function App() {
           }
         />
       </Route>
-      <Route path="*" element={<Navigate to="/" replace />} />
+      <Route path="*" element={<Navigate to="/appointments" replace />} />
     </Routes>
   )
 }

@@ -1,4 +1,5 @@
 export { AppLayout } from './AppLayout'
+export { TenantBrandName } from './TenantBrandName'
 export { ProtectedRoute } from './ProtectedRoute'
 export { OwnerRoute } from './OwnerRoute'
 export { CreateResourceModal } from './CreateResourceModal'

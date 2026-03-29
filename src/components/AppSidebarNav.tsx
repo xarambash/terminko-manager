@@ -30,17 +30,8 @@ export function AppSidebarNav({ onNavigate }: AppSidebarNavProps) {
       <ul className="space-y-px">
         <li>
           <NavLink
-            to="/"
-            end
-            className={sidebarLinkClass}
-            onClick={onNavigate}
-          >
-            {t('nav.dashboard')}
-          </NavLink>
-        </li>
-        <li>
-          <NavLink
             to="/appointments"
+            end
             className={sidebarLinkClass}
             onClick={onNavigate}
           >

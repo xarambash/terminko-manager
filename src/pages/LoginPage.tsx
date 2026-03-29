@@ -39,7 +39,8 @@ function LoginForm() {
   const onSubmit = async (data: LoginForm) => {
     try {
       await login(data.email, data.password)
-      const from = (location.state as { from?: { pathname: string } })?.from?.pathname ?? '/'
+      const from =
+        (location.state as { from?: { pathname: string } })?.from?.pathname ?? '/appointments'
       navigate(from, { replace: true })
     } catch (err: unknown) {
       const message = extractServerError(err)
@@ -88,7 +89,7 @@ function LoginPage() {
 
   useEffect(() => {
     if (isAuthenticated) {
-      navigate('/', { replace: true })
+      navigate('/appointments', { replace: true })
     }
   }, [isAuthenticated, navigate])
 

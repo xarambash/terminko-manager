@@ -6,6 +6,7 @@ import { useAuth } from '../hooks/useAuth'
 import { Button } from './ui/Button'
 import { LanguageSwitcher } from './ui/LanguageSwitcher'
 import { AppSidebarNav } from './AppSidebarNav'
+import { TenantBrandName } from './TenantBrandName'
 
 export function AppHeader() {
   const { t } = useTranslation()
@@ -43,10 +44,10 @@ export function AppHeader() {
             <Menu className="size-5 text-[var(--text)]" />
           </Button>
           <Link
-            to="/"
+            to="/appointments"
             className="min-w-0 shrink-0 text-sm font-semibold tracking-tight text-[var(--text-h)] no-underline hover:opacity-90"
           >
-            {t('common.appName')}
+            <TenantBrandName />
           </Link>
           <div className="ml-auto flex shrink-0 items-center gap-2 sm:gap-3">
             <LanguageSwitcher />

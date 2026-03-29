@@ -7,12 +7,12 @@ import type { PageSectionHeaderProps } from '../../types'
 export function PageSectionHeader({
   title,
   showBackLink = false,
-  backTo = '/',
+  backTo = '/appointments',
   backLabel,
   actions,
 }: PageSectionHeaderProps) {
   const { t } = useTranslation()
-  const backAriaLabel = backLabel ?? t('nav.backDashboard')
+  const backAriaLabel = backLabel ?? t('nav.backAppointments')
 
   return (
     <div className="flex flex-wrap items-center justify-between gap-4">

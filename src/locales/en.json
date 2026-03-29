@@ -39,13 +39,11 @@
     "emptySearch": "No results match your search."
   },
   "nav": {
-    "backDashboard": "← Dashboard",
+    "backAppointments": "← Appointments",
     "backResources": "← Resources",
     "mainAria": "Main navigation",
-    "sidebarSection": "Application",
     "openMenu": "Open navigation menu",
     "closeMenu": "Close navigation menu",
-    "dashboard": "Dashboard",
     "appointments": "Appointments",
     "services": "Services",
     "guests": "Guests",
@@ -77,17 +75,6 @@
       "invalidEmail": "Invalid email",
       "passwordRequired": "Password is required"
     }
-  },
-  "dashboard": {
-    "title": "Dashboard",
-    "appointmentsTitle": "Appointments",
-    "appointmentsDesc": "View and manage appointments",
-    "resourcesTitle": "Resources",
-    "resourcesDesc": "Manage staff and resources for your business",
-    "servicesTitle": "Services",
-    "servicesDesc": "Define the services your business offers",
-    "guestsTitle": "Guests",
-    "guestsDesc": "View registered guests, scores, and ban status"
   },
   "appointments": {
     "title": "Appointments",
