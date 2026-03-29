@@ -1,5 +1,4 @@
 export { AppLayout } from './AppLayout'
-export { AppNav } from './AppNav'
 export { ProtectedRoute } from './ProtectedRoute'
 export { OwnerRoute } from './OwnerRoute'
 export { CreateResourceModal } from './CreateResourceModal'

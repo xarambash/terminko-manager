@@ -1,29 +1,42 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
-@import "@fontsource-variable/geist";
 
 @custom-variant dark (&:is(.dark *));
 
-:root {
-  --text: #6b6375;
-  --text-h: #08060d;
-  --bg: #fff;
-  --border: oklch(0.922 0 0);
-  --code-bg: #f4f3ec;
-  --accent: oklch(0.97 0 0);
-  --accent-bg: rgba(170, 59, 255, 0.1);
-  --accent-border: rgba(170, 59, 255, 0.5);
-  --social-bg: rgba(244, 243, 236, 0.5);
-  --shadow:
-    rgba(0, 0, 0, 0.1) 0 10px 15px -3px, rgba(0, 0, 0, 0.05) 0 4px 6px -2px;
+/*
+  Palette aligned with Claude Code docs (Mintlify): code.claude.com/docs
+  — background-light #FDFDF7, background-dark #09090B, primary #0E0E0E, accent warm #D4A27F
+  — font: Anthropic Sans (loaded in index.html)
+*/
 
-  --sans: system-ui, 'Segoe UI', Roboto, sans-serif;
-  --heading: system-ui, 'Segoe UI', Roboto, sans-serif;
+:root {
+  --docs-primary: 14 14 14;
+  --docs-primary-light: 212 162 127;
+  --docs-bg-light: 253 253 247;
+  --docs-bg-dark: 9 9 11;
+
+  --text: rgb(112 112 112);
+  --text-h: rgb(23 23 23);
+  --bg: rgb(var(--docs-bg-light));
+  --border: rgb(222 222 222 / 0.85);
+  --code-bg: rgb(243 243 243);
+  --accent: rgb(14 14 14 / 0.08);
+  --accent-bg: rgb(14 14 14 / 0.1);
+  --accent-border: rgb(14 14 14 / 0.2);
+  --header-bg: rgb(253 253 247 / 0.92);
+  --header-border: rgb(0 0 0 / 0.06);
+  --shadow:
+    rgba(0, 0, 0, 0.06) 0 10px 15px -3px, rgba(0, 0, 0, 0.04) 0 4px 6px -2px;
+
+  --sans: "Anthropic Sans", -apple-system, BlinkMacSystemFont, "Segoe UI",
+    system-ui, sans-serif;
+  --heading: "Anthropic Sans", -apple-system, BlinkMacSystemFont, "Segoe UI",
+    system-ui, sans-serif;
   --mono: ui-monospace, Consolas, monospace;
 
-  font: 18px/145% var(--sans);
-  letter-spacing: 0.18px;
+  font: 16px/1.45 var(--sans);
+  letter-spacing: 0.01em;
   color-scheme: light dark;
   color: var(--text);
   background: var(--bg);
@@ -33,32 +46,31 @@
   -moz-osx-font-smoothing: grayscale;
 
   @media (max-width: 1024px) {
-    font-size: 16px;
+    font-size: 15px;
   }
 
-  /* shadcn — iste vrednosti kao app tokeni iznad */
   --background: var(--bg);
   --foreground: var(--text-h);
   --card: var(--bg);
   --card-foreground: var(--text-h);
   --popover: var(--bg);
   --popover-foreground: var(--text-h);
-  --primary: var(--text-h);
-  --primary-foreground: var(--bg);
+  --primary: rgb(var(--docs-primary));
+  --primary-foreground: rgb(var(--docs-bg-light));
   --secondary: var(--code-bg);
   --secondary-foreground: var(--text-h);
-  --muted: var(--accent);
+  --muted: rgb(243 243 243);
   --muted-foreground: var(--text);
   --accent-foreground: var(--text-h);
   --destructive: oklch(0.577 0.245 27.325);
   --input: var(--border);
-  --ring: var(--accent-border);
+  --ring: rgb(var(--docs-primary) / 0.35);
   --chart-1: var(--text-h);
   --chart-2: var(--text);
   --chart-3: var(--border);
   --chart-4: var(--code-bg);
-  --chart-5: var(--accent-border);
-  --radius: 0.625rem;
+  --chart-5: rgb(var(--docs-primary-light) / 0.5);
+  --radius: 0.75rem;
   --sidebar: var(--bg);
   --sidebar-foreground: var(--text-h);
   --sidebar-primary: var(--text-h);
@@ -66,22 +78,24 @@
   --sidebar-accent: var(--accent);
   --sidebar-accent-foreground: var(--text-h);
   --sidebar-border: var(--border);
-  --sidebar-ring: var(--accent-border);
+  --sidebar-ring: var(--ring);
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --text: #9ca3af;
-    --text-h: #f3f4f6;
-    --bg: #16171d;
-    --border: #2e303a;
-    --code-bg: #1f2028;
-    --accent: #c084fc;
-    --accent-bg: rgba(192, 132, 252, 0.15);
-    --accent-border: rgba(192, 132, 252, 0.5);
-    --social-bg: rgba(47, 48, 58, 0.5);
+    --text: rgb(158 158 158);
+    --text-h: rgb(229 229 229);
+    --bg: rgb(var(--docs-bg-dark));
+    --border: rgb(55 55 55 / 0.9);
+    --code-bg: rgb(24 24 27);
+    --accent: rgb(212 162 127 / 0.12);
+    --accent-bg: rgb(212 162 127 / 0.15);
+    --accent-border: rgb(212 162 127 / 0.45);
+    --header-bg: rgb(9 9 11 / 0.9);
+    --header-border: rgb(255 255 255 / 0.06);
     --shadow:
-      rgba(0, 0, 0, 0.4) 0 10px 15px -3px, rgba(0, 0, 0, 0.25) 0 4px 6px -2px;
+      rgba(0, 0, 0, 0.45) 0 10px 15px -3px,
+      rgba(0, 0, 0, 0.3) 0 4px 6px -2px;
 
     --background: var(--bg);
     --foreground: var(--text-h);
@@ -89,21 +103,21 @@
     --card-foreground: var(--text-h);
     --popover: var(--code-bg);
     --popover-foreground: var(--text-h);
-    --primary: var(--text-h);
-    --primary-foreground: var(--bg);
+    --primary: rgb(var(--docs-primary-light));
+    --primary-foreground: rgb(var(--docs-bg-dark));
     --secondary: var(--border);
     --secondary-foreground: var(--text-h);
-    --muted: var(--border);
+    --muted: rgb(39 39 42);
     --muted-foreground: var(--text);
     --accent-foreground: var(--text-h);
     --destructive: oklch(0.704 0.191 22.216);
     --input: var(--border);
-    --ring: var(--accent-border);
+    --ring: rgb(var(--docs-primary-light) / 0.45);
     --chart-1: var(--text-h);
     --chart-2: var(--text);
     --chart-3: var(--border);
     --chart-4: var(--code-bg);
-    --chart-5: var(--accent-border);
+    --chart-5: rgb(var(--docs-primary-light) / 0.5);
     --sidebar: var(--bg);
     --sidebar-foreground: var(--text-h);
     --sidebar-primary: var(--text-h);
@@ -111,7 +125,7 @@
     --sidebar-accent: var(--border);
     --sidebar-accent-foreground: var(--text-h);
     --sidebar-border: var(--border);
-    --sidebar-ring: var(--accent-border);
+    --sidebar-ring: var(--ring);
   }
 
   #social .button-icon {
@@ -120,11 +134,11 @@
 }
 
 #root {
-  width: 1126px;
-  max-width: 100%;
-  margin: 0 auto;
-  text-align: center;
-  border-inline: 1px solid var(--border);
+  width: 100%;
+  max-width: none;
+  margin: 0;
+  text-align: left;
+  border: none;
   min-height: 100svh;
   display: flex;
   flex-direction: column;
@@ -138,26 +152,25 @@ body {
 h1,
 h2 {
   font-family: var(--heading);
-  font-weight: 500;
+  font-weight: 600;
   color: var(--text-h);
 }
 
 h1 {
-  font-size: 56px;
-  letter-spacing: -1.68px;
-  margin: 32px 0;
+  font-size: 2rem;
+  letter-spacing: -0.02em;
+  margin: 1.5rem 0 1rem;
   @media (max-width: 1024px) {
-    font-size: 36px;
-    margin: 20px 0;
+    font-size: 1.75rem;
   }
 }
 h2 {
-  font-size: 24px;
-  line-height: 118%;
-  letter-spacing: -0.24px;
-  margin: 0 0 8px;
+  font-size: 1.25rem;
+  line-height: 1.2;
+  letter-spacing: -0.015em;
+  margin: 0 0 0.5rem;
   @media (max-width: 1024px) {
-    font-size: 20px;
+    font-size: 1.125rem;
   }
 }
 p {
@@ -167,17 +180,18 @@ p {
 code {
   font-family: var(--mono);
   display: inline-flex;
-  border-radius: 4px;
+  border-radius: 6px;
   color: var(--text-h);
-  font-size: 15px;
-  line-height: 135%;
-  padding: 4px 8px;
+  font-size: 0.9em;
+  line-height: 1.35;
+  padding: 0.15em 0.45em;
   background: var(--code-bg);
 }
 
 @theme inline {
   --font-heading: var(--font-sans);
-  --font-sans: 'Geist Variable', sans-serif;
+  --font-sans: "Anthropic Sans", -apple-system, BlinkMacSystemFont, "Segoe UI",
+    system-ui, sans-serif;
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
@@ -218,19 +232,21 @@ code {
   --radius-4xl: calc(var(--radius) * 2.6);
 }
 
-/* Klasa `.dark` (shadcn): ista paleta kao prefers-color-scheme: dark */
+/* shadcn `.dark` class: same tokens as prefers-color-scheme: dark */
 .dark {
-  --text: #9ca3af;
-  --text-h: #f3f4f6;
-  --bg: #16171d;
-  --border: #2e303a;
-  --code-bg: #1f2028;
-  --accent: #c084fc;
-  --accent-bg: rgba(192, 132, 252, 0.15);
-  --accent-border: rgba(192, 132, 252, 0.5);
-  --social-bg: rgba(47, 48, 58, 0.5);
+  --text: rgb(158 158 158);
+  --text-h: rgb(229 229 229);
+  --bg: rgb(var(--docs-bg-dark));
+  --border: rgb(55 55 55 / 0.9);
+  --code-bg: rgb(24 24 27);
+  --accent: rgb(212 162 127 / 0.12);
+  --accent-bg: rgb(212 162 127 / 0.15);
+  --accent-border: rgb(212 162 127 / 0.45);
+  --header-bg: rgb(9 9 11 / 0.9);
+  --header-border: rgb(255 255 255 / 0.06);
   --shadow:
-    rgba(0, 0, 0, 0.4) 0 10px 15px -3px, rgba(0, 0, 0, 0.25) 0 4px 6px -2px;
+    rgba(0, 0, 0, 0.45) 0 10px 15px -3px,
+    rgba(0, 0, 0, 0.3) 0 4px 6px -2px;
 
   --background: var(--bg);
   --foreground: var(--text-h);
@@ -238,21 +254,21 @@ code {
   --card-foreground: var(--text-h);
   --popover: var(--code-bg);
   --popover-foreground: var(--text-h);
-  --primary: var(--text-h);
-  --primary-foreground: var(--bg);
+  --primary: rgb(var(--docs-primary-light));
+  --primary-foreground: rgb(var(--docs-bg-dark));
   --secondary: var(--border);
   --secondary-foreground: var(--text-h);
-  --muted: var(--border);
+  --muted: rgb(39 39 42);
   --muted-foreground: var(--text);
   --accent-foreground: var(--text-h);
   --destructive: oklch(0.704 0.191 22.216);
   --input: var(--border);
-  --ring: var(--accent-border);
+  --ring: rgb(var(--docs-primary-light) / 0.45);
   --chart-1: var(--text-h);
   --chart-2: var(--text);
   --chart-3: var(--border);
   --chart-4: var(--code-bg);
-  --chart-5: var(--accent-border);
+  --chart-5: rgb(var(--docs-primary-light) / 0.5);
   --sidebar: var(--bg);
   --sidebar-foreground: var(--text-h);
   --sidebar-primary: var(--text-h);
@@ -260,13 +276,17 @@ code {
   --sidebar-accent: var(--border);
   --sidebar-accent-foreground: var(--text-h);
   --sidebar-border: var(--border);
-  --sidebar-ring: var(--accent-border);
+  --sidebar-ring: var(--ring);
 }
 
 @layer base {
   * {
-    @apply border-border outline-ring/50;}
+    @apply border-border outline-ring/50;
+  }
   body {
-    @apply bg-background text-foreground;}
+    @apply bg-background text-foreground;
+  }
   html {
-    @apply font-sans;}}
+    @apply font-sans;
+  }
+}
