@@ -24,4 +24,4 @@ dist-ssr
 *.sw?
 
 # Local AI workflow prompts / orchestration (not tracked)
-ai-workflows/
+agent-rules/
