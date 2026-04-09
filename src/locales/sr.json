@@ -17,6 +17,7 @@
     "phone": "Telefon",
     "active": "Aktivan",
     "name": "Ime",
+    "fullName": "Puno ime",
     "actions": "Akcije",
     "date": "Datum",
     "time": "Vreme",
@@ -82,7 +83,15 @@
   "appointments": {
     "title": "Termini",
     "empty": "Još nema termina.",
+    "emptyForDate": "Nema termina za izabrani datum.",
+    "emptyForDateAndResource": "Nema termina za izabrani datum i izabrani resurs.",
     "searchPlaceholder": "Pretraži po klijentu, usluzi, osoblju, statusu, napomenama…",
+    "selectResourceHint": "Izaberite resurs da biste videli termine.",
+    "filters": {
+      "date": "Datum",
+      "resource": "Resurs",
+      "resourcePlaceholder": "Izaberite resurs…"
+    },
     "statusScheduled": "Zakazano",
     "statusCompleted": "Završeno",
     "statusCanceled": "Otkazano"

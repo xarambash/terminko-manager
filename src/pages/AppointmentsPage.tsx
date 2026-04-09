@@ -13,12 +13,15 @@ import {
   PageSectionHeader,
   QueryStatusBanner,
 } from '../components'
+import { Input } from '@/components/ui/input'
 import { calendarLocaleFromLng } from '../lib/dateLocale'
 import { matchesTableSearch } from '../lib/tableSearch'
-import { useAppointments } from '../hooks'
+import { useAppointments, useAuth, useResources } from '../hooks'
 import type { AppointmentStatus, AppointmentWithRelations } from '../types'
 
 const pageClass = 'flex flex-1 flex-col gap-4 p-4 text-left sm:gap-6 sm:p-6 md:gap-8 md:p-8'
+const pickerControlClass =
+  'h-8 min-w-0 rounded-lg border border-input bg-transparent px-2.5 py-1 text-base transition-colors outline-none placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 disabled:pointer-events-none disabled:cursor-not-allowed disabled:bg-input/50 disabled:opacity-50 md:text-sm dark:bg-input/30 dark:disabled:bg-input/80'
 
 function useAppointmentStatusLabels() {
   const { t } = useTranslation()
@@ -32,21 +35,19 @@ function useAppointmentStatusLabels() {
   )
 }
 
-function formatAppointmentDate(iso: string, locale: string) {
-  const date = new Date(iso)
-  return date.toLocaleDateString(locale, {
-    weekday: 'short',
-    day: 'numeric',
-    month: 'short',
-  })
-}
-
 function formatAppointmentTime(iso: string, locale: string) {
   const date = new Date(iso)
   return date.toLocaleTimeString(locale, {
     hour: '2-digit',
     minute: '2-digit',
   })
+}
+
+function toDateInputValue(date: Date) {
+  const year = date.getFullYear()
+  const month = String(date.getMonth() + 1).padStart(2, '0')
+  const day = String(date.getDate()).padStart(2, '0')
+  return `${year}-${month}-${day}`
 }
 
 function normalizeStatus(status: string): AppointmentStatus | null {
@@ -66,6 +67,7 @@ function appointmentMatchesSearch(
   return matchesTableSearch(raw, [
     apt.guest.name,
     apt.guest.email,
+    apt.guest.phone,
     apt.service.name,
     apt.resource.firstName,
     apt.resource.lastName,
@@ -76,40 +78,42 @@ function appointmentMatchesSearch(
   ])
 }
 
-function StatusBadge({
-  status,
-  labels,
-}: {
-  status: string
-  labels: Record<AppointmentStatus, string>
-}) {
-  const normalized = normalizeStatus(status)
-  const label = normalized ? labels[normalized] : status
-  const styleClass = normalized
-    ? {
-        scheduled:
-          'bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-400',
-        completed:
-          'bg-slate-100 text-slate-700 dark:bg-slate-700/50 dark:text-slate-300',
-        canceled: 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400',
-      }[normalized]
-    : 'bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300'
-
-  return (
-    <span className={`inline-flex rounded-full px-2.5 py-0.5 text-xs font-medium ${styleClass}`}>
-      {label}
-    </span>
-  )
-}
-
 function AppointmentsPage() {
   const { t, i18n } = useTranslation()
+  const { user } = useAuth()
+  const isOwner = user?.role === 'owner'
   const statusLabels = useAppointmentStatusLabels()
   const calLocale = calendarLocaleFromLng(i18n.language)
-  const { data: appointments, isPending, isError, error } = useAppointments()
+  const [selectedDate, setSelectedDate] = useState(() => toDateInputValue(new Date()))
+  const [selectedResourceId, setSelectedResourceId] = useState('')
+  const { data: resources = [] } = useResources()
   const [search, setSearch] = useState('')
 
-  const list = appointments ?? []
+  const ownerResources = useMemo(() => {
+    const list = [...resources]
+    list.sort((a, b) => {
+      const aName = `${a.firstName} ${a.lastName}`.trim()
+      const bName = `${b.firstName} ${b.lastName}`.trim()
+      return aName.localeCompare(bName)
+    })
+    return list
+  }, [resources])
+
+  const effectiveResourceId = isOwner ? (selectedResourceId || ownerResources[0]?.id || '') : ''
+  const canFetchAppointments = !isOwner || Boolean(effectiveResourceId)
+  const queryParams = useMemo(
+    () => ({
+      date: selectedDate,
+      ...(isOwner && effectiveResourceId ? { resourceId: effectiveResourceId } : {}),
+    }),
+    [isOwner, selectedDate, effectiveResourceId]
+  )
+  const { data: appointments, isPending, isError, error } = useAppointments(
+    queryParams,
+    canFetchAppointments
+  )
+
+  const list = useMemo(() => appointments ?? [], [appointments])
   const filtered = useMemo(
     () => list.filter((apt) => appointmentMatchesSearch(apt, search, statusLabels)),
     [list, search, statusLabels]
@@ -119,11 +123,38 @@ function AppointmentsPage() {
     <main className={pageClass}>
       <div className="flex flex-col gap-4">
         <PageSectionHeader title={t('appointments.title')} />
-        <ListSearchField
-          id="appointments-search"
-          value={search}
-          onChange={setSearch}
-        />
+        <div className="flex flex-wrap items-center gap-2">
+          <ListSearchField
+            id="appointments-search"
+            value={search}
+            onChange={setSearch}
+            containerClassName="max-w-none min-w-[16rem] flex-1"
+          />
+          <Input
+            type="date"
+            value={selectedDate}
+            onChange={(e) => setSelectedDate(e.target.value)}
+            className={`w-[11rem] ${pickerControlClass}`}
+            aria-label={t('appointments.filters.date')}
+          />
+          {isOwner && (
+            <select
+              value={effectiveResourceId}
+              onChange={(e) => setSelectedResourceId(e.target.value)}
+              className={`w-[13.5rem] ${pickerControlClass}`}
+              aria-label={t('appointments.filters.resource')}
+            >
+              {ownerResources.map((resource) => (
+                <option key={resource.id} value={resource.id}>
+                  {resource.firstName} {resource.lastName}
+                </option>
+              ))}
+            </select>
+          )}
+        </div>
+        {isOwner && !canFetchAppointments && (
+          <p className="text-sm text-[var(--text)]">{t('appointments.selectResourceHint')}</p>
+        )}
       </div>
 
       <QueryStatusBanner
@@ -133,16 +164,17 @@ function AppointmentsPage() {
         loadingText={t('loading.appointments')}
       />
 
-      {!isPending && !isError && (
+      {!canFetchAppointments ? null : !isPending && !isError && (
         <Card className="overflow-hidden p-0">
           <DataTableScroll variant="page">
             <DataTable variant="page" minWidth={600}>
               <thead>
                 <DataTableHeadRow variant="page">
-                  <DataTableTh variant="page">{t('common.date')}</DataTableTh>
                   <DataTableTh variant="page">{t('common.time')}</DataTableTh>
-                  <DataTableTh variant="page">{t('common.client')}</DataTableTh>
                   <DataTableTh variant="page">{t('common.service')}</DataTableTh>
+                  <DataTableTh variant="page">{t('common.fullName')}</DataTableTh>
+                  <DataTableTh variant="page">{t('common.email')}</DataTableTh>
+                  <DataTableTh variant="page">{t('common.phone')}</DataTableTh>
                   <DataTableTh variant="page">{t('common.notes')}</DataTableTh>
                 </DataTableHeadRow>
               </thead>
@@ -150,7 +182,9 @@ function AppointmentsPage() {
                 {list.length === 0 ? (
                   <tr>
                     <DataTableEmptyCell variant="page" colSpan={6}>
-                      {t('appointments.empty')}
+                      {isOwner
+                        ? t('appointments.emptyForDateAndResource')
+                        : t('appointments.emptyForDate')}
                     </DataTableEmptyCell>
                   </tr>
                 ) : filtered.length === 0 ? (
@@ -163,21 +197,19 @@ function AppointmentsPage() {
                   filtered.map((apt) => (
                     <DataTableBodyRow key={apt.id} hoverable>
                       <DataTableTd variant="page" className="text-[var(--text-h)]">
-                        {formatAppointmentDate(apt.startAt, calLocale)}
-                      </DataTableTd>
-                      <DataTableTd variant="page" className="text-[var(--text-h)]">
                         {formatAppointmentTime(apt.startAt, calLocale)}
-                      </DataTableTd>
-                      <DataTableTd variant="page">
-                        <div>
-                          <p className="text-sm font-medium text-[var(--text-h)]">
-                            {apt.guest.name}
-                          </p>
-                          <p className="text-xs text-[var(--text)]">{apt.guest.email}</p>
-                        </div>
                       </DataTableTd>
                       <DataTableTd variant="page" className="text-[var(--text-h)]">
                         {apt.service.name}
+                      </DataTableTd>
+                      <DataTableTd variant="page" className="text-[var(--text-h)]">
+                        {apt.guest.name}
+                      </DataTableTd>
+                      <DataTableTd variant="page" className="text-[var(--text)]">
+                        {apt.guest.email}
+                      </DataTableTd>
+                      <DataTableTd variant="page" className="text-[var(--text)]">
+                        {apt.guest.phone}
                       </DataTableTd>
                        <DataTableTd
                         variant="page"

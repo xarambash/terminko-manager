@@ -17,6 +17,7 @@
     "phone": "Phone",
     "active": "Active",
     "name": "Name",
+    "fullName": "Full name",
     "actions": "Actions",
     "date": "Date",
     "time": "Time",
@@ -82,7 +83,15 @@
   "appointments": {
     "title": "Appointments",
     "empty": "No appointments yet.",
+    "emptyForDate": "No appointments for the selected date.",
+    "emptyForDateAndResource": "No appointments for the selected date and selected resource.",
     "searchPlaceholder": "Search by client, service, staff, status, notes…",
+    "selectResourceHint": "Select a resource to view appointments.",
+    "filters": {
+      "date": "Date",
+      "resource": "Resource",
+      "resourcePlaceholder": "Select a resource…"
+    },
     "statusScheduled": "Scheduled",
     "statusCompleted": "Completed",
     "statusCanceled": "Canceled"

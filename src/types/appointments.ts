@@ -6,6 +6,7 @@ export type AppointmentGuest = {
   id: string
   name: string
   email: string
+  phone: string
 }
 
 export type AppointmentResource = {
@@ -36,6 +37,6 @@ export type AppointmentWithRelations = {
 }
 
 export type ListAppointmentsParams = {
+  date: string
   resourceId?: string
-  date?: string
 }
