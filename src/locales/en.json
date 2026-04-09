@@ -54,6 +54,9 @@
     "sr": "Serbian",
     "en": "English"
   },
+  "theme": {
+    "toggleAria": "Toggle dark mode"
+  },
   "loading": {
     "resources": "Loading resources…",
     "resource": "Loading resource…",

@@ -54,6 +54,9 @@
     "sr": "Srpski",
     "en": "Engleski"
   },
+  "theme": {
+    "toggleAria": "Uključi ili isključi tamnu temu"
+  },
   "loading": {
     "resources": "Učitavanje resursa…",
     "resource": "Učitavanje resursa…",

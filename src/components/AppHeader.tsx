@@ -5,6 +5,7 @@ import { Menu } from 'lucide-react'
 import { useAuth } from '../hooks/useAuth'
 import { Button } from './ui/Button'
 import { LanguageSwitcher } from './ui/LanguageSwitcher'
+import { ThemeSwitch } from './ui/ThemeSwitch'
 import { AppSidebarNav } from './AppSidebarNav'
 import { TenantBrandName } from './TenantBrandName'
 
@@ -50,6 +51,7 @@ export function AppHeader() {
             <TenantBrandName />
           </Link>
           <div className="ml-auto flex shrink-0 items-center gap-2 sm:gap-3">
+            <ThemeSwitch />
             <LanguageSwitcher />
             <Button type="button" variant="outline" size="sm" onClick={logout}>
               {t('common.logout')}
