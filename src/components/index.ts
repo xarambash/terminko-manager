@@ -16,6 +16,7 @@ export { PageSectionHeader } from './ui/PageSectionHeader'
 export { PageTitle } from './ui/PageTitle'
 export { QueryStatusBanner } from './ui/QueryStatusBanner'
 export { LanguageSwitcher } from './ui/LanguageSwitcher'
+export { DropdownPicker } from './ui/DropdownPicker'
 export { ListSearchField } from './ui/ListSearchField'
 export {
   DataTable,

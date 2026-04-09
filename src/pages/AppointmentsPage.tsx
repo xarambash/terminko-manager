@@ -9,6 +9,7 @@ import {
   DataTableScroll,
   DataTableTd,
   DataTableTh,
+  DropdownPicker,
   ListSearchField,
   PageSectionHeader,
   QueryStatusBanner,
@@ -98,6 +99,14 @@ function AppointmentsPage() {
     })
     return list
   }, [resources])
+  const resourceOptions = useMemo(
+    () =>
+      ownerResources.map((resource) => ({
+        value: resource.id,
+        label: `${resource.firstName} ${resource.lastName}`,
+      })),
+    [ownerResources]
+  )
 
   const effectiveResourceId = isOwner ? (selectedResourceId || ownerResources[0]?.id || '') : ''
   const canFetchAppointments = !isOwner || Boolean(effectiveResourceId)
@@ -138,18 +147,15 @@ function AppointmentsPage() {
             aria-label={t('appointments.filters.date')}
           />
           {isOwner && (
-            <select
+            <DropdownPicker
               value={effectiveResourceId}
-              onChange={(e) => setSelectedResourceId(e.target.value)}
-              className={`w-[13.5rem] ${pickerControlClass}`}
-              aria-label={t('appointments.filters.resource')}
-            >
-              {ownerResources.map((resource) => (
-                <option key={resource.id} value={resource.id}>
-                  {resource.firstName} {resource.lastName}
-                </option>
-              ))}
-            </select>
+              onValueChange={setSelectedResourceId}
+              options={resourceOptions}
+              ariaLabel={t('appointments.filters.resource')}
+              placeholder={t('appointments.filters.resource')}
+              className="h-8 w-[13.5rem]"
+              size="default"
+            />
           )}
         </div>
         {isOwner && !canFetchAppointments && (
