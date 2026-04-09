@@ -25,6 +25,27 @@ function applyDom(): void {
   document.documentElement.classList.toggle('dark', getResolvedDark())
 }
 
+function applyThemeWithoutTransitions(update: () => void): void {
+  const style = document.createElement('style')
+  style.appendChild(
+    document.createTextNode(
+      '*,*::before,*::after{transition:none!important;animation:none!important}',
+    ),
+  )
+  document.head.appendChild(style)
+
+  // Force style calculation so transition disabling is applied immediately.
+  void window.getComputedStyle(document.body).opacity
+
+  update()
+
+  window.requestAnimationFrame(() => {
+    window.requestAnimationFrame(() => {
+      style.remove()
+    })
+  })
+}
+
 const listeners = new Set<() => void>()
 
 function emit(): void {
@@ -39,8 +60,10 @@ export function subscribeTheme(callback: () => void): () => void {
 /** Persist light/dark (overrides system until changed again). */
 export function setUserColorScheme(mode: UserColorScheme): void {
   localStorage.setItem(STORAGE_KEY, mode)
-  applyDom()
-  emit()
+  applyThemeWithoutTransitions(() => {
+    applyDom()
+    emit()
+  })
 }
 
 /**
@@ -51,8 +74,10 @@ export function initTheme(): void {
   const mq = window.matchMedia('(prefers-color-scheme: dark)')
   const onSystemChange = () => {
     if (getStored() !== null) return
-    applyDom()
-    emit()
+    applyThemeWithoutTransitions(() => {
+      applyDom()
+      emit()
+    })
   }
   mq.addEventListener('change', onSystemChange)
 }

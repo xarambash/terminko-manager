@@ -121,8 +121,6 @@ function AppointmentsPage() {
         <PageSectionHeader title={t('appointments.title')} />
         <ListSearchField
           id="appointments-search"
-          label={t('common.search')}
-          placeholder={t('appointments.searchPlaceholder')}
           value={search}
           onChange={setSearch}
         />
@@ -145,7 +143,6 @@ function AppointmentsPage() {
                   <DataTableTh variant="page">{t('common.time')}</DataTableTh>
                   <DataTableTh variant="page">{t('common.client')}</DataTableTh>
                   <DataTableTh variant="page">{t('common.service')}</DataTableTh>
-                  <DataTableTh variant="page">{t('common.status')}</DataTableTh>
                   <DataTableTh variant="page">{t('common.notes')}</DataTableTh>
                 </DataTableHeadRow>
               </thead>
@@ -168,7 +165,7 @@ function AppointmentsPage() {
                       <DataTableTd variant="page" className="text-[var(--text-h)]">
                         {formatAppointmentDate(apt.startAt, calLocale)}
                       </DataTableTd>
-                      <DataTableTd variant="page" className="text-[var(--text)]">
+                      <DataTableTd variant="page" className="text-[var(--text-h)]">
                         {formatAppointmentTime(apt.startAt, calLocale)}
                       </DataTableTd>
                       <DataTableTd variant="page">
@@ -179,16 +176,12 @@ function AppointmentsPage() {
                           <p className="text-xs text-[var(--text)]">{apt.guest.email}</p>
                         </div>
                       </DataTableTd>
-                      <DataTableTd variant="page" className="text-[var(--text)]">
+                      <DataTableTd variant="page" className="text-[var(--text-h)]">
                         {apt.service.name}
                       </DataTableTd>
-                      <DataTableTd variant="page">
-                        <StatusBadge status={apt.status} labels={statusLabels} />
-                      </DataTableTd>
-                      <DataTableTd
+                       <DataTableTd
                         variant="page"
-                        className="max-w-[200px] truncate text-[var(--text)]"
-                      >
+                        className="max-w-[200px] truncate text-[var(--text-h)]">
                         {apt.notes ?? t('common.dash')}
                       </DataTableTd>
                     </DataTableBodyRow>

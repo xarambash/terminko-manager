@@ -59,8 +59,6 @@ function ResourcesPage() {
         />
         <ListSearchField
           id="resources-search"
-          label={t('common.search')}
-          placeholder={t('resources.searchPlaceholder')}
           value={search}
           onChange={setSearch}
         />

@@ -56,8 +56,6 @@ function GuestsPage() {
         <PageSectionHeader title={t('guests.title')} />
         <ListSearchField
           id="guests-search"
-          label={t('common.search')}
-          placeholder={t('guests.searchPlaceholder')}
           value={search}
           onChange={setSearch}
         />

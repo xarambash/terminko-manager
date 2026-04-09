@@ -2,26 +2,21 @@ import { Input } from '@/components/ui/input'
 
 export type ListSearchFieldProps = {
   id: string
-  label: string
-  placeholder: string
   value: string
   onChange: (value: string) => void
 }
 
-export function ListSearchField({ id, label, placeholder, value, onChange }: ListSearchFieldProps) {
+export function ListSearchField({ id, value, onChange }: ListSearchFieldProps) {
   return (
-    <div className="flex w-full max-w-md flex-col gap-1">
-      <label htmlFor={id} className="text-xs text-[var(--text)]">
-        {label}
-      </label>
+    <div className="w-full max-w-md">
       <Input
         id={id}
         type="search"
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        placeholder={placeholder}
+        placeholder="Search..."
         autoComplete="off"
-        aria-label={label}
+        aria-label="Search"
       />
     </div>
   )

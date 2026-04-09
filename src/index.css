@@ -18,12 +18,12 @@
   --text: rgb(112 112 112);
   --text-h: rgb(23 23 23);
   --bg: rgb(var(--docs-bg-light));
-  --border: rgb(222 222 222 / 0.85);
+  --border: rgb(161, 152, 148);
   --code-bg: rgb(243 243 243);
   --accent: rgb(14 14 14 / 0.08);
   --accent-border: rgb(14 14 14 / 0.2);
   --header-bg: rgb(253 253 247 / 0.92);
-  --header-border: rgb(0 0 0 / 0.06);
+  --header-border: var(--border);
 
   --sans: "Anthropic Sans", -apple-system, BlinkMacSystemFont, "Segoe UI",
     system-ui, sans-serif;
@@ -33,7 +33,7 @@
 
   font: 16px/1.45 var(--sans);
   letter-spacing: 0.01em;
-  color-scheme: light dark;
+  color-scheme: light;
   color: var(--text);
   background: var(--bg);
   font-synthesis: none;
@@ -59,36 +59,7 @@
   --destructive: oklch(0.577 0.245 27.325);
   --input: var(--border);
   --ring: rgb(var(--docs-primary) / 0.35);
-  --radius: 0.75rem;
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --text: rgb(158 158 158);
-    --text-h: rgb(229 229 229);
-    --bg: rgb(var(--docs-bg-dark));
-    --border: rgb(55 55 55 / 0.9);
-    --code-bg: rgb(24 24 27);
-    --accent: rgb(212 162 127 / 0.12);
-    --accent-border: rgb(212 162 127 / 0.45);
-    --header-bg: rgb(9 9 11 / 0.9);
-    --header-border: rgb(255 255 255 / 0.06);
-
-    --background: var(--bg);
-    --foreground: var(--text-h);
-    --popover: var(--code-bg);
-    --popover-foreground: var(--text-h);
-    --primary: rgb(var(--docs-primary-light));
-    --primary-foreground: rgb(var(--docs-bg-dark));
-    --secondary: var(--border);
-    --secondary-foreground: var(--text-h);
-    --muted: rgb(39 39 42);
-    --muted-foreground: var(--text);
-    --accent-foreground: var(--text-h);
-    --destructive: oklch(0.704 0.191 22.216);
-    --input: var(--border);
-    --ring: rgb(var(--docs-primary-light) / 0.45);
-  }
+  --radius: 5px;
 }
 
 #root {
@@ -138,7 +109,7 @@ p {
 code {
   font-family: var(--mono);
   display: inline-flex;
-  border-radius: 6px;
+  border-radius: 5px;
   color: var(--text-h);
   font-size: 0.9em;
   line-height: 1.35;
@@ -166,13 +137,14 @@ code {
   --color-popover: var(--popover);
   --color-foreground: var(--foreground);
   --color-background: var(--background);
-  --radius-md: calc(var(--radius) * 0.8);
-  --radius-lg: var(--radius);
-  --radius-xl: calc(var(--radius) * 1.4);
+  --radius-md: 5px;
+  --radius-lg: 5px;
+  --radius-xl: 5px;
 }
 
-/* Manual dark (class): same tokens as prefers-color-scheme: dark */
+/* Dark theme: only when html has .dark (see theme.ts); avoids OS media overriding app light mode */
 .dark {
+  color-scheme: dark;
   --text: rgb(158 158 158);
   --text-h: rgb(229 229 229);
   --bg: rgb(var(--docs-bg-dark));
@@ -181,7 +153,7 @@ code {
   --accent: rgb(212 162 127 / 0.12);
   --accent-border: rgb(212 162 127 / 0.45);
   --header-bg: rgb(9 9 11 / 0.9);
-  --header-border: rgb(255 255 255 / 0.06);
+  --header-border: var(--border);
 
   --background: var(--bg);
   --foreground: var(--text-h);
@@ -202,6 +174,9 @@ code {
 @layer base {
   * {
     @apply border-border outline-ring/50;
+  }
+  button {
+    cursor: pointer;
   }
   body {
     @apply bg-background text-foreground;

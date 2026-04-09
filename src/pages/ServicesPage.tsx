@@ -61,8 +61,6 @@ function ServicesPage() {
         />
         <ListSearchField
           id="services-search"
-          label={t('common.search')}
-          placeholder={t('services.searchPlaceholder')}
           value={search}
           onChange={setSearch}
         />
