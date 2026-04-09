@@ -10,7 +10,7 @@
 */
 
 :root {
-  --docs-primary: 14 14 14;
+  --docs-primary: 61, 54, 54;
   --docs-primary-light: 212 162 127;
   --docs-bg-light: 253 253 247;
   --docs-bg-dark: 9 9 11;
@@ -22,6 +22,8 @@
   --code-bg: rgb(243 243 243);
   --accent: rgb(14 14 14 / 0.08);
   --accent-border: rgb(14 14 14 / 0.2);
+  --nav-active-bg: rgb(14 14 14 / 0.1);
+  --nav-active-text: #0e0e0e;
   --header-bg: rgb(253 253 247 / 0.92);
   --header-border: var(--border);
 
@@ -62,61 +64,6 @@
   --radius: 5px;
 }
 
-#root {
-  width: 100%;
-  max-width: none;
-  margin: 0;
-  text-align: left;
-  border: none;
-  min-height: 100svh;
-  display: flex;
-  flex-direction: column;
-  box-sizing: border-box;
-}
-
-body {
-  margin: 0;
-}
-
-h1,
-h2 {
-  font-family: var(--heading);
-  font-weight: 600;
-  color: var(--text-h);
-}
-
-h1 {
-  font-size: 2rem;
-  letter-spacing: -0.02em;
-  margin: 1.5rem 0 1rem;
-  @media (max-width: 1024px) {
-    font-size: 1.75rem;
-  }
-}
-h2 {
-  font-size: 1.25rem;
-  line-height: 1.2;
-  letter-spacing: -0.015em;
-  margin: 0 0 0.5rem;
-  @media (max-width: 1024px) {
-    font-size: 1.125rem;
-  }
-}
-p {
-  margin: 0;
-}
-
-code {
-  font-family: var(--mono);
-  display: inline-flex;
-  border-radius: 5px;
-  color: var(--text-h);
-  font-size: 0.9em;
-  line-height: 1.35;
-  padding: 0.15em 0.45em;
-  background: var(--code-bg);
-}
-
 @theme inline {
   --font-heading: var(--font-sans);
   --font-sans: "Anthropic Sans", -apple-system, BlinkMacSystemFont, "Segoe UI",
@@ -152,6 +99,8 @@ code {
   --code-bg: rgb(24 24 27);
   --accent: rgb(212 162 127 / 0.12);
   --accent-border: rgb(212 162 127 / 0.45);
+  --nav-active-bg: rgb(212 162 127 / 0.12);
+  --nav-active-text: #d4a27f;
   --header-bg: rgb(9 9 11 / 0.9);
   --header-border: var(--border);
 
@@ -171,17 +120,6 @@ code {
   --ring: rgb(var(--docs-primary-light) / 0.45);
 }
 
-@layer base {
-  * {
-    @apply border-border outline-ring/50;
-  }
-  button {
-    cursor: pointer;
-  }
-  body {
-    @apply bg-background text-foreground;
-  }
-  html {
-    @apply font-sans;
-  }
+button {
+  cursor: pointer;
 }

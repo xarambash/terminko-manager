@@ -11,7 +11,10 @@ export function TenantBrandName({ className = '' }: TenantBrandNameProps) {
   const { data: tenant } = useTenant()
 
   return (
-    <span className={`truncate ${className}`.trim()}>
+    <span
+      className={`truncate ${className}`.trim()}
+      style={{ fontFamily: '"Montserrat Alternates", system-ui, sans-serif', fontSize: '1.2rem' }}
+    >
       {tenant?.name ?? t('common.appName')}
     </span>
   )

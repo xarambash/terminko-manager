@@ -10,7 +10,7 @@ function sidebarLinkClass({ isActive }: { isActive: boolean }) {
   return cn(
     linkBase,
     isActive
-      ? 'bg-[rgb(14_14_14/0.1)] font-medium text-[#0e0e0e] [text-shadow:-0.2px_0_0_currentColor,0.2px_0_0_currentColor] dark:bg-[rgb(212_162_127/0.12)] dark:text-[#d4a27f]'
+      ? 'bg-[var(--nav-active-bg)] font-medium text-[var(--nav-active-text)] [text-shadow:-0.2px_0_0_currentColor,0.2px_0_0_currentColor]'
       : 'text-[var(--text)] hover:bg-[rgb(0_0_0/0.04)] hover:text-[var(--text-h)] dark:text-[rgb(158_158_158)] dark:hover:bg-[rgb(255_255_255/0.05)] dark:hover:text-[rgb(229_229_229)]',
   )
 }
