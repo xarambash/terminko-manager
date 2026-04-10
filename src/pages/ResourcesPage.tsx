@@ -18,6 +18,7 @@ import {
 } from '../components'
 import { matchesTableSearch } from '../lib/tableSearch'
 import { useResources } from '../hooks'
+import { Trash2 } from 'lucide-react'
 
 const pageClass = 'flex flex-1 flex-col gap-4 p-4 text-left sm:gap-6 sm:p-6 md:gap-8 md:p-8'
 
@@ -81,9 +82,6 @@ function ResourcesPage() {
                   <DataTableTh variant="page">{t('common.email')}</DataTableTh>
                   <DataTableTh variant="page">{t('common.phone')}</DataTableTh>
                   <DataTableTh variant="page">{t('common.active')}</DataTableTh>
-                  <DataTableTh variant="page" align="right">
-                    {t('common.actions')}
-                  </DataTableTh>
                 </DataTableHeadRow>
               </thead>
               <tbody>
@@ -129,14 +127,14 @@ function ResourcesPage() {
                       </DataTableTd>
                       <DataTableTd variant="page" align="right">
                         <div className="flex justify-end gap-2">
-                          <Button
+                        <Button
                             type="button"
-                            variant="secondary"
-                            disabled
-                            title={t('resources.deleteTitle')}
-                            className="px-3 py-1.5 text-xs"
+                            variant="destructive"
+                            size="icon-sm"
+                            aria-label={t('services.delete')}
+                            title={t('services.delete')}
                           >
-                            {t('resources.delete')}
+                            <Trash2 aria-hidden />
                           </Button>
                         </div>
                       </DataTableTd>

@@ -3,15 +3,18 @@ import {
   assignServiceToResource,
   createResourceFreeDay,
   createResourceWorkingHour,
+  deleteResourceWorkingHour,
   fetchResourceFreeDays,
   fetchResourceServices,
   fetchResourceWorkingHours,
+  updateResourceWorkingHour,
 } from '../api/resourceScheduling'
 import { useAuth } from './useAuth'
 import type {
   AssignServicePayload,
   CreateFreeDayPayload,
   CreateWorkingHourPayload,
+  UpdateWorkingHourPayload,
 } from '../types/resourceScheduling'
 
 function schedulingKeys(tenantId: string | undefined, resourceId: string | undefined) {
@@ -68,6 +71,36 @@ export function useCreateWorkingHour(resourceId: string | undefined) {
   return useMutation({
     mutationFn: (body: CreateWorkingHourPayload) =>
       createResourceWorkingHour(tenantId!, resourceId!, body),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: keys.workingHours })
+    },
+  })
+}
+
+export function useUpdateWorkingHour(resourceId: string | undefined) {
+  const queryClient = useQueryClient()
+  const { user } = useAuth()
+  const tenantId = user?.tenantId
+  const keys = schedulingKeys(tenantId, resourceId)
+
+  return useMutation({
+    mutationFn: ({ workingHourId, body }: { workingHourId: string; body: UpdateWorkingHourPayload }) =>
+      updateResourceWorkingHour(tenantId!, resourceId!, workingHourId, body),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: keys.workingHours })
+    },
+  })
+}
+
+export function useDeleteWorkingHour(resourceId: string | undefined) {
+  const queryClient = useQueryClient()
+  const { user } = useAuth()
+  const tenantId = user?.tenantId
+  const keys = schedulingKeys(tenantId, resourceId)
+
+  return useMutation({
+    mutationFn: (workingHourId: string) =>
+      deleteResourceWorkingHour(tenantId!, resourceId!, workingHourId),
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: keys.workingHours })
     },

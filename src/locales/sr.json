@@ -120,10 +120,21 @@
     "notFoundTitle": "Ресурс није пронађен",
     "notFoundBody": "Овај ресурс није на вашој листи. Можда је уклоњен или је линк неисправан.",
     "backToResources": "Назад на ресурсе",
+    "tabs": {
+      "navigationLabel": "Секције ресурса",
+      "profile": "Профил",
+      "services": "Услуге",
+      "workingHours": "Радно време",
+      "absences": "Одсуства"
+    },
     "summary": {
+      "name": "Име",
       "email": "Е-пошта",
       "phone": "Телефон",
-      "active": "Активан"
+      "active": "Активан",
+      "profilePhotoAlt": "Профилна слика: {{name}}",
+      "uploadPhoto": "Отпреми",
+      "uploadDisabledTitle": "Отпремање слике ће бити доступно када API то подржи"
     },
     "freeDays": {
       "title": "Слободни дани",
@@ -137,14 +148,29 @@
     },
     "workingHours": {
       "title": "Радно време",
-      "description": "Додајте један или више интервала по дану у недељи. Дан: 0 = недеља до 6 = субота.",
+      "description": "Управљајте интервалима за сваки дан у недељи.",
       "empty": "Још нема радног времена.",
+      "emptyDay": "Нема интервала за овај дан.",
       "addInterval": "Додај интервал",
       "startLabel": "Почетак (HH:MM)",
       "endLabel": "Крај (HH:MM)",
+      "save": "Сачувај",
+      "delete": "Обриши",
+      "modalAddTitle": "Додај интервал",
+      "modalEditTitle": "Измени интервал",
+      "modalAdd": "Додај",
+      "modalUpdate": "Сачувај",
+      "deleteTitle": "Обриши интервал",
+      "deleteBody": "Обришите интервал {{startTime}} - {{endTime}}?",
+      "deleteConfirm": "Обриши",
+      "deleting": "Брисање…",
       "validationTime": "Користите формат HH:MM за време (нпр. 09:00)",
       "validationOrder": "Крај мора бити после почетка",
-      "errorAdd": "Није могуће додати радно време"
+      "validationOverlap": "Интервали не смеју да се преклапају у истом дану",
+      "overlapConflict": "Интервал се преклапа са постојећим",
+      "errorAdd": "Није могуће додати радно време",
+      "errorSave": "Није могуће изменити радно време",
+      "errorDelete": "Није могуће обрисати радно време"
     },
     "services": {
       "title": "Услуге за овај ресурс",

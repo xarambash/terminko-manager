@@ -1,11 +1,9 @@
 import { Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { ArrowLeftIcon } from 'lucide-react'
-import { PageTitle } from './PageTitle'
 import type { PageSectionHeaderProps } from '../../types'
 
 export function PageSectionHeader({
-  title,
   showBackLink = false,
   backTo = '/appointments',
   backLabel,
@@ -27,7 +25,6 @@ export function PageSectionHeader({
             <ArrowLeftIcon className="size-5" aria-hidden />
           </Link>
         )}
-        <PageTitle>{title}</PageTitle>
       </div>
       {actions}
     </div>

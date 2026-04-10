@@ -109,7 +109,7 @@ export function ResourceServicesSection({ resourceId }: { resourceId: string }) 
   }
 
   return (
-    <Card className="flex flex-col gap-4 p-4 sm:p-6">
+    <Card className="flex flex-col gap-4 pr-4 sm:pl-6">
       <h2 className="text-lg font-medium text-[var(--text-h)]">{t('resourceDetail.services.title')}</h2>
       <p className="text-sm text-[var(--text)]">{t('resourceDetail.services.description')}</p>
 

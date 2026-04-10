@@ -16,6 +16,7 @@ export type {
   ResourceFreeDay,
   AssignServicePayload,
   CreateWorkingHourPayload,
+  UpdateWorkingHourPayload,
   CreateFreeDayPayload,
 } from './resourceScheduling'
 
@@ -73,11 +74,8 @@ export type AuthLayoutProps = {
 }
 
 export type PageSectionHeaderProps = {
-  title: ReactNode
-  /** When true, shows icon-only back control (e.g. resource detail → resources list). Omit on top-level nav pages. */
   showBackLink?: boolean
   backTo?: string
-  /** Used for `aria-label` (and optional tooltip) on the back control; not shown as visible text. */
   backLabel?: string
   actions?: ReactNode
 }

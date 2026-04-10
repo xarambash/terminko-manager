@@ -120,10 +120,21 @@
     "notFoundTitle": "Resource not found",
     "notFoundBody": "This resource is not in your list. It may have been removed or the link is invalid.",
     "backToResources": "Back to resources",
+    "tabs": {
+      "navigationLabel": "Resource sections",
+      "profile": "Profile",
+      "services": "Services",
+      "workingHours": "Working hours",
+      "absences": "Absences"
+    },
     "summary": {
+      "name": "Name",
       "email": "Email",
       "phone": "Phone",
-      "active": "Active"
+      "active": "Active",
+      "profilePhotoAlt": "Profile photo of {{name}}",
+      "uploadPhoto": "Upload",
+      "uploadDisabledTitle": "Photo upload will be available when the API supports it"
     },
     "freeDays": {
       "title": "Free days",
@@ -137,14 +148,29 @@
     },
     "workingHours": {
       "title": "Working hours",
-      "description": "Add one or more intervals per weekday. Day: 0 = Sunday through 6 = Saturday.",
+      "description": "Manage intervals for each day of the week.",
       "empty": "No working hours yet.",
+      "emptyDay": "No intervals for this day.",
       "addInterval": "Add interval",
       "startLabel": "Start (HH:MM)",
       "endLabel": "End (HH:MM)",
+      "save": "Save",
+      "delete": "Delete",
+      "modalAddTitle": "Add interval",
+      "modalEditTitle": "Edit interval",
+      "modalAdd": "Add",
+      "modalUpdate": "Save",
+      "deleteTitle": "Delete interval",
+      "deleteBody": "Delete interval {{startTime}} - {{endTime}}?",
+      "deleteConfirm": "Delete",
+      "deleting": "Deleting…",
       "validationTime": "Use HH:MM format for times (e.g. 09:00)",
       "validationOrder": "End time must be after start time",
-      "errorAdd": "Could not add working hours"
+      "validationOverlap": "Intervals cannot overlap within the same day",
+      "overlapConflict": "Interval overlaps existing",
+      "errorAdd": "Could not add working hours",
+      "errorSave": "Could not update working hours",
+      "errorDelete": "Could not delete working hours"
     },
     "services": {
       "title": "Services for this resource",

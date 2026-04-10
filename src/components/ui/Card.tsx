@@ -2,7 +2,7 @@ import { Link } from 'react-router-dom'
 import type { CardProps } from '../../types'
 
 const baseClasses =
-  'rounded-lg border border-[var(--border)] transition'
+  'rounded-lg transition'
 
 export function Card({ children, className = '', to }: CardProps) {
   const classes = `${baseClasses} ${to ? 'hover:border-[var(--accent-border)]' : ''} ${className}`.trim()

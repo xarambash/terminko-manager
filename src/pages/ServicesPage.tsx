@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
+import { Pencil, Trash2 } from 'lucide-react'
 import {
   Button,
   Card,
@@ -83,10 +84,6 @@ function ServicesPage() {
                   <DataTableTh variant="page">{t('common.duration')}</DataTableTh>
                   <DataTableTh variant="page">{t('services.description')}</DataTableTh>
                   <DataTableTh variant="page">{t('common.active')}</DataTableTh>
-                  <DataTableTh variant="page">{t('services.sortOrder')}</DataTableTh>
-                  <DataTableTh variant="page" align="right">
-                    {t('common.actions')}
-                  </DataTableTh>
                 </DataTableHeadRow>
               </thead>
               <tbody>
@@ -117,26 +114,27 @@ function ServicesPage() {
                       <DataTableTd variant="page" className="text-[var(--text)]">
                         {s.isActive ? t('common.yes') : t('common.no')}
                       </DataTableTd>
-                      <DataTableTd variant="page" className="text-[var(--text)]">
-                        {s.sortOrder}
-                      </DataTableTd>
                       <DataTableTd variant="page" align="right">
-                        <div className="flex justify-end gap-2">
+                        <div className="flex justify-end gap-3">
                           <Button
                             type="button"
-                            variant="secondary"
-                            className="px-3 py-1.5 text-xs"
+                            variant="outline"
+                            size="icon-sm"
+                            aria-label={t('services.edit')}
+                            title={t('services.edit')}
                             onClick={() => setEditService(s)}
                           >
-                            {t('services.edit')}
+                            <Pencil aria-hidden />
                           </Button>
                           <Button
                             type="button"
-                            variant="secondary"
-                            className="px-3 py-1.5 text-xs"
+                            variant="destructive"
+                            size="icon-sm"
+                            aria-label={t('services.delete')}
+                            title={t('services.delete')}
                             onClick={() => setDeleteService(s)}
                           >
-                            {t('services.delete')}
+                            <Trash2 aria-hidden />
                           </Button>
                         </div>
                       </DataTableTd>

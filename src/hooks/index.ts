@@ -9,6 +9,8 @@ export {
   useAssignResourceService,
   useResourceWorkingHours,
   useCreateWorkingHour,
+  useUpdateWorkingHour,
+  useDeleteWorkingHour,
   useResourceFreeDays,
   useCreateFreeDay,
 } from './useResourceScheduling'

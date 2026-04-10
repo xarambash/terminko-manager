@@ -43,6 +43,11 @@ export type CreateWorkingHourPayload = {
   endTime: string
 }
 
+export type UpdateWorkingHourPayload = {
+  startTime: string
+  endTime: string
+}
+
 export type CreateFreeDayPayload = {
   date: string
   reason?: string
