@@ -1,7 +1,6 @@
 import { useMemo } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { z } from 'zod'
 import { Button } from './ui/Button'
@@ -32,7 +31,6 @@ function CreateResourceFormContent({
   onClose: () => void
 }) {
   const { t } = useTranslation()
-  const navigate = useNavigate()
   const createMutation = useCreateResource()
 
   const createResourceSchema = useMemo(
@@ -74,7 +72,7 @@ function CreateResourceFormContent({
 
   const onSubmit = async (data: CreateResourceForm) => {
     try {
-      const created = await createMutation.mutateAsync({
+      await createMutation.mutateAsync({
         firstName: data.firstName,
         lastName: data.lastName,
         email: data.email,
@@ -85,7 +83,6 @@ function CreateResourceFormContent({
         }),
       })
       closeModal()
-      navigate(`/resources/${created.id}`)
     } catch (err: unknown) {
       setError('root', {
         message: extractServerError(err) ?? t('createResource.errorCreate'),

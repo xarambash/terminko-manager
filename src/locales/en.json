@@ -11,6 +11,10 @@
     "assigning": "Assigning…",
     "create": "Create",
     "creating": "Creating…",
+    "save": "Save",
+    "saving": "Saving…",
+    "delete": "Delete",
+    "deleting": "Deleting…",
     "selectPlaceholder": "Select…",
     "email": "Email",
     "password": "Password",
@@ -112,8 +116,7 @@
     "createResource": "Create resource",
     "searchPlaceholder": "Search by name, email, phone…",
     "empty": "No resources yet. Create one to get started.",
-    "delete": "Delete",
-    "deleteTitle": "Delete will be available in a future update"
+    "delete": "Delete"
   },
   "resourceDetail": {
     "title": "Resource",
@@ -207,12 +210,21 @@
   "editService": {
     "title": "Edit service",
     "save": "Save",
-    "saveDisabledTitle": "Saving will be available when the API supports updates"
+    "errorSave": "Could not save service"
   },
   "deleteService": {
     "title": "Delete service",
-    "body": "Remove \"{{name}}\"? The server will not be updated until delete is implemented.",
-    "confirm": "OK"
+    "body": "Remove \"{{name}}\"? This action cannot be undone.",
+    "confirm": "Delete",
+    "error": "Could not delete service",
+    "errorConflictAppointments": "This service cannot be deleted because it has future scheduled appointments. Cancel or complete those appointments first."
+  },
+  "deleteResource": {
+    "title": "Delete resource",
+    "body": "Remove \"{{name}}\"? This will also remove their staff account. This action cannot be undone.",
+    "confirm": "Delete",
+    "error": "Could not delete resource",
+    "errorConflictAppointments": "This staff member cannot be deleted because they have future scheduled appointments. Cancel or reassign those appointments first."
   },
   "guests": {
     "title": "Guests",

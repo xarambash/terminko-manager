@@ -1,1 +1,5 @@
-export { extractServerError, formatQueryError } from './errors'
+export {
+  apiErrorMessageForMutation,
+  extractServerError,
+  formatQueryError,
+} from './errors'

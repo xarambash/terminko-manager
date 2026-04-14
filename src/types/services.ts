@@ -18,3 +18,12 @@ export type CreateServicePayload = {
   isActive?: boolean
   sortOrder?: number
 }
+
+/** Body for PATCH /tenants/:tenantId/services/:serviceId — at least one field required */
+export type UpdateServicePayload = {
+  name?: string
+  durationMinutes?: number
+  description?: string | null
+  isActive?: boolean
+  sortOrder?: number
+}

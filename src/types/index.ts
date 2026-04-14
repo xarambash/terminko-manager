@@ -7,7 +7,8 @@ export type {
   AppointmentService,
 } from './appointments'
 
-export type { Service, CreateServicePayload } from './services'
+export type { Service, CreateServicePayload, UpdateServicePayload } from './services'
+export type { Resource, CreateResourcePayload } from './resources'
 export type { Guest } from './guests'
 export type { Tenant } from './tenant'
 export type {
@@ -108,6 +109,15 @@ export type DeleteServiceConfirmModalProps = {
   onClose: () => void
   serviceName: string
   onConfirm: () => void
+  isPending?: boolean
+}
+
+export type DeleteResourceConfirmModalProps = {
+  open: boolean
+  onClose: () => void
+  resourceName: string
+  onConfirm: () => void
+  isPending?: boolean
 }
 
 export type GuestActionPlaceholderModalProps = {

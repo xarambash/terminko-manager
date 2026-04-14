@@ -177,7 +177,7 @@ export function ResourceWorkingHoursSection({ resourceId }: { resourceId: string
 
       await updateMutation.mutateAsync({
         workingHourId: intervalModal.intervalId!,
-        body: { startTime: intervalModal.startTime, endTime: intervalModal.endTime },
+        body: { dayOfWeek: intervalModal.dayOfWeek, startTime: intervalModal.startTime, endTime: intervalModal.endTime },
       })
       closeIntervalModal()
     } catch (err: unknown) {

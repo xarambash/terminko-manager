@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { createResource, fetchResources } from '../api/resources'
+import { createResource, deleteResource, fetchResources } from '../api/resources'
 import { useAuth } from './useAuth'
 import type { CreateResourcePayload } from '../types/resources'
 
@@ -21,8 +21,21 @@ export function useCreateResource() {
 
   return useMutation({
     mutationFn: (body: CreateResourcePayload) => createResource(tenantId!, body),
-    onSuccess: () => {
-      void queryClient.invalidateQueries({ queryKey: ['resources', tenantId] })
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ['resources', tenantId] })
+    },
+  })
+}
+
+export function useDeleteResource() {
+  const queryClient = useQueryClient()
+  const { user } = useAuth()
+  const tenantId = user?.tenantId
+
+  return useMutation({
+    mutationFn: (resourceId: string) => deleteResource(tenantId!, resourceId),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ['resources', tenantId] })
     },
   })
 }

@@ -44,6 +44,7 @@ export type CreateWorkingHourPayload = {
 }
 
 export type UpdateWorkingHourPayload = {
+  dayOfWeek: number
   startTime: string
   endTime: string
 }

@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
+import { toast } from 'sonner'
 import { Pencil, Trash2 } from 'lucide-react'
 import {
   Button,
@@ -19,7 +20,8 @@ import {
   QueryStatusBanner,
 } from '../components'
 import { matchesTableSearch } from '../lib/tableSearch'
-import { useServices } from '../hooks'
+import { useDeleteService, useServices } from '../hooks'
+import { apiErrorMessageForMutation } from '../lib/errors'
 import type { Service } from '../types'
 
 const pageClass = 'flex flex-1 flex-col gap-4 p-4 text-left sm:gap-6 sm:p-6 md:gap-8 md:p-8'
@@ -27,6 +29,7 @@ const pageClass = 'flex flex-1 flex-col gap-4 p-4 text-left sm:gap-6 sm:p-6 md:g
 function ServicesPage() {
   const { t } = useTranslation()
   const { data: services, isPending, isError, error } = useServices()
+  const deleteMutation = useDeleteService()
   const [search, setSearch] = useState('')
   const [createOpen, setCreateOpen] = useState(false)
   const [editService, setEditService] = useState<Service | null>(null)
@@ -159,7 +162,16 @@ function ServicesPage() {
         open={deleteService != null}
         onClose={() => setDeleteService(null)}
         serviceName={deleteService?.name ?? ''}
-        onConfirm={() => {}}
+        isPending={deleteMutation.isPending}
+        onConfirm={async () => {
+          if (!deleteService) return
+          try {
+            await deleteMutation.mutateAsync(deleteService.id)
+            setDeleteService(null)
+          } catch (err: unknown) {
+            toast.error(apiErrorMessageForMutation(err, t, 'deleteService.error'))
+          }
+        }}
       />
     </main>
   )

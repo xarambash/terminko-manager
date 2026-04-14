@@ -1,8 +1,8 @@
 export { useAuth } from './useAuth'
 export { useTenant } from './useTenant'
 export { useAppointments } from './useAppointments'
-export { useResources, useCreateResource } from './useResources'
-export { useServices, useCreateService } from './useServices'
+export { useResources, useCreateResource, useDeleteResource } from './useResources'
+export { useServices, useCreateService, useUpdateService, useDeleteService } from './useServices'
 export { useGuests } from './useGuests'
 export {
   useResourceServices,

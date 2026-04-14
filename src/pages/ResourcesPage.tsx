@@ -1,6 +1,7 @@
 import { useMemo, useState, type KeyboardEvent } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
+import { toast } from 'sonner'
 import {
   Button,
   Card,
@@ -12,13 +13,16 @@ import {
   DataTableScroll,
   DataTableTd,
   DataTableTh,
+  DeleteResourceConfirmModal,
   ListSearchField,
   PageSectionHeader,
   QueryStatusBanner,
 } from '../components'
 import { matchesTableSearch } from '../lib/tableSearch'
-import { useResources } from '../hooks'
+import { useDeleteResource, useResources } from '../hooks'
+import { apiErrorMessageForMutation } from '../lib/errors'
 import { Trash2 } from 'lucide-react'
+import type { Resource } from '../types/resources'
 
 const pageClass = 'flex flex-1 flex-col gap-4 p-4 text-left sm:gap-6 sm:p-6 md:gap-8 md:p-8'
 
@@ -27,7 +31,9 @@ function ResourcesPage() {
   const navigate = useNavigate()
   const [search, setSearch] = useState('')
   const [modalOpen, setModalOpen] = useState(false)
+  const [deleteTarget, setDeleteTarget] = useState<Resource | null>(null)
   const { data: resources, isPending, isError, error } = useResources()
+  const deleteMutation = useDeleteResource()
 
   const sorted = useMemo(() => {
     const list = [...(resources ?? [])]
@@ -131,8 +137,12 @@ function ResourcesPage() {
                             type="button"
                             variant="destructive"
                             size="icon-sm"
-                            aria-label={t('services.delete')}
-                            title={t('services.delete')}
+                            aria-label={t('resources.delete')}
+                            title={t('resources.delete')}
+                            onClick={(e) => {
+                              e.stopPropagation()
+                              setDeleteTarget(r)
+                            }}
                           >
                             <Trash2 aria-hidden />
                           </Button>
@@ -150,6 +160,22 @@ function ResourcesPage() {
       <CreateResourceModal
         open={modalOpen}
         onClose={() => setModalOpen(false)}
+      />
+
+      <DeleteResourceConfirmModal
+        open={deleteTarget !== null}
+        onClose={() => setDeleteTarget(null)}
+        resourceName={deleteTarget ? `${deleteTarget.firstName} ${deleteTarget.lastName}` : ''}
+        isPending={deleteMutation.isPending}
+        onConfirm={async () => {
+          if (!deleteTarget) return
+          try {
+            await deleteMutation.mutateAsync(deleteTarget.id)
+            setDeleteTarget(null)
+          } catch (err: unknown) {
+            toast.error(apiErrorMessageForMutation(err, t, 'deleteResource.error'))
+          }
+        }}
       />
     </main>
   )

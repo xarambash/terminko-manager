@@ -13,3 +13,8 @@ export async function createResource(
   const { data } = await api.post<Resource>(`/tenants/${tenantId}/resources`, body)
   return data
 }
+
+export async function deleteResource(tenantId: string, resourceId: string): Promise<Resource> {
+  const { data } = await api.delete<Resource>(`/tenants/${tenantId}/resources/${resourceId}`)
+  return data
+}

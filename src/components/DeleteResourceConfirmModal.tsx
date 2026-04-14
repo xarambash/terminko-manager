@@ -8,16 +8,20 @@ import {
   DialogHeader,
   DialogTitle,
 } from './ui/dialog'
-import type { DeleteServiceConfirmModalProps } from '../types'
+import type { DeleteResourceConfirmModalProps } from '../types'
 
-export function DeleteServiceConfirmModal({
+export function DeleteResourceConfirmModal({
   open,
   onClose,
-  serviceName,
+  resourceName,
   onConfirm,
   isPending,
-}: DeleteServiceConfirmModalProps) {
+}: DeleteResourceConfirmModalProps) {
   const { t } = useTranslation()
+
+  const handleConfirm = () => {
+    onConfirm()
+  }
 
   return (
     <Dialog
@@ -28,15 +32,15 @@ export function DeleteServiceConfirmModal({
     >
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>{t('deleteService.title')}</DialogTitle>
-          <DialogDescription>{t('deleteService.body', { name: serviceName })}</DialogDescription>
+          <DialogTitle>{t('deleteResource.title')}</DialogTitle>
+          <DialogDescription>{t('deleteResource.body', { name: resourceName })}</DialogDescription>
         </DialogHeader>
         <DialogFooter className="gap-2 sm:justify-end">
           <Button type="button" variant="secondary" onClick={onClose} disabled={isPending}>
             {t('common.cancel')}
           </Button>
-          <Button type="button" variant="destructive" onClick={onConfirm} disabled={isPending}>
-            {isPending ? t('common.deleting') : t('deleteService.confirm')}
+          <Button type="button" variant="destructive" onClick={handleConfirm} disabled={isPending}>
+            {isPending ? t('common.deleting') : t('deleteResource.confirm')}
           </Button>
         </DialogFooter>
       </DialogContent>

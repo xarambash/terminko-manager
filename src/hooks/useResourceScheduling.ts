@@ -45,8 +45,8 @@ export function useAssignResourceService(resourceId: string | undefined) {
   return useMutation({
     mutationFn: (body: AssignServicePayload) =>
       assignServiceToResource(tenantId!, resourceId!, body),
-    onSuccess: () => {
-      void queryClient.invalidateQueries({ queryKey: keys.services })
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: keys.services })
     },
   })
 }
@@ -71,8 +71,8 @@ export function useCreateWorkingHour(resourceId: string | undefined) {
   return useMutation({
     mutationFn: (body: CreateWorkingHourPayload) =>
       createResourceWorkingHour(tenantId!, resourceId!, body),
-    onSuccess: () => {
-      void queryClient.invalidateQueries({ queryKey: keys.workingHours })
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: keys.workingHours })
     },
   })
 }
@@ -86,8 +86,8 @@ export function useUpdateWorkingHour(resourceId: string | undefined) {
   return useMutation({
     mutationFn: ({ workingHourId, body }: { workingHourId: string; body: UpdateWorkingHourPayload }) =>
       updateResourceWorkingHour(tenantId!, resourceId!, workingHourId, body),
-    onSuccess: () => {
-      void queryClient.invalidateQueries({ queryKey: keys.workingHours })
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: keys.workingHours })
     },
   })
 }
@@ -101,8 +101,8 @@ export function useDeleteWorkingHour(resourceId: string | undefined) {
   return useMutation({
     mutationFn: (workingHourId: string) =>
       deleteResourceWorkingHour(tenantId!, resourceId!, workingHourId),
-    onSuccess: () => {
-      void queryClient.invalidateQueries({ queryKey: keys.workingHours })
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: keys.workingHours })
     },
   })
 }
@@ -127,8 +127,8 @@ export function useCreateFreeDay(resourceId: string | undefined) {
   return useMutation({
     mutationFn: (body: CreateFreeDayPayload) =>
       createResourceFreeDay(tenantId!, resourceId!, body),
-    onSuccess: () => {
-      void queryClient.invalidateQueries({ queryKey: keys.freeDays })
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: keys.freeDays })
     },
   })
 }
