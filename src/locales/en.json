@@ -184,7 +184,12 @@
       "overlapConflict": "Interval overlaps existing",
       "errorAdd": "Could not add working hours",
       "errorSave": "Could not update working hours",
-      "errorDelete": "Could not delete working hours"
+      "errorDelete": "Could not delete working hours",
+      "removeInterval": "Remove interval",
+      "copyToWeekdays": "Copy to Mon–Fri",
+      "toggleOffTitle": "Disable working hours?",
+      "toggleOffBody": "All intervals for {{day}} will be permanently deleted.",
+      "toggleOffConfirm": "Delete and disable"
     },
     "services": {
       "title": "Services for this resource",

@@ -24,6 +24,7 @@ export { QueryStatusBanner } from './ui/QueryStatusBanner'
 export { LanguageSwitcher } from './ui/LanguageSwitcher'
 export { DropdownPicker } from './ui/DropdownPicker'
 export { ListSearchField } from './ui/ListSearchField'
+export { Switch } from './ui/Switch'
 export {
   DataTable,
   DataTableBodyRow,
