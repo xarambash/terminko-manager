@@ -25,9 +25,36 @@ export type ResourceWorkingHour = {
 export type ResourceFreeDay = {
   id: string
   resourceId: string
-  date: string
+  start_date: string
+  end_date: string | null
   reason: string | null
   createdAt: string
+}
+
+// Server v1 shape (before terminko-server#8); Prisma returns camelCase (startDate/endDate)
+type LegacyResourceFreeDay = Omit<ResourceFreeDay, 'start_date' | 'end_date'> & {
+  date?: string
+  start_date?: string
+  end_date?: string | null
+  startDate?: string | Date
+  endDate?: string | Date | null
+}
+
+function toDateString(v: string | Date | undefined | null): string | undefined {
+  if (!v) return undefined
+  if (v instanceof Date) return v.toISOString().slice(0, 10)
+  return v.includes('T') ? v.slice(0, 10) : v
+}
+
+export function normalizeResourceFreeDay(raw: LegacyResourceFreeDay): ResourceFreeDay {
+  return {
+    id: raw.id,
+    resourceId: raw.resourceId,
+    start_date: toDateString(raw.start_date ?? raw.startDate ?? raw.date) ?? '',
+    end_date: toDateString(raw.end_date ?? raw.endDate) ?? null,
+    reason: raw.reason,
+    createdAt: raw.createdAt,
+  }
 }
 
 export type AssignServicePayload = {
@@ -50,6 +77,7 @@ export type UpdateWorkingHourPayload = {
 }
 
 export type CreateFreeDayPayload = {
-  date: string
+  start_date: string
+  end_date?: string
   reason?: string
 }

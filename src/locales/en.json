@@ -144,10 +144,21 @@
       "description": "Days when this resource is not available for booking.",
       "empty": "No free days yet.",
       "addTitle": "Add free day",
+      "dateRange": "Date range",
+      "dateRangeLabel": "Date range",
+      "dateRangePlaceholder": "Select dates",
       "reasonOptional": "Reason (optional)",
       "reasonPlaceholder": "e.g. Holiday",
-      "validationDate": "Use YYYY-MM-DD for the date",
-      "errorAdd": "Could not add free day"
+      "validationStartDate": "Start date is required",
+      "validationDateOrder": "End date must be on or after start date",
+      "errorOverlap": "The selected range overlaps with an existing free day",
+      "errorAdd": "Could not add free day",
+      "errorDelete": "Could not delete free day",
+      "deleteTitle": "Delete free day",
+      "deleteBody": "Are you sure you want to delete the free day for {{dateRange}}?",
+      "deleteConfirm": "Delete",
+      "deleting": "Deleting…",
+      "deleteAriaLabel": "Delete free day"
     },
     "workingHours": {
       "title": "Working hours",

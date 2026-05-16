@@ -8,6 +8,7 @@ import type {
   ResourceWorkingHour,
   UpdateWorkingHourPayload,
 } from '../types/resourceScheduling'
+import { normalizeResourceFreeDay } from '../types/resourceScheduling'
 
 export async function fetchResourceServices(
   tenantId: string,
@@ -81,7 +82,7 @@ export async function fetchResourceFreeDays(
   const { data } = await api.get<ResourceFreeDay[]>(
     `/tenants/${tenantId}/resources/${resourceId}/free-days`
   )
-  return data
+  return data.map(normalizeResourceFreeDay)
 }
 
 export async function createResourceFreeDay(
@@ -89,9 +90,18 @@ export async function createResourceFreeDay(
   resourceId: string,
   body: CreateFreeDayPayload
 ): Promise<ResourceFreeDay> {
+  // Include legacy `date` field alongside new fields until terminko-server#8 is deployed
   const { data } = await api.post<ResourceFreeDay>(
     `/tenants/${tenantId}/resources/${resourceId}/free-days`,
-    body
+    { date: body.start_date, ...body }
   )
-  return data
+  return normalizeResourceFreeDay(data)
+}
+
+export async function deleteResourceFreeDay(
+  tenantId: string,
+  resourceId: string,
+  freeDayId: string
+): Promise<void> {
+  await api.delete(`/tenants/${tenantId}/resources/${resourceId}/free-days/${freeDayId}`)
 }

@@ -144,10 +144,21 @@
       "description": "Дани када овај ресурс није доступан за резервацију.",
       "empty": "Још нема слободних дана.",
       "addTitle": "Додај слободан дан",
+      "dateRange": "Опсег датума",
+      "dateRangeLabel": "Опсег датума",
+      "dateRangePlaceholder": "Изабери датуме",
       "reasonOptional": "Разлог (опционо)",
       "reasonPlaceholder": "нпр. празник",
-      "validationDate": "Користите YYYY-MM-DD за датум",
-      "errorAdd": "Није могуће додати слободан дан"
+      "validationStartDate": "Датум почетка је обавезан",
+      "validationDateOrder": "Датум завршетка мора бити на или после датума почетка",
+      "errorOverlap": "Изабрани опсег се преклапа са постојећим слободним даном",
+      "errorAdd": "Није могуће додати слободан дан",
+      "errorDelete": "Није могуће обрисати слободан дан",
+      "deleteTitle": "Обриши слободан дан",
+      "deleteBody": "Да ли сте сигурни да желите да обришете слободан дан за {{dateRange}}?",
+      "deleteConfirm": "Обриши",
+      "deleting": "Брисање…",
+      "deleteAriaLabel": "Обриши слободан дан"
     },
     "workingHours": {
       "title": "Радно време",

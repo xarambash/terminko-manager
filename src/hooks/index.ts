@@ -13,4 +13,5 @@ export {
   useDeleteWorkingHour,
   useResourceFreeDays,
   useCreateFreeDay,
+  useDeleteFreeDay,
 } from './useResourceScheduling'

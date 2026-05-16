@@ -4,9 +4,19 @@ export function formatPrice(value: string | number): string {
   return n.toFixed(2)
 }
 
-export function formatFreeDayDate(isoOrDate: string): string {
-  if (isoOrDate.includes('T')) return isoOrDate.split('T')[0] ?? isoOrDate
-  return isoOrDate.slice(0, 10)
+export function formatFreeDayRange(startDate: string, endDate: string | null): string {
+  const start = startDate.includes('T') ? (startDate.split('T')[0] ?? startDate) : startDate.slice(0, 10)
+  if (!endDate || endDate === startDate) {
+    const [year, month, day] = start.split('-').map(Number)
+    const d = new Date(year!, month! - 1, day!)
+    return d.toLocaleDateString('en-GB', { month: 'short', day: 'numeric', year: 'numeric' })
+  }
+  const end = endDate.includes('T') ? (endDate.split('T')[0] ?? endDate) : endDate.slice(0, 10)
+  const [sy, sm, sd] = start.split('-').map(Number)
+  const [ey, em, ed] = end.split('-').map(Number)
+  const from = new Date(sy!, sm! - 1, sd!)
+  const to = new Date(ey!, em! - 1, ed!)
+  return `${from.toLocaleDateString('en-GB', { month: 'short', day: 'numeric' })} – ${to.toLocaleDateString('en-GB', { month: 'short', day: 'numeric' })}`
 }
 
 export const timeRe = /^([01]?[0-9]|2[0-3]):[0-5][0-9]$/

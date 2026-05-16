@@ -3,6 +3,7 @@ import {
   assignServiceToResource,
   createResourceFreeDay,
   createResourceWorkingHour,
+  deleteResourceFreeDay,
   deleteResourceWorkingHour,
   fetchResourceFreeDays,
   fetchResourceServices,
@@ -127,6 +128,21 @@ export function useCreateFreeDay(resourceId: string | undefined) {
   return useMutation({
     mutationFn: (body: CreateFreeDayPayload) =>
       createResourceFreeDay(tenantId!, resourceId!, body),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: keys.freeDays })
+    },
+  })
+}
+
+export function useDeleteFreeDay(resourceId: string | undefined) {
+  const queryClient = useQueryClient()
+  const { user } = useAuth()
+  const tenantId = user?.tenantId
+  const keys = schedulingKeys(tenantId, resourceId)
+
+  return useMutation({
+    mutationFn: (freeDayId: string) =>
+      deleteResourceFreeDay(tenantId!, resourceId!, freeDayId),
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: keys.freeDays })
     },

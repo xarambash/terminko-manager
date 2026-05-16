@@ -1,73 +1,47 @@
-# React + TypeScript + Vite
+# Terminko Manager
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Web app for salon appointment management. Built for owners and staff to manage appointments, resources, services, guests, and resource scheduling.
 
-Currently, two official plugins are available:
+## Stack
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+- React 19 + TypeScript + Vite
+- TanStack React Query v5
+- React Hook Form + Zod
+- shadcn/ui + Tailwind CSS
+- i18next (Serbian + English)
+- Sonner (toast notifications)
 
-## React Compiler
+## Setup
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
-
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
-
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```bash
+cp .env.example .env   # set VITE_API_URL and VITE_TENANT_SLUG
+npm install
+npm run dev
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+## Commands
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```bash
+npm run dev       # dev server (port 5173)
+npm run build     # tsc + vite build
+npm run lint      # ESLint
+npm run preview   # preview production build
 ```
+
+## Environment variables
+
+| Variable | Description |
+|----------|-------------|
+| `VITE_API_URL` | Backend base URL (e.g. `http://localhost:5000`) |
+| `VITE_TENANT_SLUG` | Tenant identifier (e.g. `salon-demo`) |
+
+## Architecture
+
+| Layer | Location | Role |
+|-------|----------|------|
+| API client | `src/api/` | Axios calls, one file per domain |
+| Hooks | `src/hooks/` | TanStack Query wrappers |
+| Pages | `src/pages/` | Route-level components |
+| Components | `src/components/` | Shared UI and modals |
+| Types | `src/types/` | TypeScript interfaces |
+| Contexts | `src/contexts/` | Auth context (JWT, localStorage) |

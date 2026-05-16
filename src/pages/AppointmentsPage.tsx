@@ -14,15 +14,13 @@ import {
   PageSectionHeader,
   QueryStatusBanner,
 } from '../components'
-import { Input } from '@/components/ui/input'
+import { DatePicker } from '@/components/ui/DatePicker'
 import { calendarLocaleFromLng } from '../lib/dateLocale'
 import { matchesTableSearch } from '../lib/tableSearch'
 import { useAppointments, useAuth, useResources } from '../hooks'
 import type { AppointmentStatus, AppointmentWithRelations } from '../types'
 
 const pageClass = 'flex flex-1 flex-col gap-4 p-4 text-left sm:gap-6 sm:p-6 md:gap-8 md:p-8'
-const pickerControlClass =
-  'h-8 min-w-0 rounded-lg border border-input bg-transparent px-2.5 py-1 text-base transition-colors outline-none placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 disabled:pointer-events-none disabled:cursor-not-allowed disabled:bg-input/50 disabled:opacity-50 md:text-sm dark:bg-input/30 dark:disabled:bg-input/80'
 
 function useAppointmentStatusLabels() {
   const { t } = useTranslation()
@@ -139,12 +137,11 @@ function AppointmentsPage() {
             onChange={setSearch}
             containerClassName="max-w-none min-w-[16rem] flex-1"
           />
-          <Input
-            type="date"
+          <DatePicker
             value={selectedDate}
-            onChange={(e) => setSelectedDate(e.target.value)}
-            className={`w-[11rem] ${pickerControlClass}`}
+            onChange={setSelectedDate}
             aria-label={t('appointments.filters.date')}
+            className="w-auto"
           />
           {isOwner && (
             <DropdownPicker
