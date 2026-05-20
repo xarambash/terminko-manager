@@ -226,13 +226,20 @@
       "durationOverride": "Друго трајање (опционо)",
       "durationPlaceholder": "Минути",
       "pricePlaceholder": "нпр. 25.00",
-      "optionAssigned": " — већ додељено",
       "validationSelect": "Изаберите услугу",
       "validationDuplicate": "Ова услуга је већ додељена овом ресурсу",
       "validationPrice": "Унесите исправну цену (0 или више)",
       "validationDuration": "Друго трајање мора бити позитиван цео број минута",
       "errorAssign": "Није могуће доделити услугу",
-      "noTenantServices": "Пре доделе креирајте услуге за ваш салон."
+      "noTenantServices": "Пре доделе креирајте услуге за ваш салон.",
+      "editTitle": "Измени додељену услугу",
+      "editDescription": "Промени цену и трајање за {{name}}.",
+      "errorEdit": "Није могуће ажурирати додељену услугу",
+      "unassignTitle": "Уклони услугу",
+      "unassignBody": "Уклонити \"{{name}}\" са овог ресурса?",
+      "unassignConfirm": "Уклони",
+      "unassigning": "Уклањање…",
+      "errorUnassign": "Није могуће уклонити услугу"
     }
   },
   "createService": {

@@ -7,6 +7,8 @@ export { useGuests } from './useGuests'
 export {
   useResourceServices,
   useAssignResourceService,
+  useUpdateResourceService,
+  useDeleteResourceService,
   useResourceWorkingHours,
   useCreateWorkingHour,
   useUpdateWorkingHour,

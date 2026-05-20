@@ -226,13 +226,20 @@
       "durationOverride": "Duration override (optional)",
       "durationPlaceholder": "Minutes",
       "pricePlaceholder": "e.g. 25.00",
-      "optionAssigned": " — already assigned",
       "validationSelect": "Select a service",
       "validationDuplicate": "This service is already assigned to this resource",
       "validationPrice": "Enter a valid price (0 or greater)",
       "validationDuration": "Duration override must be a positive whole number of minutes",
       "errorAssign": "Could not assign service",
-      "noTenantServices": "Create services under your tenant before assigning them here."
+      "noTenantServices": "Create services under your tenant before assigning them here.",
+      "editTitle": "Edit service assignment",
+      "editDescription": "Update the price and duration override for {{name}}.",
+      "errorEdit": "Could not update service assignment",
+      "unassignTitle": "Remove service",
+      "unassignBody": "Remove \"{{name}}\" from this resource?",
+      "unassignConfirm": "Remove",
+      "unassigning": "Removing…",
+      "errorUnassign": "Could not remove service"
     }
   },
   "createService": {

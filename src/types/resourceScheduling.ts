@@ -64,6 +64,11 @@ export type AssignServicePayload = {
   isActive?: boolean
 }
 
+export type UpdateResourceServicePayload = {
+  price?: number
+  durationOverride?: number | null
+}
+
 export type CreateWorkingHourPayload = {
   dayOfWeek: number
   startTime: string

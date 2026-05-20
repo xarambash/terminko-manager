@@ -6,6 +6,7 @@ import type {
   ResourceFreeDay,
   ResourceServiceAssignment,
   ResourceWorkingHour,
+  UpdateResourceServicePayload,
   UpdateWorkingHourPayload,
 } from '../types/resourceScheduling'
 import { normalizeResourceFreeDay } from '../types/resourceScheduling'
@@ -30,6 +31,27 @@ export async function assignServiceToResource(
     body
   )
   return data
+}
+
+export async function updateResourceService(
+  tenantId: string,
+  resourceId: string,
+  resourceServiceId: string,
+  body: UpdateResourceServicePayload
+): Promise<ResourceServiceAssignment> {
+  const { data } = await api.patch<ResourceServiceAssignment>(
+    `/tenants/${tenantId}/resources/${resourceId}/services/${resourceServiceId}`,
+    body
+  )
+  return data
+}
+
+export async function deleteResourceService(
+  tenantId: string,
+  resourceId: string,
+  resourceServiceId: string
+): Promise<void> {
+  await api.delete(`/tenants/${tenantId}/resources/${resourceId}/services/${resourceServiceId}`)
 }
 
 export async function fetchResourceWorkingHours(

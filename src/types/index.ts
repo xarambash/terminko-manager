@@ -16,6 +16,7 @@ export type {
   ResourceWorkingHour,
   ResourceFreeDay,
   AssignServicePayload,
+  UpdateResourceServicePayload,
   CreateWorkingHourPayload,
   UpdateWorkingHourPayload,
   CreateFreeDayPayload,
