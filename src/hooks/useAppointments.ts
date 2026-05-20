@@ -1,5 +1,5 @@
-import { useQuery } from '@tanstack/react-query'
-import { fetchAppointments } from '../api/appointments'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { cancelAppointment, fetchAppointments } from '../api/appointments'
 import type { AppointmentWithRelations, ListAppointmentsParams } from '../types/appointments'
 import { useAuth } from './useAuth'
 
@@ -11,5 +11,18 @@ export function useAppointments(params: ListAppointmentsParams, enabled = true) 
     queryKey: ['appointments', tenantId, user?.id, params.date, params.resourceId ?? null],
     queryFn: () => fetchAppointments(tenantId!, params),
     enabled: Boolean(tenantId) && Boolean(params.date) && enabled,
+  })
+}
+
+export function useCancelAppointment() {
+  const queryClient = useQueryClient()
+  const { user } = useAuth()
+  const tenantId = user?.tenantId
+
+  return useMutation({
+    mutationFn: (appointmentId: string) => cancelAppointment(tenantId!, appointmentId),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ['appointments', tenantId] })
+    },
   })
 }

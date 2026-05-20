@@ -100,6 +100,15 @@
     "statusCompleted": "Завршено",
     "statusCanceled": "Отказано"
   },
+  "cancelAppointment": {
+    "title": "Откажи термин",
+    "body": "Да ли сте сигурни да желите да откажете термин за {{guestName}} — услуга {{serviceName}}? Гост ће добити имејл о отказивању.",
+    "confirm": "Откажи термин",
+    "canceling": "Отказивање…",
+    "error": "Није могуће отказати термин",
+    "success": "Термин је отказан",
+    "action": "Откажи"
+  },
   "services": {
     "title": "Услуге",
     "createService": "Нова услуга",

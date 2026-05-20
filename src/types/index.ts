@@ -126,3 +126,12 @@ export type GuestActionPlaceholderModalProps = {
   guestName: string
   action: 'ban' | 'unban'
 }
+
+export type CancelAppointmentConfirmModalProps = {
+  open: boolean
+  onClose: () => void
+  onConfirm: () => Promise<void>
+  isPending: boolean
+  guestName: string
+  serviceName: string
+}

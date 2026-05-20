@@ -11,3 +11,13 @@ export async function fetchAppointments(
   )
   return data
 }
+
+export async function cancelAppointment(
+  tenantId: string,
+  appointmentId: string
+): Promise<AppointmentWithRelations> {
+  const { data } = await api.patch<AppointmentWithRelations>(
+    `/tenants/${tenantId}/appointments/${appointmentId}`
+  )
+  return data
+}

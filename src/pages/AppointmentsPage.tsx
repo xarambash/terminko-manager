@@ -1,6 +1,8 @@
 import { useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
+import { toast } from 'sonner'
 import {
+  CancelAppointmentConfirmModal,
   Card,
   DataTable,
   DataTableBodyRow,
@@ -17,7 +19,8 @@ import {
 import { DatePicker } from '@/components/ui/DatePicker'
 import { calendarLocaleFromLng } from '../lib/dateLocale'
 import { matchesTableSearch } from '../lib/tableSearch'
-import { useAppointments, useAuth, useResources } from '../hooks'
+import { useAppointments, useAuth, useCancelAppointment, useResources } from '../hooks'
+import { apiErrorMessageForMutation } from '../lib/errors'
 import type { AppointmentStatus, AppointmentWithRelations } from '../types'
 
 const pageClass = 'flex flex-1 flex-col gap-4 p-4 text-left sm:gap-6 sm:p-6 md:gap-8 md:p-8'
@@ -32,6 +35,18 @@ function useAppointmentStatusLabels() {
     }),
     [t]
   )
+}
+
+function AppointmentStatusBadge({ status, label }: { status: string; label: string }) {
+  let cls = 'inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium '
+  if (status === 'scheduled') {
+    cls += 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400'
+  } else if (status === 'completed') {
+    cls += 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400'
+  } else {
+    cls += 'bg-gray-100 text-gray-500 dark:bg-gray-800 dark:text-gray-400'
+  }
+  return <span className={cls}>{label}</span>
 }
 
 function formatAppointmentTime(iso: string, locale: string) {
@@ -87,6 +102,7 @@ function AppointmentsPage() {
   const [selectedResourceId, setSelectedResourceId] = useState('')
   const { data: resources = [] } = useResources()
   const [search, setSearch] = useState('')
+  const [cancelTarget, setCancelTarget] = useState<AppointmentWithRelations | null>(null)
 
   const ownerResources = useMemo(() => {
     const list = [...resources]
@@ -119,6 +135,7 @@ function AppointmentsPage() {
     queryParams,
     canFetchAppointments
   )
+  const cancelMutation = useCancelAppointment()
 
   const list = useMemo(() => appointments ?? [], [appointments])
   const filtered = useMemo(
@@ -170,21 +187,22 @@ function AppointmentsPage() {
       {!canFetchAppointments ? null : !isPending && !isError && (
         <Card className="overflow-hidden p-0">
           <DataTableScroll variant="page">
-            <DataTable variant="page" minWidth={600}>
+            <DataTable variant="page" minWidth={700}>
               <thead>
                 <DataTableHeadRow variant="page">
-                  <DataTableTh variant="page">{t('common.time')}</DataTableTh>
-                  <DataTableTh variant="page">{t('common.service')}</DataTableTh>
                   <DataTableTh variant="page">{t('common.fullName')}</DataTableTh>
+                  <DataTableTh variant="page">{t('common.service')}</DataTableTh>
+                  <DataTableTh variant="page">{t('common.time')}</DataTableTh>
                   <DataTableTh variant="page">{t('common.email')}</DataTableTh>
                   <DataTableTh variant="page">{t('common.phone')}</DataTableTh>
-                  <DataTableTh variant="page">{t('common.notes')}</DataTableTh>
+                  <DataTableTh variant="page">{t('common.status')}</DataTableTh>
+                  <DataTableTh variant="page">{t('common.actions')}</DataTableTh>
                 </DataTableHeadRow>
               </thead>
               <tbody>
                 {list.length === 0 ? (
                   <tr>
-                    <DataTableEmptyCell variant="page" colSpan={6}>
+                    <DataTableEmptyCell variant="page" colSpan={7}>
                       {isOwner
                         ? t('appointments.emptyForDateAndResource')
                         : t('appointments.emptyForDate')}
@@ -192,41 +210,75 @@ function AppointmentsPage() {
                   </tr>
                 ) : filtered.length === 0 ? (
                   <tr>
-                    <DataTableEmptyCell variant="page" colSpan={6}>
+                    <DataTableEmptyCell variant="page" colSpan={7}>
                       {t('common.emptySearch')}
                     </DataTableEmptyCell>
                   </tr>
                 ) : (
-                  filtered.map((apt) => (
-                    <DataTableBodyRow key={apt.id} hoverable>
-                      <DataTableTd variant="page" className="text-[var(--text-h)]">
-                        {formatAppointmentTime(apt.startAt, calLocale)}
-                      </DataTableTd>
-                      <DataTableTd variant="page" className="text-[var(--text-h)]">
-                        {apt.service.name}
-                      </DataTableTd>
-                      <DataTableTd variant="page" className="text-[var(--text-h)]">
-                        {apt.guest.name}
-                      </DataTableTd>
-                      <DataTableTd variant="page" className="text-[var(--text)]">
-                        {apt.guest.email}
-                      </DataTableTd>
-                      <DataTableTd variant="page" className="text-[var(--text)]">
-                        {apt.guest.phone}
-                      </DataTableTd>
-                       <DataTableTd
-                        variant="page"
-                        className="max-w-[200px] truncate text-[var(--text-h)]">
-                        {apt.notes ?? t('common.dash')}
-                      </DataTableTd>
-                    </DataTableBodyRow>
-                  ))
+                  filtered.map((apt) => {
+                    const normalized = normalizeStatus(apt.status)
+                    const statusLabel = normalized ? statusLabels[normalized] : apt.status
+                    return (
+                      <DataTableBodyRow key={apt.id} hoverable>
+                        <DataTableTd variant="page" className="text-[var(--text-h)]">
+                          {apt.guest.name}
+                        </DataTableTd>
+                        <DataTableTd variant="page" className="text-[var(--text-h)]">
+                          {apt.service.name}
+                        </DataTableTd>
+                        <DataTableTd variant="page" className="text-[var(--text-h)]">
+                          {formatAppointmentTime(apt.startAt, calLocale)}
+                        </DataTableTd>
+                        <DataTableTd variant="page" className="text-[var(--text)]">
+                          {apt.guest.email}
+                        </DataTableTd>
+                        <DataTableTd variant="page" className="text-[var(--text)]">
+                          {apt.guest.phone}
+                        </DataTableTd>
+                        <DataTableTd variant="page">
+                          <AppointmentStatusBadge status={apt.status} label={statusLabel} />
+                        </DataTableTd>
+                        <DataTableTd variant="page">
+                          {apt.status === 'scheduled' && (
+                            <button
+                              type="button"
+                              onClick={(e) => {
+                                e.stopPropagation()
+                                setCancelTarget(apt)
+                              }}
+                              className="text-xs text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300"
+                            >
+                              {t('cancelAppointment.action')}
+                            </button>
+                          )}
+                        </DataTableTd>
+                      </DataTableBodyRow>
+                    )
+                  })
                 )}
               </tbody>
             </DataTable>
           </DataTableScroll>
         </Card>
       )}
+
+      <CancelAppointmentConfirmModal
+        open={cancelTarget !== null}
+        onClose={() => setCancelTarget(null)}
+        guestName={cancelTarget?.guest.name ?? ''}
+        serviceName={cancelTarget?.service.name ?? ''}
+        isPending={cancelMutation.isPending}
+        onConfirm={async () => {
+          if (!cancelTarget) return
+          try {
+            await cancelMutation.mutateAsync(cancelTarget.id)
+            toast.success(t('cancelAppointment.success'))
+            setCancelTarget(null)
+          } catch (err: unknown) {
+            toast.error(apiErrorMessageForMutation(err, t, 'cancelAppointment.error'))
+          }
+        }}
+      />
     </main>
   )
 }
