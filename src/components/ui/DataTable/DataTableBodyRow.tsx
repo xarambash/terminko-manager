@@ -10,10 +10,10 @@ export function DataTableBodyRow({
   className = '',
   ...props
 }: DataTableBodyRowProps) {
-  const hover = hoverable ? ' transition hover:bg-[var(--bg)]' : ''
+  const hover = hoverable ? ' transition hover:bg-muted/40' : ''
   return (
     <tr
-      className={`border-b border-[var(--border)] last:border-b-0${hover} ${className}`.trim()}
+      className={`border-b border-zinc-200 dark:border-zinc-800 last:border-b-0${hover} ${className}`.trim()}
       {...props}
     />
   )

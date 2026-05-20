@@ -80,9 +80,7 @@ function GuestsPage() {
                   <DataTableTh variant="page">{t('guests.penaltyPoints')}</DataTableTh>
                   <DataTableTh variant="page">{t('common.status')}</DataTableTh>
                   <DataTableTh variant="page">{t('guests.bannedUntil')}</DataTableTh>
-                  <DataTableTh variant="page" align="right">
-                    {t('common.actions')}
-                  </DataTableTh>
+                  <DataTableTh variant="page" align="right" />
                 </DataTableHeadRow>
               </thead>
               <tbody>

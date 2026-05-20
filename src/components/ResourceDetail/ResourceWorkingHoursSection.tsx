@@ -356,14 +356,13 @@ export function ResourceWorkingHoursSection({ resourceId }: { resourceId: string
         <p className="text-sm text-[var(--text)]">
           {t('resourceDetail.workingHours.description')}
         </p>
+        <QueryStatusBanner
+          isPending={isPending}
+          isError={isError}
+          error={error}
+          loadingText={t('loading.workingHours')}
+        />
       </div>
-
-      <QueryStatusBanner
-        isPending={isPending}
-        isError={isError}
-        error={error}
-        loadingText={t('loading.workingHours')}
-      />
 
       {!isPending && !isError && (
         <div className="divide-y divide-[var(--border)]">

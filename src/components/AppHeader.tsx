@@ -2,16 +2,14 @@ import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { Menu } from 'lucide-react'
-import { useAuth } from '../hooks/useAuth'
-import { Button } from './ui/Button'
 import { LanguageSwitcher } from './ui/LanguageSwitcher'
 import { ThemeSwitch } from './ui/ThemeSwitch'
 import { AppSidebarNav } from './AppSidebarNav'
 import { TenantBrandName } from './TenantBrandName'
+import { Button } from './ui/Button'
 
 export function AppHeader() {
   const { t } = useTranslation()
-  const { logout } = useAuth()
   const [mobileOpen, setMobileOpen] = useState(false)
 
   useEffect(() => {
@@ -31,7 +29,7 @@ export function AppHeader() {
   return (
     <>
       <header className="sticky top-0 z-30 border-b border-[var(--header-border)] bg-[var(--header-bg)] backdrop-blur-md supports-backdrop-filter:bg-[var(--header-bg)]">
-        <div className="mx-auto flex h-16 min-w-0 max-w-[90rem] items-center gap-4 px-4 lg:px-8">
+        <div className="mx-auto flex h-12 min-w-0 max-w-[90rem] items-center gap-4 px-4 lg:px-8">
           <Button
             type="button"
             variant="ghost"
@@ -50,12 +48,9 @@ export function AppHeader() {
           >
             <TenantBrandName />
           </Link>
-          <div className="ml-auto flex shrink-0 items-center gap-2 sm:gap-3">
+          <div className="ml-auto flex shrink-0 items-center gap-2">
             <ThemeSwitch />
             <LanguageSwitcher />
-            <Button type="button" variant="outline" size="sm" onClick={logout}>
-              {t('common.logout')}
-            </Button>
           </div>
         </div>
       </header>
@@ -70,7 +65,7 @@ export function AppHeader() {
           />
           <div
             id="mobile-app-nav"
-            className="fixed inset-x-0 top-16 z-50 max-h-[calc(100dvh-4rem)] overflow-y-auto border-b border-[var(--border)] bg-[var(--bg)] px-2 py-4 shadow-lg lg:hidden"
+            className="fixed inset-x-0 top-12 z-50 max-h-[calc(100dvh-3rem)] overflow-y-auto border-b border-[var(--border)] bg-[var(--bg)] px-2 py-4 shadow-lg lg:hidden"
           >
             <AppSidebarNav onNavigate={() => setMobileOpen(false)} />
           </div>

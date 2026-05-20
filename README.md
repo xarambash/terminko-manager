@@ -45,3 +45,15 @@ npm run preview   # preview production build
 | Components | `src/components/` | Shared UI and modals |
 | Types | `src/types/` | TypeScript interfaces |
 | Contexts | `src/contexts/` | Auth context (JWT, localStorage) |
+
+## Features
+
+### Owner
+- Appointments overview with resource and date filters
+- Resource management — create, delete, edit profile (name, email, phone, photo)
+- Service management — CRUD with duration and description
+- Resource scheduling — working hours (inline weekly form), free days (date range), service assignments with price and duration override; edit and unassign existing assignments
+- Guest list
+
+### Staff
+- Own appointments view with date filter
