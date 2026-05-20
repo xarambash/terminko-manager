@@ -8,7 +8,7 @@ import {
   ResourceSummaryCard,
   ResourceWorkingHoursSection,
 } from '../components/ResourceDetail'
-import { useResources } from '../hooks'
+import { useResources, useUpdateResource, useUploadResourcePhoto } from '../hooks'
 const pageClass = 'flex flex-1 flex-col gap-4 p-4 text-left sm:gap-6 sm:p-6 md:gap-8 md:p-8'
 const tabsClass = 'flex items-center gap-1'
 
@@ -22,6 +22,8 @@ function ResourceDetailPage() {
   const navigate = useNavigate()
   const [searchParams] = useSearchParams()
   const { data: resources, isPending, isError, error } = useResources()
+  const updateResource = useUpdateResource()
+  const uploadPhoto = useUploadResourcePhoto()
 
   const resource = resourceId ? resources?.find((r) => r.id === resourceId) : undefined
   const listReady = !isPending && !isError && resources != null
@@ -91,7 +93,26 @@ function ResourceDetailPage() {
 
       {resource && resourceId && (
         <>
-          {activeTab === 'profile' && <ResourceSummaryCard resource={resource} />}
+          {activeTab === 'profile' && (
+            <ResourceSummaryCard
+              resource={resource}
+              onSave={async (fields) => {
+                await updateResource.mutateAsync({
+                  id: resourceId,
+                  body: {
+                    firstName: fields.firstName,
+                    lastName: fields.lastName,
+                    email: fields.email,
+                    phone: fields.phone || null,
+                    isActive: fields.isActive,
+                  },
+                })
+              }}
+              onUploadPhoto={async (file) => {
+                await uploadPhoto.mutateAsync({ id: resourceId, file })
+              }}
+            />
+          )}
           {activeTab === 'services' && <ResourceServicesSection resourceId={resourceId} />}
           {activeTab === 'working-hours' && <ResourceWorkingHoursSection resourceId={resourceId} />}
           {activeTab === 'absences' && <ResourceFreeDaysSection resourceId={resourceId} />}

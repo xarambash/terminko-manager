@@ -8,7 +8,7 @@ export type {
 } from './appointments'
 
 export type { Service, CreateServicePayload, UpdateServicePayload } from './services'
-export type { Resource, CreateResourcePayload } from './resources'
+export type { Resource, CreateResourcePayload, UpdateResourcePayload } from './resources'
 export type { Guest } from './guests'
 export type { Tenant } from './tenant'
 export type {
