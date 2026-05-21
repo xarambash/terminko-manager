@@ -23,7 +23,7 @@ export type {
 } from './resourceScheduling'
 
 import type React from 'react'
-import type { ReactNode, InputHTMLAttributes } from 'react'
+import type { ReactNode } from 'react'
 
 export type User = {
   id: string
@@ -51,10 +51,6 @@ export type LoginForm = {
   password: string
 }
 
-export type FormFieldProps = InputHTMLAttributes<HTMLInputElement> & {
-  label: string
-  error?: string
-}
 
 export type CardProps = {
   children: ReactNode
