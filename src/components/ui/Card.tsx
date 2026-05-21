@@ -1,19 +1,26 @@
+import { Paper } from '@mantine/core'
 import { Link } from 'react-router-dom'
 import type { CardProps } from '../../types'
 
-const baseClasses =
-  'rounded-lg border border-[var(--border)] bg-[var(--bg)] shadow-xs dark:shadow-none transition'
-
-export function Card({ children, className = '', to }: CardProps) {
-  const classes = `${baseClasses} ${to ? 'hover:border-[var(--accent-border)]' : ''} ${className}`.trim()
-
+export function Card({ children, className, style, to }: CardProps) {
   if (to) {
     return (
-      <Link to={to} className={classes}>
+      <Paper
+        component={Link}
+        to={to}
+        withBorder
+        shadow="xs"
+        className={className}
+        style={{ display: 'block', textDecoration: 'none', color: 'inherit', ...style }}
+      >
         {children}
-      </Link>
+      </Paper>
     )
   }
 
-  return <div className={classes}>{children}</div>
+  return (
+    <Paper withBorder shadow="xs" className={className} style={style}>
+      {children}
+    </Paper>
+  )
 }

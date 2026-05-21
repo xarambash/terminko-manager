@@ -1,8 +1,9 @@
 import { useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { ChevronDownIcon, Pencil, Trash2 } from 'lucide-react'
-import { Button } from '../ui/Button'
-import { Card } from '../ui/Card'
+import { IconPencil, IconTrash } from '@tabler/icons-react'
+import {
+  Paper, Stack, Text, Button, Group, Modal, Select, TextInput, NumberInput, ActionIcon,
+} from '@mantine/core'
 import {
   DataTable,
   DataTableBodyRow,
@@ -12,22 +13,7 @@ import {
   DataTableTd,
   DataTableTh,
 } from '../ui/DataTable'
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from '../ui/dialog'
 import { FormError } from '../ui/FormError'
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from '../ui/dropdown-menu'
-import { FormField } from '../ui/FormField'
 import { QueryStatusBanner } from '../ui/QueryStatusBanner'
 import {
   useAssignResourceService,
@@ -108,12 +94,6 @@ export function ResourceServicesSection({ resourceId }: { resourceId: string }) 
     }
   }
 
-  const openUnassign = (a: ResourceServiceAssignment) => {
-    setUnassignTarget(a)
-    setUnassignError(undefined)
-    deleteMutation.reset()
-  }
-
   const closeUnassign = () => {
     if (deleteMutation.isPending) return
     setUnassignTarget(null)
@@ -146,11 +126,6 @@ export function ResourceServicesSection({ resourceId }: { resourceId: string }) 
     [assignments]
   )
 
-  const selectedService = useMemo(() => {
-    if (!serviceId) return undefined
-    return tenantServicesOrdered.find((s) => s.id === serviceId)
-  }, [serviceId, tenantServicesOrdered])
-
   const resetForm = () => {
     setServiceId('')
     setPrice('')
@@ -161,26 +136,14 @@ export function ResourceServicesSection({ resourceId }: { resourceId: string }) 
 
   const onAssign = async () => {
     setFormError(undefined)
-    if (!serviceId) {
-      setFormError(t('resourceDetail.services.validationSelect'))
-      return
-    }
-    if (assignedServiceIds.has(serviceId)) {
-      setFormError(t('resourceDetail.services.validationDuplicate'))
-      return
-    }
+    if (!serviceId) { setFormError(t('resourceDetail.services.validationSelect')); return }
+    if (assignedServiceIds.has(serviceId)) { setFormError(t('resourceDetail.services.validationDuplicate')); return }
     const priceNum = Number.parseFloat(price)
-    if (Number.isNaN(priceNum) || priceNum < 0) {
-      setFormError(t('resourceDetail.services.validationPrice'))
-      return
-    }
+    if (Number.isNaN(priceNum) || priceNum < 0) { setFormError(t('resourceDetail.services.validationPrice')); return }
     let duration: number | undefined
     if (durationOverride.trim()) {
       const d = Number.parseInt(durationOverride, 10)
-      if (Number.isNaN(d) || d <= 0) {
-        setFormError(t('resourceDetail.services.validationDuration'))
-        return
-      }
+      if (Number.isNaN(d) || d <= 0) { setFormError(t('resourceDetail.services.validationDuration')); return }
       duration = d
     }
     try {
@@ -195,239 +158,156 @@ export function ResourceServicesSection({ resourceId }: { resourceId: string }) 
     }
   }
 
+  const serviceSelectData = tenantServicesOrdered.map((s) => ({
+    value: s.id,
+    label: `${s.name} (${t('common.minutes', { count: s.durationMinutes })})`,
+    disabled: assignedServiceIds.has(s.id),
+  }))
+
   return (
-    <Card className="flex flex-col gap-4 p-4 sm:p-6">
-      <h2 className="text-lg font-medium text-[var(--text-h)]">{t('resourceDetail.services.title')}</h2>
-      <p className="text-sm text-[var(--text)]">{t('resourceDetail.services.description')}</p>
+    <Paper withBorder shadow="xs" p="md">
+      <Stack gap="md">
+        <div>
+          <Text fw={500} size="md" mb="xs">{t('resourceDetail.services.title')}</Text>
+          <Text size="sm" c="dimmed">{t('resourceDetail.services.description')}</Text>
+        </div>
 
-      <QueryStatusBanner
-        isPending={isPending}
-        isError={isError}
-        error={error}
-        loadingText={t('loading.assignedServices')}
-      />
+        <QueryStatusBanner isPending={isPending} isError={isError} error={error} loadingText={t('loading.assignedServices')} />
 
-      {!isPending && !isError && (
-        <>
-          <QueryStatusBanner
-            isPending={servicesPending}
-            isError={servicesError}
-            error={servicesQueryError}
-            loadingText={t('loading.tenantServices')}
-          />
+        {!isPending && !isError && (
+          <>
+            <QueryStatusBanner isPending={servicesPending} isError={servicesError} error={servicesQueryError} loadingText={t('loading.tenantServices')} />
 
-          <DataTableScroll variant="inset">
-            <DataTable variant="inset" minWidth={520}>
-              <thead>
-                <DataTableHeadRow variant="inset">
-                  <DataTableTh variant="inset">{t('common.service')}</DataTableTh>
-                  <DataTableTh variant="inset">{t('common.duration')}</DataTableTh>
-                  <DataTableTh variant="inset">{t('common.price')}</DataTableTh>
-                  <DataTableTh variant="inset">{t('common.actions')}</DataTableTh>
-                </DataTableHeadRow>
-              </thead>
-              <tbody>
-                {(assignments ?? []).length === 0 ? (
-                  <tr>
-                    <DataTableEmptyCell variant="inset" colSpan={4}>
-                      {t('resourceDetail.services.empty')}
-                    </DataTableEmptyCell>
-                  </tr>
-                ) : (
-                  (assignments ?? []).map((a) => (
-                    <DataTableBodyRow key={a.id}>
-                      <DataTableTd variant="inset" className="text-[var(--text-h)]">
-                        {a.service.name}
-                      </DataTableTd>
-                      <DataTableTd variant="inset" className="text-[var(--text)]">
-                        {t('common.minutes', {
-                          count: a.durationOverride ?? a.service.durationMinutes,
-                        })}
-                      </DataTableTd>
-                      <DataTableTd variant="inset" className="text-[var(--text)]">
-                        {formatPrice(a.price)}
-                      </DataTableTd>
-                      <DataTableTd variant="inset">
-                        <div className="flex gap-1">
-                          <Button
-                            type="button"
-                            variant="ghost"
-                            size="icon-sm"
-                            onClick={() => openEdit(a)}
-                          >
-                            <Pencil className="size-4" />
-                          </Button>
-                          <Button
-                            type="button"
-                            variant="ghost"
-                            size="icon-sm"
-                            onClick={() => openUnassign(a)}
-                          >
-                            <Trash2 className="size-4" />
-                          </Button>
-                        </div>
-                      </DataTableTd>
-                    </DataTableBodyRow>
-                  ))
-                )}
-              </tbody>
-            </DataTable>
-          </DataTableScroll>
+            <DataTableScroll variant="inset">
+              <DataTable variant="inset" minWidth={520}>
+                <thead>
+                  <DataTableHeadRow variant="inset">
+                    <DataTableTh variant="inset">{t('common.service')}</DataTableTh>
+                    <DataTableTh variant="inset">{t('common.duration')}</DataTableTh>
+                    <DataTableTh variant="inset">{t('common.price')}</DataTableTh>
+                    <DataTableTh variant="inset">{t('common.actions')}</DataTableTh>
+                  </DataTableHeadRow>
+                </thead>
+                <tbody>
+                  {(assignments ?? []).length === 0 ? (
+                    <tr><DataTableEmptyCell variant="inset" colSpan={4}>{t('resourceDetail.services.empty')}</DataTableEmptyCell></tr>
+                  ) : (
+                    (assignments ?? []).map((a) => (
+                      <DataTableBodyRow key={a.id}>
+                        <DataTableTd variant="inset">{a.service.name}</DataTableTd>
+                        <DataTableTd variant="inset">{t('common.minutes', { count: a.durationOverride ?? a.service.durationMinutes })}</DataTableTd>
+                        <DataTableTd variant="inset">{formatPrice(a.price)}</DataTableTd>
+                        <DataTableTd variant="inset">
+                          <Group gap="xs">
+                            <ActionIcon variant="subtle" color="gray" size="sm" onClick={() => openEdit(a)}>
+                              <IconPencil size={14} />
+                            </ActionIcon>
+                            <ActionIcon variant="subtle" color="gray" size="sm" onClick={() => setUnassignTarget(a)}>
+                              <IconTrash size={14} />
+                            </ActionIcon>
+                          </Group>
+                        </DataTableTd>
+                      </DataTableBodyRow>
+                    ))
+                  )}
+                </tbody>
+              </DataTable>
+            </DataTableScroll>
 
-          {!servicesPending && !servicesError && tenantServicesOrdered.length > 0 ? (
-            <div className="flex flex-col gap-3 border-t border-[var(--border)] pt-4">
-              <p className="text-sm font-medium text-[var(--text-h)]">
-                {(assignments ?? []).length === 0
-                  ? t('resourceDetail.services.assignFirst')
-                  : t('resourceDetail.services.assignAnother')}
-              </p>
-              <p className="text-xs text-[var(--text)]">{t('resourceDetail.services.hint')}</p>
-              <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-                <div>
-                  <div id="assign-service-label" className="mb-1 block text-sm text-[var(--text)]">
-                    {t('common.service')}
-                  </div>
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button
-                        type="button"
-                        variant="outline"
-                        aria-labelledby="assign-service-label"
-                        disabled={servicesPending || tenantServicesOrdered.length === 0}
-                        className="w-full justify-between font-normal"
-                      >
-                        <span className="truncate text-left">
-                          {selectedService
-                            ? `${selectedService.name} (${t('common.minutes', { count: selectedService.durationMinutes })})`
-                            : t('common.selectPlaceholder')}
-                        </span>
-                        <ChevronDownIcon className="size-4 shrink-0 opacity-60" />
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent
-                      align="start"
-                      className="max-h-72 min-w-[var(--radix-dropdown-menu-trigger-width)] overflow-y-auto"
-                    >
-                      <DropdownMenuItem onSelect={() => setServiceId('')}>
-                        {t('common.selectPlaceholder')}
-                      </DropdownMenuItem>
-                      {tenantServicesOrdered.map((s) => {
-                        const taken = assignedServiceIds.has(s.id)
-                        return (
-                          <DropdownMenuItem
-                            key={s.id}
-                            disabled={taken}
-                            onSelect={() => setServiceId(s.id)}
-                          >
-                            {s.name} ({t('common.minutes', { count: s.durationMinutes })})
-                          </DropdownMenuItem>
-                        )
-                      })}
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                </div>
-                <FormField
-                  label={t('common.price')}
-                  type="text"
-                  inputMode="decimal"
-                  value={price}
-                  onChange={(e) => setPrice(e.target.value)}
-                  placeholder={t('resourceDetail.services.pricePlaceholder')}
-                />
-                <FormField
-                  label={t('resourceDetail.services.durationOverride')}
-                  type="number"
-                  min={1}
-                  value={durationOverride}
-                  onChange={(e) => setDurationOverride(e.target.value)}
-                  placeholder={t('resourceDetail.services.durationPlaceholder')}
-                />
-                <div className="flex items-end">
+            {!servicesPending && !servicesError && tenantServicesOrdered.length > 0 && (
+              <Stack gap="sm" pt="sm" style={{ borderTop: '1px solid var(--mantine-color-default-border)' }}>
+                <Text size="sm" fw={500}>
+                  {(assignments ?? []).length === 0 ? t('resourceDetail.services.assignFirst') : t('resourceDetail.services.assignAnother')}
+                </Text>
+                <Text size="xs" c="dimmed">{t('resourceDetail.services.hint')}</Text>
+                <Group align="flex-end" gap="sm" wrap="wrap">
+                  <Select
+                    label={t('common.service')}
+                    data={serviceSelectData}
+                    value={serviceId || null}
+                    onChange={(v) => setServiceId(v ?? '')}
+                    placeholder={t('common.selectPlaceholder')}
+                    disabled={servicesPending}
+                    miw={200}
+                    searchable
+                  />
+                  <TextInput
+                    label={t('common.price')}
+                    inputMode="decimal"
+                    value={price}
+                    onChange={(e) => setPrice(e.target.value)}
+                    placeholder={t('resourceDetail.services.pricePlaceholder')}
+                    w={120}
+                  />
+                  <NumberInput
+                    label={t('resourceDetail.services.durationOverride')}
+                    min={1}
+                    value={durationOverride}
+                    onChange={(v) => setDurationOverride(String(v))}
+                    placeholder={t('resourceDetail.services.durationPlaceholder')}
+                    w={120}
+                  />
                   <Button
-                    type="button"
-                    className="w-full sm:w-auto"
-                    disabled={
-                      assignMutation.isPending ||
-                      !serviceId ||
-                      assignedServiceIds.has(serviceId)
-                    }
+                    disabled={assignMutation.isPending || !serviceId || assignedServiceIds.has(serviceId)}
+                    loading={assignMutation.isPending}
                     onClick={() => void onAssign()}
+                    mb={1}
                   >
-                    {assignMutation.isPending ? t('common.assigning') : t('common.assign')}
+                    {t('common.assign')}
                   </Button>
-                </div>
-              </div>
-              <FormError message={formError} />
-            </div>
-          ) : !servicesPending && !servicesError ? (
-            <p className="text-sm text-[var(--text)]">
-              {tenantServicesOrdered.length === 0 ? t('resourceDetail.services.noTenantServices') : null}
-            </p>
-          ) : null}
-        </>
-      )}
-
-      <Dialog open={editTarget !== null} onOpenChange={(next) => { if (!next) closeEdit() }}>
-        <DialogContent className="sm:max-w-md" aria-describedby={undefined}>
-          <DialogHeader>
-            <DialogTitle>{t('resourceDetail.services.editTitle')}</DialogTitle>
-            {editTarget && (
-              <DialogDescription>
-                {t('resourceDetail.services.editDescription', { name: editTarget.service.name })}
-              </DialogDescription>
+                </Group>
+                <FormError message={formError} />
+              </Stack>
             )}
-          </DialogHeader>
-          <div className="flex flex-col gap-4">
-            <FormField
+          </>
+        )}
+      </Stack>
+
+      <Modal opened={editTarget !== null} onClose={closeEdit} title={t('resourceDetail.services.editTitle')} size="sm">
+        {editTarget && (
+          <Stack gap="sm">
+            <Text size="sm" c="dimmed">
+              {t('resourceDetail.services.editDescription', { name: editTarget.service.name })}
+            </Text>
+            <TextInput
               label={t('common.price')}
-              type="text"
               inputMode="decimal"
               value={editPrice}
               onChange={(e) => setEditPrice(e.target.value)}
               placeholder={t('resourceDetail.services.pricePlaceholder')}
             />
-            <FormField
+            <NumberInput
               label={t('resourceDetail.services.durationOverride')}
-              type="number"
               min={1}
               value={editDuration}
-              onChange={(e) => setEditDuration(e.target.value)}
+              onChange={(v) => setEditDuration(String(v))}
               placeholder={t('resourceDetail.services.durationPlaceholder')}
             />
             <FormError message={editError} />
-          </div>
-          <DialogFooter className="gap-2 sm:justify-end">
-            <Button type="button" variant="secondary" onClick={closeEdit} disabled={updateMutation.isPending}>
-              {t('common.cancel')}
-            </Button>
-            <Button type="button" onClick={() => void onEdit()} disabled={updateMutation.isPending}>
-              {updateMutation.isPending ? t('common.saving') : t('common.save')}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+            <Group justify="flex-end" gap="sm">
+              <Button variant="default" onClick={closeEdit} disabled={updateMutation.isPending}>{t('common.cancel')}</Button>
+              <Button onClick={() => void onEdit()} loading={updateMutation.isPending}>{t('common.save')}</Button>
+            </Group>
+          </Stack>
+        )}
+      </Modal>
 
-      <Dialog open={unassignTarget !== null} onOpenChange={(next) => { if (!next) closeUnassign() }}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle>{t('resourceDetail.services.unassignTitle')}</DialogTitle>
-            {unassignTarget && (
-              <DialogDescription>
-                {t('resourceDetail.services.unassignBody', { name: unassignTarget.service.name })}
-              </DialogDescription>
-            )}
-          </DialogHeader>
-          <FormError message={unassignError} />
-          <DialogFooter className="gap-2 sm:justify-end">
-            <Button type="button" variant="secondary" onClick={closeUnassign} disabled={deleteMutation.isPending}>
-              {t('common.cancel')}
-            </Button>
-            <Button type="button" variant="destructive" onClick={() => void onUnassign()} disabled={deleteMutation.isPending}>
-              {deleteMutation.isPending ? t('resourceDetail.services.unassigning') : t('resourceDetail.services.unassignConfirm')}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-    </Card>
+      <Modal opened={unassignTarget !== null} onClose={closeUnassign} title={t('resourceDetail.services.unassignTitle')} size="sm">
+        {unassignTarget && (
+          <Stack gap="sm">
+            <Text size="sm">
+              {t('resourceDetail.services.unassignBody', { name: unassignTarget.service.name })}
+            </Text>
+            <FormError message={unassignError} />
+            <Group justify="flex-end" gap="sm">
+              <Button variant="default" onClick={closeUnassign} disabled={deleteMutation.isPending}>{t('common.cancel')}</Button>
+              <Button color="red" onClick={() => void onUnassign()} loading={deleteMutation.isPending}>
+                {t('resourceDetail.services.unassignConfirm')}
+              </Button>
+            </Group>
+          </Stack>
+        )}
+      </Modal>
+    </Paper>
   )
 }

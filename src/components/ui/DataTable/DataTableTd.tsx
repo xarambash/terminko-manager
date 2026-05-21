@@ -1,3 +1,4 @@
+import { Table } from '@mantine/core'
 import type { TdHTMLAttributes } from 'react'
 import type { DataTableVariant } from './types'
 
@@ -6,16 +7,11 @@ type DataTableTdProps = TdHTMLAttributes<HTMLTableCellElement> & {
   align?: 'left' | 'right'
 }
 
-export function DataTableTd({
-  variant,
-  align = 'left',
-  className = '',
-  ...props
-}: DataTableTdProps) {
-  const alignClass = align === 'right' ? 'text-right' : 'text-left'
-  const base =
-    variant === 'page'
-      ? `px-3 py-2.5 ${alignClass} text-sm sm:px-4`
-      : `px-3 py-2 ${alignClass}`
-  return <td className={`${base} ${className}`.trim()} {...props} />
+export function DataTableTd({ variant: _variant, align = 'left', style, ...props }: DataTableTdProps) {
+  return (
+    <Table.Td
+      style={{ textAlign: align, ...style }}
+      {...props}
+    />
+  )
 }

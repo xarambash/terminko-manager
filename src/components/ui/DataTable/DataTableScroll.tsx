@@ -1,10 +1,6 @@
+import { ScrollArea } from '@mantine/core'
 import type { ReactNode } from 'react'
 import type { DataTableVariant } from './types'
-
-const scrollWrapperClass: Record<DataTableVariant, string> = {
-  page: 'overflow-x-auto',
-  inset: 'overflow-x-auto rounded border border-[var(--border)]',
-}
 
 type DataTableScrollProps = {
   variant: DataTableVariant
@@ -12,8 +8,13 @@ type DataTableScrollProps = {
   className?: string
 }
 
-export function DataTableScroll({ variant, children, className = '' }: DataTableScrollProps) {
+export function DataTableScroll({ variant, children, className }: DataTableScrollProps) {
   return (
-    <div className={`${scrollWrapperClass[variant]} ${className}`.trim()}>{children}</div>
+    <ScrollArea
+      style={variant === 'inset' ? { borderRadius: 'var(--mantine-radius-sm)', border: '1px solid var(--mantine-color-default-border)' } : undefined}
+      className={className}
+    >
+      {children}
+    </ScrollArea>
   )
 }

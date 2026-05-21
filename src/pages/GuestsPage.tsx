@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
+import { Button, Checkbox, Group, Pagination, Paper, Stack, Text } from '@mantine/core'
 import {
-  Button,
   Card,
   DataTable,
   DataTableBodyRow,
@@ -11,7 +11,7 @@ import {
   DataTableTd,
   DataTableTh,
   GuestActionPlaceholderModal,
-  ListSearchField,
+  PageSearchBar,
   PageSectionHeader,
   QueryStatusBanner,
 } from '../components'
@@ -19,7 +19,23 @@ import { matchesTableSearch } from '../lib/tableSearch'
 import { useGuests } from '../hooks'
 import type { Guest } from '../types/guests'
 
-const pageClass = 'flex flex-1 flex-col gap-4 p-4 text-left sm:gap-6 sm:p-6 md:gap-8 md:p-8'
+const PAGE_SIZE = 20
+
+type SortField = 'name' | 'email' | 'phone' | 'penaltyPoints' | 'status' | 'bannedUntil'
+
+function sortList(list: Guest[], field: SortField | null, asc: boolean) {
+  if (!field) return list
+  return [...list].sort((a, b) => {
+    let cmp = 0
+    if (field === 'name') cmp = a.name.localeCompare(b.name)
+    else if (field === 'email') cmp = a.email.localeCompare(b.email)
+    else if (field === 'phone') cmp = a.phone.localeCompare(b.phone)
+    else if (field === 'penaltyPoints') cmp = a.penaltyPoints - b.penaltyPoints
+    else if (field === 'status') cmp = Number(b.isBanned) - Number(a.isBanned)
+    else if (field === 'bannedUntil') cmp = (a.bannedUntil ?? '').localeCompare(b.bannedUntil ?? '')
+    return asc ? cmp : -cmp
+  })
+}
 
 function formatDate(iso: string | null, locale: string) {
   if (!iso) return null
@@ -33,6 +49,10 @@ function GuestsPage() {
   const { data: guests, isPending, isError, error } = useGuests()
   const [search, setSearch] = useState('')
   const [modal, setModal] = useState<{ guest: Guest; action: 'ban' | 'unban' } | null>(null)
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set())
+  const [sortField, setSortField] = useState<SortField | null>(null)
+  const [sortAsc, setSortAsc] = useState(true)
+  const [page, setPage] = useState(1)
 
   const sorted = useMemo(() => {
     const list = [...(guests ?? [])]
@@ -41,105 +61,125 @@ function GuestsPage() {
   }, [guests])
 
   const filtered = useMemo(
-    () =>
-      sorted.filter((g) =>
-        matchesTableSearch(search, [g.name, g.email, g.phone, g.notes ?? ''])
-      ),
+    () => sorted.filter((g) => matchesTableSearch(search, [g.name, g.email, g.phone, g.notes ?? ''])),
     [sorted, search]
   )
+  const displayed = useMemo(() => sortList(filtered, sortField, sortAsc), [filtered, sortField, sortAsc])
+  const totalPages = Math.ceil(displayed.length / PAGE_SIZE)
+  const paginated = useMemo(
+    () => displayed.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE),
+    [displayed, page]
+  )
+
+  function handleSort(field: SortField) {
+    if (sortField !== field) { setSortField(field); setSortAsc(true) }
+    else if (sortAsc) { setSortAsc(false) }
+    else { setSortField(null); setSortAsc(true) }
+    setPage(1)
+  }
+
+  function handlePageChange(p: number) {
+    setPage(p)
+    setSelectedIds(new Set())
+  }
+
+  function thDir(field: SortField): 'asc' | 'desc' | null {
+    return sortField === field ? (sortAsc ? 'asc' : 'desc') : null
+  }
+
+  function toggleRow(id: string) {
+    setSelectedIds((prev) => {
+      const next = new Set(prev)
+      if (next.has(id)) next.delete(id)
+      else next.add(id)
+      return next
+    })
+  }
+
+  const allSelected = paginated.length > 0 && paginated.every((g) => selectedIds.has(g.id))
+  const someSelected = paginated.some((g) => selectedIds.has(g.id)) && !allSelected
+  const hasSelection = selectedIds.size > 0
+  const singleSelected = selectedIds.size === 1
+    ? paginated.find((g) => selectedIds.has(g.id)) ?? null
+    : null
 
   const locale = i18n.language === 'sr' ? 'sr-Latn-RS' : 'en-GB'
 
   return (
-    <main className={pageClass}>
-      <div className="flex flex-col gap-4">
+    <Stack component="main" maw={1400} ml='lg' w="100%" gap="lg">
+      <Stack gap="sm">
         <PageSectionHeader title={t('guests.title')} />
-        <ListSearchField
-          id="guests-search"
-          value={search}
-          onChange={setSearch}
-        />
-      </div>
+        <PageSearchBar id="guests-search" value={search} onChange={(v) => { setSearch(v); setPage(1) }} />
+      </Stack>
 
-      <QueryStatusBanner
-        isPending={isPending}
-        isError={isError}
-        error={error}
-        loadingText={t('loading.guests')}
-      />
+      <QueryStatusBanner isPending={isPending} isError={isError} error={error} loadingText={t('loading.guests')} />
 
       {!isPending && !isError && (
-        <Card className="overflow-hidden p-0">
+        <Card style={{ overflow: 'hidden' }}>
           <DataTableScroll variant="page">
             <DataTable variant="page" minWidth={960}>
               <thead>
                 <DataTableHeadRow variant="page">
-                  <DataTableTh variant="page">{t('common.name')}</DataTableTh>
-                  <DataTableTh variant="page">{t('common.email')}</DataTableTh>
-                  <DataTableTh variant="page">{t('common.phone')}</DataTableTh>
-                  <DataTableTh variant="page">{t('guests.penaltyPoints')}</DataTableTh>
-                  <DataTableTh variant="page">{t('common.status')}</DataTableTh>
-                  <DataTableTh variant="page">{t('guests.bannedUntil')}</DataTableTh>
-                  <DataTableTh variant="page" align="right" />
+                  <DataTableTh variant="page" style={{ width: 40 }}>
+                    <Checkbox
+                      checked={allSelected}
+                      indeterminate={someSelected}
+                      onChange={(e) =>
+                        setSelectedIds(e.currentTarget.checked ? new Set(paginated.map((g) => g.id)) : new Set())
+                      }
+                      aria-label="Select all"
+                    />
+                  </DataTableTh>
+                  <DataTableTh variant="page" sortable sortDirection={thDir('name')} onSort={() => handleSort('name')}>
+                    {t('common.name')}
+                  </DataTableTh>
+                  <DataTableTh variant="page" sortable sortDirection={thDir('email')} onSort={() => handleSort('email')}>
+                    {t('common.email')}
+                  </DataTableTh>
+                  <DataTableTh variant="page" sortable sortDirection={thDir('phone')} onSort={() => handleSort('phone')}>
+                    {t('common.phone')}
+                  </DataTableTh>
+                  <DataTableTh variant="page" sortable sortDirection={thDir('penaltyPoints')} onSort={() => handleSort('penaltyPoints')}>
+                    {t('guests.penaltyPoints')}
+                  </DataTableTh>
+                  <DataTableTh variant="page" sortable sortDirection={thDir('status')} onSort={() => handleSort('status')}>
+                    {t('common.status')}
+                  </DataTableTh>
+                  <DataTableTh variant="page" sortable sortDirection={thDir('bannedUntil')} onSort={() => handleSort('bannedUntil')}>
+                    {t('guests.bannedUntil')}
+                  </DataTableTh>
                 </DataTableHeadRow>
               </thead>
               <tbody>
                 {sorted.length === 0 ? (
-                  <tr>
-                    <DataTableEmptyCell variant="page" colSpan={7}>
-                      {t('guests.empty')}
-                    </DataTableEmptyCell>
-                  </tr>
+                  <tr><DataTableEmptyCell variant="page" colSpan={7}>{t('guests.empty')}</DataTableEmptyCell></tr>
                 ) : filtered.length === 0 ? (
-                  <tr>
-                    <DataTableEmptyCell variant="page" colSpan={7}>
-                      {t('common.emptySearch')}
-                    </DataTableEmptyCell>
-                  </tr>
+                  <tr><DataTableEmptyCell variant="page" colSpan={7}>{t('common.emptySearch')}</DataTableEmptyCell></tr>
                 ) : (
-                  filtered.map((g) => (
-                    <DataTableBodyRow key={g.id}>
-                      <DataTableTd variant="page" className="text-[var(--text-h)]">
-                        {g.name}
+                  paginated.map((g) => (
+                    <DataTableBodyRow
+                      key={g.id}
+                      hoverable
+                      style={{ cursor: 'pointer' }}
+                      onClick={() => toggleRow(g.id)}
+                    >
+                      <DataTableTd variant="page">
+                        <Checkbox
+                          checked={selectedIds.has(g.id)}
+                          onChange={() => {}}
+                          onClick={(e) => { e.stopPropagation(); toggleRow(g.id) }}
+                          aria-label={`Select ${g.name}`}
+                        />
                       </DataTableTd>
-                      <DataTableTd variant="page" className="text-[var(--text)]">
-                        {g.email}
-                      </DataTableTd>
-                      <DataTableTd variant="page" className="text-[var(--text)]">
-                        {g.phone}
-                      </DataTableTd>
-                      <DataTableTd variant="page" className="text-[var(--text)]">
-                        {g.penaltyPoints}
-                      </DataTableTd>
-                      <DataTableTd variant="page" className="text-[var(--text)]">
+                      <DataTableTd variant="page">{g.name}</DataTableTd>
+                      <DataTableTd variant="page">{g.email}</DataTableTd>
+                      <DataTableTd variant="page">{g.phone}</DataTableTd>
+                      <DataTableTd variant="page">{g.penaltyPoints}</DataTableTd>
+                      <DataTableTd variant="page">
                         {g.isBanned ? t('guests.statusBanned') : t('guests.statusActive')}
                       </DataTableTd>
-                      <DataTableTd variant="page" className="text-[var(--text)]">
-                        {g.isBanned && g.bannedUntil
-                          ? formatDate(g.bannedUntil, locale) ?? t('common.dash')
-                          : t('common.dash')}
-                      </DataTableTd>
-                      <DataTableTd variant="page" align="right">
-                        <div className="flex justify-end gap-2">
-                          <Button
-                            type="button"
-                            variant="secondary"
-                            className="px-3 py-1.5 text-xs"
-                            disabled={g.isBanned}
-                            onClick={() => setModal({ guest: g, action: 'ban' })}
-                          >
-                            {t('guests.ban.action')}
-                          </Button>
-                          <Button
-                            type="button"
-                            variant="secondary"
-                            className="px-3 py-1.5 text-xs"
-                            disabled={!g.isBanned}
-                            onClick={() => setModal({ guest: g, action: 'unban' })}
-                          >
-                            {t('guests.unban.action')}
-                          </Button>
-                        </div>
+                      <DataTableTd variant="page">
+                        {g.isBanned && g.bannedUntil ? formatDate(g.bannedUntil, locale) ?? t('common.dash') : t('common.dash')}
                       </DataTableTd>
                     </DataTableBodyRow>
                   ))
@@ -147,8 +187,55 @@ function GuestsPage() {
               </tbody>
             </DataTable>
           </DataTableScroll>
+          {totalPages > 1 && (
+            <Group justify="center" p="md">
+              <Pagination total={totalPages} value={page} onChange={handlePageChange} size="sm" />
+            </Group>
+          )}
         </Card>
       )}
+
+      {/* Floating selection action bar */}
+      <div
+        style={{
+          position: 'fixed',
+          bottom: 24,
+          left: 0,
+          right: 0,
+          zIndex: 200,
+          display: 'flex',
+          justifyContent: 'center',
+          pointerEvents: 'none',
+          opacity: hasSelection ? 1 : 0,
+          transform: hasSelection ? 'none' : 'translateY(8px)',
+          transition: 'opacity 200ms ease, transform 200ms ease',
+        }}
+      >
+        <Paper shadow="md" p="sm" radius="md" withBorder style={{ pointerEvents: hasSelection ? 'auto' : 'none' }}>
+          <Group gap="md" wrap="nowrap">
+            <Text size="sm" fw={500}>{t('common.nSelected', { count: selectedIds.size })}</Text>
+            <Button
+              size="sm"
+              variant="light"
+              disabled={!singleSelected || singleSelected.isBanned}
+              onClick={() => { if (singleSelected) setModal({ guest: singleSelected, action: 'ban' }) }}
+            >
+              {t('guests.ban.action')}
+            </Button>
+            <Button
+              size="sm"
+              variant="light"
+              disabled={!singleSelected || !singleSelected.isBanned}
+              onClick={() => { if (singleSelected) setModal({ guest: singleSelected, action: 'unban' }) }}
+            >
+              {t('guests.unban.action')}
+            </Button>
+            <Button size="sm" variant="default" onClick={() => setSelectedIds(new Set())}>
+              {t('common.clearSelection')}
+            </Button>
+          </Group>
+        </Paper>
+      </div>
 
       <GuestActionPlaceholderModal
         open={modal != null}
@@ -156,7 +243,7 @@ function GuestsPage() {
         guestName={modal?.guest.name ?? ''}
         action={modal?.action ?? 'ban'}
       />
-    </main>
+    </Stack>
   )
 }
 

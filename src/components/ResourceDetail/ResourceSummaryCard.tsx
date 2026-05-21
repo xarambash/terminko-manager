@@ -1,15 +1,19 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
-import { useForm, Controller } from 'react-hook-form'
-import { zodResolver } from '@hookform/resolvers/zod'
-import { z } from 'zod'
+import { useEffect, useRef, useState } from 'react'
+import { useForm } from '@mantine/form'
 import { useTranslation } from 'react-i18next'
-import { Camera, UserCircle } from 'lucide-react'
-import { cn } from '@/lib/utils'
-import { Button } from '../ui/Button'
-import { Card } from '../ui/Card'
-import { FormField } from '../ui/FormField'
-import { FormError } from '../ui/FormError'
-import { Switch } from '../ui/Switch'
+import {
+  Paper,
+  Avatar,
+  Group,
+  Stack,
+  Text,
+  Badge,
+  Button,
+  TextInput,
+  Switch,
+  ActionIcon,
+} from '@mantine/core'
+import { IconCamera } from '@tabler/icons-react'
 import { extractServerError } from '../../lib/errors'
 import type { Resource } from '../../types/resources'
 
@@ -27,32 +31,6 @@ type EditForm = {
   isActive: boolean
 }
 
-function PhotoCircle({
-  src,
-  alt,
-  onError,
-}: {
-  src: string | null
-  alt: string
-  onError?: () => void
-}) {
-  return (
-    <div
-      className={cn(
-        'relative flex size-20 shrink-0 items-center justify-center overflow-hidden rounded-full',
-        'border border-[var(--border)] bg-[var(--code-bg)] shadow-sm',
-        'sm:size-24'
-      )}
-    >
-      {src ? (
-        <img src={src} alt={alt} className="size-full object-cover" onError={onError} />
-      ) : (
-        <UserCircle className="size-[65%] text-[var(--text)] opacity-40" strokeWidth={1.25} aria-hidden />
-      )}
-    </div>
-  )
-}
-
 export function ResourceSummaryCard({ resource, onUploadPhoto, onSave }: ResourceSummaryCardProps) {
   const { t, i18n } = useTranslation()
   const fileInputRef = useRef<HTMLInputElement>(null)
@@ -62,7 +40,6 @@ export function ResourceSummaryCard({ resource, onUploadPhoto, onSave }: Resourc
   const [selectedFile, setSelectedFile] = useState<File | null>(null)
   const [previewUrl, setPreviewUrl] = useState<string | null>(null)
 
-  const hasExistingPhoto = Boolean(resource.profilePicture) && !photoFailed
   const displayPhoto = previewUrl ?? (photoFailed ? null : resource.profilePicture)
 
   useEffect(() => {
@@ -71,58 +48,36 @@ export function ResourceSummaryCard({ resource, onUploadPhoto, onSave }: Resourc
     }
   }, [previewUrl])
 
-  const schema = useMemo(
-    () =>
-      z.object({
-        firstName: z.string().min(1, t('resourceDetail.summary.validationFirstName')),
-        lastName: z.string().min(1, t('resourceDetail.summary.validationLastName')),
-        email: z.email(t('resourceDetail.summary.validationEmail')),
-        phone: z.string(),
-        isActive: z.boolean(),
-      }),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [i18n.language]
-  )
-
-  const {
-    register,
-    handleSubmit,
-    reset,
-    setError,
-    control,
-    formState: { errors, isSubmitting, isDirty },
-  } = useForm<EditForm>({
-    resolver: zodResolver(schema),
-    defaultValues: {
+  const form = useForm<EditForm>({
+    initialValues: {
       firstName: resource.firstName,
       lastName: resource.lastName,
       email: resource.email ?? '',
       phone: resource.phone ?? '',
       isActive: resource.isActive,
     },
+    validate: {
+      firstName: (v) => (!v.trim() ? t('resourceDetail.summary.validationFirstName') : null),
+      lastName: (v) => (!v.trim() ? t('resourceDetail.summary.validationLastName') : null),
+      email: (v) =>
+        !/^\S+@\S+\.\S+$/.test(v) ? t('resourceDetail.summary.validationEmail') : null,
+    },
   })
 
   useEffect(() => {
     if (isEditMode) return
-    reset({
+    form.setValues({
       firstName: resource.firstName,
       lastName: resource.lastName,
       email: resource.email ?? '',
       phone: resource.phone ?? '',
       isActive: resource.isActive,
     })
-  }, [resource, isEditMode, reset])
-
-  const handleEdit = () => setIsEditMode(true)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [resource, isEditMode, i18n.language])
 
   const handleCancel = () => {
-    reset({
-      firstName: resource.firstName,
-      lastName: resource.lastName,
-      email: resource.email ?? '',
-      phone: resource.phone ?? '',
-      isActive: resource.isActive,
-    })
+    form.reset()
     if (previewUrl) URL.revokeObjectURL(previewUrl)
     setSelectedFile(null)
     setPreviewUrl(null)
@@ -138,7 +93,7 @@ export function ResourceSummaryCard({ resource, onUploadPhoto, onSave }: Resourc
     setPreviewUrl(URL.createObjectURL(file))
   }
 
-  const onSubmit = async (data: EditForm) => {
+  const onSubmit = form.onSubmit(async (data) => {
     try {
       if (selectedFile && onUploadPhoto) {
         await onUploadPhoto(selectedFile)
@@ -147,41 +102,24 @@ export function ResourceSummaryCard({ resource, onUploadPhoto, onSave }: Resourc
         setPreviewUrl(null)
         setPhotoFailed(false)
       }
-      if (onSave) {
-        await onSave(data)
-      }
+      if (onSave) await onSave(data)
       setIsEditMode(false)
     } catch (err: unknown) {
-      setError('root', {
-        message: extractServerError(err) ?? t('resourceDetail.summary.errorUpdate'),
-      })
+      form.setErrors({ firstName: extractServerError(err) ?? t('resourceDetail.summary.errorUpdate') })
     }
-  }
-
-  const activeBadge = (
-    <span
-      className={cn(
-        'mt-0.5 shrink-0 rounded-full px-2.5 py-0.5 text-xs font-medium',
-        resource.isActive
-          ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400'
-          : 'bg-[var(--border)] text-[var(--text)]'
-      )}
-    >
-      {resource.isActive
-        ? t('resourceDetail.summary.statusActive')
-        : t('resourceDetail.summary.statusInactive')}
-    </span>
-  )
+  })
 
   if (isEditMode) {
     return (
-      <Card className="p-4 sm:p-6">
-        <form onSubmit={handleSubmit(onSubmit)}>
-          <div className="flex items-start gap-5">
-            <div className="relative shrink-0">
-              <PhotoCircle
+      <Paper withBorder shadow="xs" p="md">
+        <form onSubmit={onSubmit}>
+          <Group align="flex-start" gap="md" mb="md">
+            <div style={{ position: 'relative' }}>
+              <Avatar
                 src={displayPhoto}
-                alt={t('resourceDetail.summary.profilePhotoAlt', { name: fullName })}
+                alt={fullName}
+                size={80}
+                radius="xl"
                 onError={() => setPhotoFailed(true)}
               />
               {onUploadPhoto && (
@@ -190,110 +128,107 @@ export function ResourceSummaryCard({ resource, onUploadPhoto, onSave }: Resourc
                     ref={fileInputRef}
                     type="file"
                     accept="image/jpeg,image/png,image/webp"
-                    className="sr-only"
-                    aria-hidden
-                    tabIndex={-1}
+                    style={{ display: 'none' }}
                     onChange={onFileChange}
                   />
-                  <button
-                    type="button"
+                  <ActionIcon
+                    size="sm"
+                    radius="xl"
+                    variant="filled"
+                    style={{ position: 'absolute', bottom: 0, right: 0 }}
                     onClick={() => fileInputRef.current?.click()}
-                    title={
-                      hasExistingPhoto || previewUrl
-                        ? t('resourceDetail.summary.changePhoto')
-                        : t('resourceDetail.summary.uploadPhoto')
-                    }
-                    className={cn(
-                      'absolute bottom-0 right-0 rounded-full p-1.5',
-                      'border border-[var(--border)] bg-[var(--bg)] shadow-sm',
-                      'text-[var(--text-h)] transition-colors hover:bg-muted'
-                    )}
+                    title={displayPhoto ? t('resourceDetail.summary.changePhoto') : t('resourceDetail.summary.uploadPhoto')}
                   >
-                    <Camera className="size-3.5" aria-hidden />
-                  </button>
+                    <IconCamera size={12} />
+                  </ActionIcon>
                 </>
               )}
             </div>
-            <div className="flex min-w-0 flex-1 items-start justify-between gap-3">
-              <h2 className="truncate text-xl font-semibold text-[var(--text-h)]">{fullName}</h2>
-              <label className="flex shrink-0 items-center gap-2 text-sm text-[var(--text)]">
-                {t('resourceDetail.summary.active')}
-                <Controller
-                  control={control}
-                  name="isActive"
-                  render={({ field }) => (
-                    <Switch checked={field.value} onCheckedChange={field.onChange} />
-                  )}
+            <Group flex={1} justify="space-between" align="flex-start">
+              <Text fw={600} size="lg">{fullName}</Text>
+              <Group gap="xs">
+                <Text size="sm" c="dimmed">{t('resourceDetail.summary.active')}</Text>
+                <Switch
+                  checked={form.values.isActive}
+                  onChange={(e) => form.setFieldValue('isActive', e.currentTarget.checked)}
                 />
-              </label>
-            </div>
-          </div>
-
-          <div className="mt-5 grid max-w-lg grid-cols-1 gap-4 sm:grid-cols-2">
-            <FormField
-              label={t('resourceDetail.summary.firstName')}
-              {...register('firstName')}
-              error={errors.firstName?.message}
-            />
-            <FormField
-              label={t('resourceDetail.summary.lastName')}
-              {...register('lastName')}
-              error={errors.lastName?.message}
-            />
-            <FormField
-              label={t('resourceDetail.summary.email')}
-              type="email"
-              {...register('email')}
-              error={errors.email?.message}
-            />
-            <FormField
-              label={t('resourceDetail.summary.phone')}
-              type="tel"
-              {...register('phone')}
-              error={errors.phone?.message}
-            />
-          </div>
-
-          <FormError message={errors.root?.message} />
-          <div className="mt-4 flex justify-end gap-2">
-            <Button type="button" variant="secondary" onClick={handleCancel} disabled={isSubmitting}>
+              </Group>
+            </Group>
+          </Group>
+          <Stack gap="sm" maw={480}>
+            <Group grow>
+              <TextInput
+                label={t('resourceDetail.summary.firstName')}
+                {...form.getInputProps('firstName')}
+              />
+              <TextInput
+                label={t('resourceDetail.summary.lastName')}
+                {...form.getInputProps('lastName')}
+              />
+            </Group>
+            <Group grow>
+              <TextInput
+                label={t('resourceDetail.summary.email')}
+                type="email"
+                {...form.getInputProps('email')}
+              />
+              <TextInput
+                label={t('resourceDetail.summary.phone')}
+                type="tel"
+                {...form.getInputProps('phone')}
+              />
+            </Group>
+          </Stack>
+          <Group justify="flex-end" gap="sm" mt="md">
+            <Button variant="default" onClick={handleCancel} disabled={form.submitting}>
               {t('resourceDetail.summary.cancel')}
             </Button>
-            <Button type="submit" disabled={isSubmitting || (!isDirty && !selectedFile)}>
-              {isSubmitting ? t('resourceDetail.summary.saving') : t('resourceDetail.summary.save')}
+            <Button
+              type="submit"
+              loading={form.submitting}
+              disabled={!form.isDirty() && !selectedFile}
+            >
+              {t('resourceDetail.summary.save')}
             </Button>
-          </div>
+          </Group>
         </form>
-      </Card>
+      </Paper>
     )
   }
 
   return (
-    <Card className="p-4 sm:p-6">
-      <div className="flex items-start gap-5">
-        <PhotoCircle
+    <Paper withBorder shadow="xs" p="md">
+      <Group align="flex-start" gap="md">
+        <Avatar
           src={displayPhoto}
-          alt={t('resourceDetail.summary.profilePhotoAlt', { name: fullName })}
+          alt={fullName}
+          size={80}
+          radius="xl"
           onError={() => setPhotoFailed(true)}
         />
-        <div className="flex min-w-0 flex-1 flex-col">
-          <div className="flex items-start justify-between gap-3">
-            <div className="min-w-0">
-              <h2 className="truncate text-xl font-semibold text-[var(--text-h)]">{fullName}</h2>
-              <div className="mt-1 flex flex-col gap-y-1 text-sm text-[var(--text)]">
-                <span className="truncate">{resource.email ?? t('common.dash')}</span>
-                {resource.phone && <span>{resource.phone}</span>}
-              </div>
-            </div>
-            {activeBadge}
-          </div>
-          <div className="mt-4 flex justify-end">
-            <Button type="button" variant="outline" size="sm" onClick={handleEdit}>
+        <Stack flex={1} gap="xs">
+          <Group justify="space-between" align="flex-start">
+            <Stack gap={2}>
+              <Text fw={600} size="lg">{fullName}</Text>
+              <Text size="sm" c="dimmed">{resource.email ?? t('common.dash')}</Text>
+              {resource.phone && <Text size="sm" c="dimmed">{resource.phone}</Text>}
+            </Stack>
+            <Badge
+              color={resource.isActive ? 'green' : 'gray'}
+              variant="light"
+            >
+              {resource.isActive
+                ? t('resourceDetail.summary.statusActive')
+                : t('resourceDetail.summary.statusInactive')}
+            </Badge>
+          </Group>
+          <Group justify="flex-end" mt="xs">
+            <Button variant="default" size="sm" onClick={() => setIsEditMode(true)}>
               {t('resourceDetail.summary.edit')}
             </Button>
-          </div>
-        </div>
-      </div>
-    </Card>
+          </Group>
+        </Stack>
+      </Group>
+    </Paper>
   )
 }

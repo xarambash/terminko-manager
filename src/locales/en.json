@@ -41,7 +41,9 @@
     "minutes": "{{count}} min",
     "minutesShort": "min",
     "search": "Search",
-    "emptySearch": "No results match your search."
+    "emptySearch": "No results match your search.",
+    "nSelected": "{{count}} selected",
+    "clearSelection": "Clear selection"
   },
   "nav": {
     "backAppointments": "← Appointments",

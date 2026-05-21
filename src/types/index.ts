@@ -22,6 +22,7 @@ export type {
   CreateFreeDayPayload,
 } from './resourceScheduling'
 
+import type React from 'react'
 import type { ReactNode, InputHTMLAttributes } from 'react'
 
 export type User = {
@@ -58,6 +59,7 @@ export type FormFieldProps = InputHTMLAttributes<HTMLInputElement> & {
 export type CardProps = {
   children: ReactNode
   className?: string
+  style?: React.CSSProperties
   to?: string
 }
 
@@ -76,6 +78,7 @@ export type AuthLayoutProps = {
 }
 
 export type PageSectionHeaderProps = {
+  title?: string
   showBackLink?: boolean
   backTo?: string
   backLabel?: string

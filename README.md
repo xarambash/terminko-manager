@@ -6,10 +6,9 @@ Web app for salon appointment management. Built for owners and staff to manage a
 
 - React 19 + TypeScript + Vite
 - TanStack React Query v5
-- React Hook Form + Zod
-- shadcn/ui + Tailwind CSS
+- Mantine v9 (`@mantine/core`, `@mantine/form`, `@mantine/dates`, `@mantine/notifications`)
+- Tabler Icons (`@tabler/icons-react`)
 - i18next (Serbian + English)
-- Sonner (toast notifications)
 
 ## Setup
 
@@ -57,3 +56,24 @@ npm run preview   # preview production build
 
 ### Staff
 - Own appointments view with date filter
+
+## Design System
+
+Sizing and spacing rules are centralized in `src/theme.ts`.
+
+**Component size** — `"sm"` is the global default for all interactive components (Button, TextInput, NumberInput, Select, DatePickerInput). Exceptions must be explicit.
+
+**Spacing tokens:**
+
+| Token | Use case |
+|-------|----------|
+| `"xs"` | Icon + label pairs, tightly related inline elements |
+| `"sm"` | Between form fields in a Stack; between buttons in a Group |
+| `"md"` | Between sections inside a card |
+| `"lg"` | Between major page sections |
+
+Numeric gap values are only for sub-`xs` intentional tightness (e.g. stacked text lines). All other spacing uses tokens.
+
+**Icon sizes:** 16px (nav/header) · 14px (ActionIcon / inline) · 12px (icon inside button with label)
+
+**Width constraints** — use Mantine style props (`miw`, `maw`, `w`) instead of inline `style={{ minWidth }}`.

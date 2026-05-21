@@ -41,7 +41,9 @@
     "minutes": "{{count}} min",
     "minutesShort": "min",
     "search": "Претрага",
-    "emptySearch": "Нема резултата који одговарају претрази."
+    "emptySearch": "Нема резултата који одговарају претрази.",
+    "nSelected": "{{count}} изабрано",
+    "clearSelection": "Поништи избор"
   },
   "nav": {
     "backAppointments": "← Термини",

@@ -1,13 +1,5 @@
+import { Modal, Text, Group, Button } from '@mantine/core'
 import { useTranslation } from 'react-i18next'
-import { Button } from './ui/Button'
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from './ui/dialog'
 import type { DeleteServiceConfirmModalProps } from '../types'
 
 export function DeleteServiceConfirmModal({
@@ -20,26 +12,23 @@ export function DeleteServiceConfirmModal({
   const { t } = useTranslation()
 
   return (
-    <Dialog
-      open={open}
-      onOpenChange={(next) => {
-        if (!next && !isPending) onClose()
-      }}
+    <Modal
+      opened={open}
+      onClose={() => { if (!isPending) onClose() }}
+      title={t('deleteService.title')}
+      size="sm"
     >
-      <DialogContent className="sm:max-w-md">
-        <DialogHeader>
-          <DialogTitle>{t('deleteService.title')}</DialogTitle>
-          <DialogDescription>{t('deleteService.body', { name: serviceName })}</DialogDescription>
-        </DialogHeader>
-        <DialogFooter className="gap-2 sm:justify-end">
-          <Button type="button" variant="secondary" onClick={onClose} disabled={isPending}>
-            {t('common.cancel')}
-          </Button>
-          <Button type="button" variant="destructive" onClick={onConfirm} disabled={isPending}>
-            {isPending ? t('common.deleting') : t('deleteService.confirm')}
-          </Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
+      <Text size="sm" mb="lg">
+        {t('deleteService.body', { name: serviceName })}
+      </Text>
+      <Group justify="flex-end" gap="sm">
+        <Button variant="default" onClick={onClose} disabled={isPending}>
+          {t('common.cancel')}
+        </Button>
+        <Button color="red" onClick={onConfirm} disabled={isPending} loading={isPending}>
+          {t('deleteService.confirm')}
+        </Button>
+      </Group>
+    </Modal>
   )
 }

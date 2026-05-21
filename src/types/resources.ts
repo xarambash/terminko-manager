@@ -28,4 +28,5 @@ export type UpdateResourcePayload = {
   lastName?: string
   email?: string
   phone?: string | null
+  isActive?: boolean
 }

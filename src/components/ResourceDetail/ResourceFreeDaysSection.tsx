@@ -2,30 +2,17 @@ import { useState } from 'react'
 import { parseISO } from 'date-fns'
 import { useTranslation } from 'react-i18next'
 import { isAxiosError } from 'axios'
-import { Trash2 } from 'lucide-react'
-import { Button } from '../ui/Button'
-import { Card } from '../ui/Card'
+import { IconTrash } from '@tabler/icons-react'
+import {
+  Paper, Stack, Text, Button, Group, Modal, TextInput, ActionIcon,
+} from '@mantine/core'
 import { DateRangePicker } from '../ui/DateRangePicker'
 import type { DateRangeValue } from '../ui/DateRangePicker'
 import {
-  DataTable,
-  DataTableBodyRow,
-  DataTableEmptyCell,
-  DataTableHeadRow,
-  DataTableScroll,
-  DataTableTd,
-  DataTableTh,
+  DataTable, DataTableBodyRow, DataTableEmptyCell, DataTableHeadRow,
+  DataTableScroll, DataTableTd, DataTableTh,
 } from '../ui/DataTable'
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from '../ui/dialog'
 import { FormError } from '../ui/FormError'
-import { FormField } from '../ui/FormField'
 import { QueryStatusBanner } from '../ui/QueryStatusBanner'
 import { useCreateFreeDay, useDeleteFreeDay, useResourceFreeDays } from '../../hooks'
 import { extractServerError } from '../../lib/errors'
@@ -34,11 +21,7 @@ import type { ResourceFreeDay } from '../../types'
 
 const emptyRange: DateRangeValue = { from: '', to: undefined }
 
-function rangesOverlap(
-  from: string,
-  to: string | undefined,
-  rows: ResourceFreeDay[],
-): boolean {
+function rangesOverlap(from: string, to: string | undefined, rows: ResourceFreeDay[]): boolean {
   const fromDate = parseISO(from)
   const toDate = to ? parseISO(to) : fromDate
   return rows.some((row) => {
@@ -68,20 +51,9 @@ export function ResourceFreeDaysSection({ resourceId }: { resourceId: string }) 
   const onAdd = async () => {
     setFormError(undefined)
     createMutation.reset()
-
-    if (!range.from) {
-      setFormError(t('resourceDetail.freeDays.validationStartDate'))
-      return
-    }
-    if (range.to && range.to < range.from) {
-      setFormError(t('resourceDetail.freeDays.validationDateOrder'))
-      return
-    }
-    if (rangesOverlap(range.from, range.to, rows ?? [])) {
-      setFormError(t('resourceDetail.freeDays.errorOverlap'))
-      return
-    }
-
+    if (!range.from) { setFormError(t('resourceDetail.freeDays.validationStartDate')); return }
+    if (range.to && range.to < range.from) { setFormError(t('resourceDetail.freeDays.validationDateOrder')); return }
+    if (rangesOverlap(range.from, range.to, rows ?? [])) { setFormError(t('resourceDetail.freeDays.errorOverlap')); return }
     try {
       await createMutation.mutateAsync({
         start_date: range.from,
@@ -103,7 +75,6 @@ export function ResourceFreeDaysSection({ resourceId }: { resourceId: string }) 
     if (!deleteTarget) return
     deleteMutation.reset()
     setDeleteError(undefined)
-
     try {
       await deleteMutation.mutateAsync(deleteTarget.id)
       setDeleteTarget(null)
@@ -113,150 +84,107 @@ export function ResourceFreeDaysSection({ resourceId }: { resourceId: string }) 
   }
 
   return (
-    <Card className="flex flex-col gap-4 p-4 sm:p-6">
-      <h2 className="text-lg font-medium text-[var(--text-h)]">{t('resourceDetail.freeDays.title')}</h2>
-      <p className="text-sm text-[var(--text)]">{t('resourceDetail.freeDays.description')}</p>
+    <Paper withBorder shadow="xs" p="md">
+      <Stack gap="md">
+        <div>
+          <Text fw={500} size="md" mb="xs">{t('resourceDetail.freeDays.title')}</Text>
+          <Text size="sm" c="dimmed">{t('resourceDetail.freeDays.description')}</Text>
+        </div>
 
-      <QueryStatusBanner
-        isPending={isPending}
-        isError={isError}
-        error={error}
-        loadingText={t('loading.freeDays')}
-      />
+        <QueryStatusBanner isPending={isPending} isError={isError} error={error} loadingText={t('loading.freeDays')} />
 
-      {!isPending && !isError && (
-        <>
-          <DataTableScroll variant="inset">
-            <DataTable variant="inset" minWidth={360}>
-              <thead>
-                <DataTableHeadRow variant="inset">
-                  <DataTableTh variant="inset">{t('resourceDetail.freeDays.dateRange')}</DataTableTh>
-                  <DataTableTh variant="inset">{t('common.reason')}</DataTableTh>
-                  <DataTableTh variant="inset" className="w-12" />
-                </DataTableHeadRow>
-              </thead>
-              <tbody>
-                {(rows ?? []).length === 0 ? (
-                  <tr>
-                    <DataTableEmptyCell variant="inset" colSpan={3}>
-                      {t('resourceDetail.freeDays.empty')}
-                    </DataTableEmptyCell>
-                  </tr>
-                ) : (
-                  (rows ?? []).map((f) => (
-                    <DataTableBodyRow key={f.id}>
-                      <DataTableTd variant="inset" className="text-[var(--text-h)]">
-                        {formatFreeDayRange(f.start_date, f.end_date)}
-                      </DataTableTd>
-                      <DataTableTd variant="inset" className="text-[var(--text)]">
-                        {f.reason ?? t('common.dash')}
-                      </DataTableTd>
-                      <DataTableTd variant="inset">
-                        <Button
-                          type="button"
-                          variant="ghost"
-                          size="icon-sm"
-                          aria-label={t('resourceDetail.freeDays.deleteAriaLabel')}
-                          onClick={(e) => {
-                            e.stopPropagation()
-                            setDeleteTarget(f)
-                          }}
-                        >
-                          <Trash2 className="size-4 text-destructive" />
-                        </Button>
-                      </DataTableTd>
-                    </DataTableBodyRow>
-                  ))
-                )}
-              </tbody>
-            </DataTable>
-          </DataTableScroll>
+        {!isPending && !isError && (
+          <>
+            <DataTableScroll variant="inset">
+              <DataTable variant="inset" minWidth={360}>
+                <thead>
+                  <DataTableHeadRow variant="inset">
+                    <DataTableTh variant="inset">{t('resourceDetail.freeDays.dateRange')}</DataTableTh>
+                    <DataTableTh variant="inset">{t('common.reason')}</DataTableTh>
+                    <DataTableTh variant="inset" style={{ width: 48 }} />
+                  </DataTableHeadRow>
+                </thead>
+                <tbody>
+                  {(rows ?? []).length === 0 ? (
+                    <tr><DataTableEmptyCell variant="inset" colSpan={3}>{t('resourceDetail.freeDays.empty')}</DataTableEmptyCell></tr>
+                  ) : (
+                    (rows ?? []).map((f) => (
+                      <DataTableBodyRow key={f.id}>
+                        <DataTableTd variant="inset">{formatFreeDayRange(f.start_date, f.end_date)}</DataTableTd>
+                        <DataTableTd variant="inset">{f.reason ?? t('common.dash')}</DataTableTd>
+                        <DataTableTd variant="inset">
+                          <ActionIcon
+                            variant="subtle"
+                            color="red"
+                            size="sm"
+                            aria-label={t('resourceDetail.freeDays.deleteAriaLabel')}
+                            onClick={(e) => { e.stopPropagation(); setDeleteTarget(f) }}
+                          >
+                            <IconTrash size={14} />
+                          </ActionIcon>
+                        </DataTableTd>
+                      </DataTableBodyRow>
+                    ))
+                  )}
+                </tbody>
+              </DataTable>
+            </DataTableScroll>
 
-          <div className="flex flex-col gap-3 border-t border-[var(--border)] pt-4">
-            <p className="text-sm font-medium text-[var(--text-h)]">
-              {t('resourceDetail.freeDays.addTitle')}
-            </p>
-            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-              <div className="flex flex-col gap-1">
-                <span className="text-sm font-medium text-foreground">
-                  {t('resourceDetail.freeDays.dateRangeLabel')}
-                </span>
-                <DateRangePicker
-                  value={range}
-                  onChange={setRange}
-                  placeholder={t('resourceDetail.freeDays.dateRangePlaceholder')}
-                  disabledRanges={existingRanges}
-                  className="w-full"
+            <Stack gap="sm" pt="sm" style={{ borderTop: '1px solid var(--mantine-color-default-border)' }}>
+              <Text size="sm" fw={500}>{t('resourceDetail.freeDays.addTitle')}</Text>
+              <Group align="flex-end" gap="sm" wrap="wrap">
+                <Stack gap="xs">
+                  <Text size="sm" fw={500}>{t('resourceDetail.freeDays.dateRangeLabel')}</Text>
+                  <DateRangePicker
+                    value={range}
+                    onChange={setRange}
+                    placeholder={t('resourceDetail.freeDays.dateRangePlaceholder')}
+                    disabledRanges={existingRanges}
+                  />
+                </Stack>
+                <TextInput
+                  label={t('resourceDetail.freeDays.reasonOptional')}
+                  value={reason}
+                  onChange={(e) => setReason(e.target.value)}
+                  placeholder={t('resourceDetail.freeDays.reasonPlaceholder')}
+                  miw={200}
                 />
-              </div>
-              <FormField
-                label={t('resourceDetail.freeDays.reasonOptional')}
-                value={reason}
-                onChange={(e) => setReason(e.target.value)}
-                placeholder={t('resourceDetail.freeDays.reasonPlaceholder')}
-              />
-              <div className="flex items-end">
                 <Button
-                  type="button"
-                  className="w-full sm:w-auto"
                   disabled={createMutation.isPending}
+                  loading={createMutation.isPending}
                   onClick={() => void onAdd()}
+                  mb={1}
                 >
-                  {createMutation.isPending ? t('common.adding') : t('common.add')}
+                  {t('common.add')}
                 </Button>
-              </div>
-            </div>
-            <FormError message={formError} />
-          </div>
-        </>
-      )}
+              </Group>
+              <FormError message={formError} />
+            </Stack>
+          </>
+        )}
+      </Stack>
 
-      <Dialog
-        open={deleteTarget != null}
-        onOpenChange={(next) => {
-          if (!next) {
-            setDeleteTarget(null)
-            setDeleteError(undefined)
-          }
-        }}
+      <Modal
+        opened={deleteTarget != null}
+        onClose={() => { setDeleteTarget(null); setDeleteError(undefined) }}
+        title={t('resourceDetail.freeDays.deleteTitle')}
+        size="sm"
       >
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle>{t('resourceDetail.freeDays.deleteTitle')}</DialogTitle>
-            <DialogDescription>
-              {deleteTarget
-                ? t('resourceDetail.freeDays.deleteBody', {
-                    dateRange: formatFreeDayRange(deleteTarget.start_date, deleteTarget.end_date),
-                  })
-                : null}
-            </DialogDescription>
-          </DialogHeader>
+        <Stack gap="sm">
+          <Text size="sm">
+            {deleteTarget ? t('resourceDetail.freeDays.deleteBody', { dateRange: formatFreeDayRange(deleteTarget.start_date, deleteTarget.end_date) }) : null}
+          </Text>
           <FormError message={deleteError} />
-          <DialogFooter className="gap-2 sm:justify-end">
-            <Button
-              type="button"
-              variant="secondary"
-              disabled={deleteMutation.isPending}
-              onClick={() => {
-                setDeleteTarget(null)
-                setDeleteError(undefined)
-              }}
-            >
+          <Group justify="flex-end" gap="sm">
+            <Button variant="default" disabled={deleteMutation.isPending} onClick={() => { setDeleteTarget(null); setDeleteError(undefined) }}>
               {t('common.cancel')}
             </Button>
-            <Button
-              type="button"
-              variant="destructive"
-              disabled={deleteMutation.isPending}
-              onClick={() => void onDelete()}
-            >
-              {deleteMutation.isPending
-                ? t('resourceDetail.freeDays.deleting')
-                : t('resourceDetail.freeDays.deleteConfirm')}
+            <Button color="red" loading={deleteMutation.isPending} onClick={() => void onDelete()}>
+              {t('resourceDetail.freeDays.deleteConfirm')}
             </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-    </Card>
+          </Group>
+        </Stack>
+      </Modal>
+    </Paper>
   )
 }

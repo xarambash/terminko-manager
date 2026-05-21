@@ -1,28 +1,16 @@
-import { useMemo } from 'react'
-import { useForm } from 'react-hook-form'
-import { zodResolver } from '@hookform/resolvers/zod'
+import { Modal, TextInput, NumberInput, Checkbox, Button, Group, Stack } from '@mantine/core'
+import { useForm } from '@mantine/form'
 import { useTranslation } from 'react-i18next'
-import { z } from 'zod'
-import { Button } from './ui/Button'
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from './ui/dialog'
-import { FormError } from './ui/FormError'
-import { FormField } from './ui/FormField'
 import { useUpdateService } from '../hooks'
 import { apiErrorMessageForMutation } from '../lib/errors'
-import { cn } from '@/lib/utils'
 import type { EditServiceModalProps } from '../types'
 import type { UpdateServicePayload } from '../types/services'
 
 type EditServiceForm = {
   name: string
-  durationMinutes: string
+  durationMinutes: number | ''
   description: string
-  sortOrder: string
+  sortOrder: number | ''
   isActive: boolean
 }
 
@@ -36,126 +24,73 @@ function EditServiceFormContent({
   const { t } = useTranslation()
   const updateMutation = useUpdateService()
 
-  const schema = useMemo(
-    () =>
-      z.object({
-        name: z.string().min(1, t('createService.validation.name')),
-        durationMinutes: z
-          .string()
-          .min(1, t('createService.validation.duration'))
-          .refine(
-            (s) => /^\d+$/.test(s) && Number.parseInt(s, 10) > 0,
-            t('createService.validation.duration')
-          ),
-        description: z.string(),
-        sortOrder: z.string(),
-        isActive: z.boolean(),
-      }),
-    [t]
-  )
-
-  const {
-    register,
-    handleSubmit,
-    reset,
-    formState: { errors, isSubmitting },
-    setError,
-  } = useForm<EditServiceForm>({
-    resolver: zodResolver(schema),
-    defaultValues: {
+  const form = useForm<EditServiceForm>({
+    initialValues: {
       name: service.name,
-      durationMinutes: String(service.durationMinutes),
+      durationMinutes: service.durationMinutes,
       description: service.description ?? '',
-      sortOrder: String(service.sortOrder),
+      sortOrder: service.sortOrder,
       isActive: service.isActive,
+    },
+    validate: {
+      name: (v) => (!v.trim() ? t('createService.validation.name') : null),
+      durationMinutes: (v) =>
+        !v || Number(v) <= 0 ? t('createService.validation.duration') : null,
     },
   })
 
-  const closeModal = () => {
-    reset()
+  const handleClose = () => {
+    form.reset()
     updateMutation.reset()
     onClose()
   }
 
-  const onSubmit = async (data: EditServiceForm) => {
+  const onSubmit = form.onSubmit(async (data) => {
     const payload: UpdateServicePayload = {
       name: data.name.trim(),
-      durationMinutes: Number.parseInt(data.durationMinutes, 10),
+      durationMinutes: Number(data.durationMinutes),
       isActive: data.isActive,
+      description: data.description?.trim() || null,
     }
-    payload.description = data.description?.trim() || null
-    const so = data.sortOrder?.trim()
-    if (so !== undefined && so !== '') {
-      const n = Number.parseInt(so, 10)
-      if (!Number.isNaN(n)) {
-        payload.sortOrder = n
-      }
-    }
+    if (data.sortOrder !== '') payload.sortOrder = Number(data.sortOrder)
+
     try {
       await updateMutation.mutateAsync({ serviceId: service.id, body: payload })
-      closeModal()
+      handleClose()
     } catch (err: unknown) {
-      setError('root', {
-        message: apiErrorMessageForMutation(err, t, 'editService.errorSave'),
-      })
+      form.setErrors({ name: apiErrorMessageForMutation(err, t, 'editService.errorSave') })
     }
-  }
+  })
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
-      <FormField
-        label={t('createService.name')}
-        {...register('name')}
-        error={errors.name?.message}
-      />
-      <FormField
-        label={t('services.durationMinutes')}
-        type="number"
-        min={1}
-        step={1}
-        {...register('durationMinutes')}
-        error={errors.durationMinutes?.message}
-      />
-      <FormField
-        label={t('createService.descriptionOptional')}
-        {...register('description')}
-        error={errors.description?.message}
-      />
-      <FormField
-        label={t('createService.sortOrderOptional')}
-        type="number"
-        min={0}
-        step={1}
-        {...register('sortOrder')}
-        error={errors.sortOrder?.message}
-      />
-      <label className="flex cursor-pointer items-center gap-2 text-sm text-foreground">
-        <input
-          type="checkbox"
-          className={cn(
-            'size-4 shrink-0 rounded border border-input accent-primary',
-            'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50'
-          )}
-          {...register('isActive')}
+    <form onSubmit={onSubmit}>
+      <Stack gap="sm">
+        <TextInput label={t('createService.name')} {...form.getInputProps('name')} />
+        <NumberInput
+          label={t('services.durationMinutes')}
+          min={1}
+          {...form.getInputProps('durationMinutes')}
         />
-        {t('createService.isActive')}
-      </label>
-      <FormError
-        message={
-          errors.root?.message ??
-          (updateMutation.isError
-            ? apiErrorMessageForMutation(updateMutation.error, t, 'editService.errorSave')
-            : undefined)
-        }
-      />
-      <div className="flex justify-end gap-2 pt-2">
-        <Button type="button" variant="secondary" onClick={closeModal} disabled={isSubmitting}>
-          {t('common.cancel')}
-        </Button>
-        <Button type="submit" disabled={isSubmitting}>
-          {isSubmitting ? t('common.saving') : t('editService.save')}
-        </Button>
-      </div>
+        <TextInput
+          label={t('createService.descriptionOptional')}
+          {...form.getInputProps('description')}
+        />
+        <NumberInput
+          label={t('createService.sortOrderOptional')}
+          min={0}
+          {...form.getInputProps('sortOrder')}
+        />
+        <Checkbox
+          label={t('createService.isActive')}
+          {...form.getInputProps('isActive', { type: 'checkbox' })}
+        />
+        <Group justify="flex-end" gap="sm" mt="xs">
+          <Button variant="default" onClick={handleClose} disabled={form.submitting}>
+            {t('common.cancel')}
+          </Button>
+          <Button type="submit" loading={form.submitting}>{t('editService.save')}</Button>
+        </Group>
+      </Stack>
     </form>
   )
 }
@@ -163,23 +98,11 @@ function EditServiceFormContent({
 export function EditServiceModal({ open, onClose, service }: EditServiceModalProps) {
   const { t, i18n } = useTranslation()
 
-  if (!service) {
-    return null
-  }
+  if (!service) return null
 
   return (
-    <Dialog
-      open={open}
-      onOpenChange={(next) => {
-        if (!next) onClose()
-      }}
-    >
-      <DialogContent className="sm:max-w-md" aria-describedby={undefined}>
-        <DialogHeader>
-          <DialogTitle>{t('editService.title')}</DialogTitle>
-        </DialogHeader>
-        <EditServiceFormContent key={`${service.id}-${i18n.language}`} service={service} onClose={onClose} />
-      </DialogContent>
-    </Dialog>
+    <Modal opened={open} onClose={onClose} title={t('editService.title')} size="sm">
+      <EditServiceFormContent key={`${service.id}-${i18n.language}`} service={service} onClose={onClose} />
+    </Modal>
   )
 }

@@ -1,11 +1,10 @@
+import { Title } from '@mantine/core'
 import type { PageTitleProps } from '../../types'
 
-export function PageTitle({ children, className = '' }: PageTitleProps) {
+export function PageTitle({ children, className }: PageTitleProps) {
   return (
-    <h6
-      className={`text-2xl font-medium text-[var(--text-h)] ${className}`.trim()}
-    >
+    <Title order={2} className={className}>
       {children}
-    </h6>
+    </Title>
   )
 }

@@ -1,5 +1,6 @@
+import { Menu, Button } from '@mantine/core'
+import { IconChevronDown } from '@tabler/icons-react'
 import { useTranslation } from 'react-i18next'
-import { DropdownPicker } from './DropdownPicker'
 
 export function LanguageSwitcher() {
   const { t, i18n } = useTranslation()
@@ -8,15 +9,32 @@ export function LanguageSwitcher() {
     { value: 'sr', label: t('languages.sr') },
     { value: 'en', label: t('languages.en') },
   ]
+  const current = options.find((o) => o.value === value)
 
   return (
-    <DropdownPicker
-      value={value}
-      options={options}
-      onValueChange={(lang) => void i18n.changeLanguage(lang)}
-      ariaLabel={t('languages.switcherLabel')}
-      className="gap-1"
-      size="sm"
-    />
+    <Menu shadow="md" width={120} position="bottom-end">
+      <Menu.Target>
+        <Button
+          variant="subtle"
+          color="gray"
+          size="xs"
+          rightSection={<IconChevronDown size={12} />}
+          aria-label={t('languages.switcherLabel')}
+        >
+          {current?.label}
+        </Button>
+      </Menu.Target>
+      <Menu.Dropdown>
+        {options.map((opt) => (
+          <Menu.Item
+            key={opt.value}
+            onClick={() => void i18n.changeLanguage(opt.value)}
+            fw={opt.value === value ? 600 : undefined}
+          >
+            {opt.label}
+          </Menu.Item>
+        ))}
+      </Menu.Dropdown>
+    </Menu>
   )
 }

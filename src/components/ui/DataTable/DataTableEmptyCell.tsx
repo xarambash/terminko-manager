@@ -1,3 +1,4 @@
+import { Table } from '@mantine/core'
 import type { ReactNode, TdHTMLAttributes } from 'react'
 import type { DataTableVariant } from './types'
 
@@ -7,21 +8,17 @@ type DataTableEmptyCellProps = TdHTMLAttributes<HTMLTableCellElement> & {
   children: ReactNode
 }
 
-export function DataTableEmptyCell({
-  variant,
-  colSpan,
-  className = '',
-  children,
-  ...props
-}: DataTableEmptyCellProps) {
-  const padding = variant === 'page' ? 'px-3 py-8 sm:px-4' : 'px-3 py-6'
+export function DataTableEmptyCell({ variant: _variant, colSpan, children, ...props }: DataTableEmptyCellProps) {
   return (
-    <td
+    <Table.Td
       colSpan={colSpan}
-      className={`${padding} text-center text-sm text-[var(--text)] ${className}`.trim()}
+      ta="center"
+      py="xl"
+      c="dimmed"
+      fz="sm"
       {...props}
     >
       {children}
-    </td>
+    </Table.Td>
   )
 }

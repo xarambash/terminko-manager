@@ -1,19 +1,36 @@
+import { useState } from 'react'
 import { Outlet } from 'react-router-dom'
+import { AppShell } from '@mantine/core'
 import { AppHeader } from './AppHeader'
 import { AppSidebarNav } from './AppSidebarNav'
 
 export function AppLayout() {
+  const [mobileOpen, setMobileOpen] = useState(false)
+
   return (
-    <div className="flex min-h-screen flex-col bg-[var(--bg)] text-[var(--text)] antialiased">
-      <AppHeader />
-      <div className="mx-auto flex min-h-0 w-full max-w-[90rem] flex-1">
-        <aside className="sticky top-12 hidden h-[calc(100dvh-3rem)] w-[18rem] shrink-0 overflow-y-auto border-[var(--border)] py-8 pr-6 pl-2 lg:block">
-          <AppSidebarNav />
-        </aside>
-        <div className="min-w-0 flex-1 overflow-x-auto">
-          <Outlet />
-        </div>
-      </div>
-    </div>
+    <AppShell
+      header={{ height: 52 }}
+      navbar={{
+        width: 240,
+        breakpoint: 'lg',
+        collapsed: { mobile: !mobileOpen },
+      }}
+      padding="md"
+    >
+      <AppShell.Header>
+        <AppHeader
+          mobileOpen={mobileOpen}
+          onMobileToggle={() => setMobileOpen((o) => !o)}
+        />
+      </AppShell.Header>
+
+      <AppShell.Navbar p="sm">
+        <AppSidebarNav onNavigate={() => setMobileOpen(false)} />
+      </AppShell.Navbar>
+
+      <AppShell.Main>
+        <Outlet />
+      </AppShell.Main>
+    </AppShell>
   )
 }

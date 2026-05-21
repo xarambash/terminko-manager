@@ -1,19 +1,20 @@
+import { Table } from '@mantine/core'
 import type { TableHTMLAttributes } from 'react'
 import type { DataTableVariant } from './types'
 
 type DataTableProps = TableHTMLAttributes<HTMLTableElement> & {
   variant: DataTableVariant
-  /** Minimum table width in pixels (horizontal scroll below this). */
   minWidth: number
 }
 
-export function DataTable({ variant, minWidth, className = '', ...props }: DataTableProps) {
-  const sizeClass = variant === 'inset' ? ' text-sm' : ''
+export function DataTable({ variant, minWidth, children, ...props }: DataTableProps) {
   return (
-    <table
-      className={`w-full border-collapse${sizeClass} ${className}`.trim()}
+    <Table
       style={{ minWidth }}
-      {...props}
-    />
+      fz={variant === 'inset' ? 'sm' : undefined}
+      {...(props as object)}
+    >
+      {children}
+    </Table>
   )
 }

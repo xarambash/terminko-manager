@@ -1,9 +1,11 @@
+import { Group, ActionIcon, Title } from '@mantine/core'
 import { Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
-import { ArrowLeftIcon } from 'lucide-react'
+import { IconArrowLeft } from '@tabler/icons-react'
 import type { PageSectionHeaderProps } from '../../types'
 
 export function PageSectionHeader({
+  title,
   showBackLink = false,
   backTo = '/appointments',
   backLabel,
@@ -13,20 +15,23 @@ export function PageSectionHeader({
   const backAriaLabel = backLabel ?? t('nav.backAppointments')
 
   return (
-    <div className="flex flex-wrap items-center justify-between gap-4">
-      <div className="flex items-center gap-4">
+    <Group justify="space-between" wrap="wrap">
+      <Group gap="xs">
         {showBackLink && (
-          <Link
+          <ActionIcon
+            component={Link}
             to={backTo}
-            className="inline-flex shrink-0 items-center justify-center rounded-md p-2 text-[var(--text)] transition hover:bg-[var(--code-bg)] hover:text-[var(--text-h)]"
+            variant="subtle"
+            color="gray"
             aria-label={backAriaLabel}
             title={backAriaLabel}
           >
-            <ArrowLeftIcon className="size-5" aria-hidden />
-          </Link>
+            <IconArrowLeft size={16} />
+          </ActionIcon>
         )}
-      </div>
-      {actions}
-    </div>
+        {title && <Title order={3}>{title}</Title>}
+      </Group>
+      {actions && <Group gap="xs">{actions}</Group>}
+    </Group>
   )
 }

@@ -1,19 +1,30 @@
+import { AppShell, Group, Box } from '@mantine/core'
 import type { AuthLayoutProps } from '../../types'
 import { TenantBrandName } from '../TenantBrandName'
 import { LanguageSwitcher } from './LanguageSwitcher'
 
-export function AuthLayout({ children, className = '' }: AuthLayoutProps) {
+export function AuthLayout({ children, className }: AuthLayoutProps) {
   return (
-    <div className={`flex min-h-screen flex-col bg-[var(--bg)] antialiased ${className}`.trim()}>
-      <header className="border-b border-[var(--header-border)] bg-[var(--header-bg)] backdrop-blur-md supports-backdrop-filter:bg-[var(--header-bg)]">
-        <div className="mx-auto flex h-16 max-w-[90rem] items-center justify-between gap-3 px-4 lg:px-8">
-          <TenantBrandName className="text-sm font-semibold tracking-tight text-[var(--text-h)]" />
+    <AppShell header={{ height: 60 }} className={className}>
+      <AppShell.Header>
+        <Group h="100%" px="lg" justify="space-between">
+          <TenantBrandName />
           <LanguageSwitcher />
-        </div>
-      </header>
-      <main className="flex flex-1 flex-col items-center justify-center px-4 py-8">
-        {children}
-      </main>
-    </div>
+        </Group>
+      </AppShell.Header>
+      <AppShell.Main>
+        <Box
+          style={{
+            minHeight: 'calc(100dvh - 60px)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            padding: '2rem 1rem',
+          }}
+        >
+          {children}
+        </Box>
+      </AppShell.Main>
+    </AppShell>
   )
 }
