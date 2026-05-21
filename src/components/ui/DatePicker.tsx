@@ -2,6 +2,7 @@ import { DatePickerInput } from '@mantine/dates'
 import type { DayOfWeek } from '@mantine/dates'
 import { useTranslation } from 'react-i18next'
 import { calendarLocaleFromLng } from '../../lib/dateLocale'
+import { IconCalendar } from '@tabler/icons-react'
 
 interface DatePickerProps {
   value: string
@@ -52,6 +53,8 @@ export function DatePicker({
       valueFormat="MMM D, YYYY"
       clearable={false}
       miw={160}
+      rightSection={<IconCalendar />}
+      rightSectionPointerEvents="none"
     />
   )
 }

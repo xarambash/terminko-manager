@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { notifications } from '@mantine/notifications'
-import { Button, Checkbox, Group, Pagination, Paper, Stack, Text } from '@mantine/core'
+import { Affix, Button, Checkbox, Group, Pagination, Paper, Stack, Table, Text, Transition } from '@mantine/core'
 import {
   Card,
   CreateServiceModal,
@@ -150,31 +150,27 @@ function ServicesPage() {
               </thead>
               <tbody>
                 {sorted.length === 0 ? (
-                  <tr><DataTableEmptyCell variant="page" colSpan={5}>{t('services.empty')}</DataTableEmptyCell></tr>
+                  <Table.Tr><DataTableEmptyCell variant="page" colSpan={5}>{t('services.empty')}</DataTableEmptyCell></Table.Tr>
                 ) : filtered.length === 0 ? (
-                  <tr><DataTableEmptyCell variant="page" colSpan={5}>{t('common.emptySearch')}</DataTableEmptyCell></tr>
+                  <Table.Tr><DataTableEmptyCell variant="page" colSpan={5}>{t('common.emptySearch')}</DataTableEmptyCell></Table.Tr>
                 ) : (
                   paginated.map((s) => (
                     <DataTableBodyRow
                       key={s.id}
                       hoverable
-                      style={{ cursor: 'pointer' }}
-                      onClick={() => toggleRow(s.id)}
                     >
-                      <DataTableTd variant="page">
+                      <DataTableTd variant="page" style={{ cursor: 'pointer' }}>
                         <Checkbox
                           checked={selectedIds.has(s.id)}
                           onChange={() => {}}
-                          onClick={(e) => { e.stopPropagation(); toggleRow(s.id) }}
+                          onClick={() => toggleRow(s.id)}
                           aria-label={`Select ${s.name}`}
                         />
                       </DataTableTd>
                       <DataTableTd variant="page">{s.name}</DataTableTd>
                       <DataTableTd variant="page">{t('common.minutes', { count: s.durationMinutes })}</DataTableTd>
                       <DataTableTd variant="page" style={{ maxWidth: 220 }}>
-                        <span style={{ display: 'block', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                          {s.description ?? t('common.dash')}
-                        </span>
+                        <Text truncate="end">{s.description ?? t('common.dash')}</Text>
                       </DataTableTd>
                       <DataTableTd variant="page">{s.isActive ? t('common.yes') : t('common.no')}</DataTableTd>
                     </DataTableBodyRow>
@@ -192,47 +188,42 @@ function ServicesPage() {
       )}
 
       {/* Floating selection action bar */}
-      <div
-        style={{
-          position: 'fixed',
-          bottom: 24,
-          left: 0,
-          right: 0,
-          zIndex: 200,
-          display: 'flex',
-          justifyContent: 'center',
-          pointerEvents: 'none',
-          opacity: hasSelection ? 1 : 0,
-          transform: hasSelection ? 'none' : 'translateY(8px)',
-          transition: 'opacity 200ms ease, transform 200ms ease',
-        }}
-      >
-        <Paper shadow="md" p="sm" radius="md" withBorder style={{ pointerEvents: hasSelection ? 'auto' : 'none' }}>
-          <Group gap="md" wrap="nowrap">
-            <Text size="sm" fw={500}>{t('common.nSelected', { count: selectedIds.size })}</Text>
-            <Button
-              size="sm"
-              variant="default"
-              disabled={!singleSelected}
-              onClick={() => { if (singleSelected) setEditService(singleSelected) }}
-            >
-              {t('services.edit')}
-            </Button>
-            <Button
-              size="sm"
-              color="red"
-              variant="light"
-              disabled={!singleSelected}
-              onClick={() => { if (singleSelected) setDeleteService(singleSelected) }}
-            >
-              {t('common.delete')}
-            </Button>
-            <Button size="sm" variant="default" onClick={() => setSelectedIds(new Set())}>
-              {t('common.clearSelection')}
-            </Button>
-          </Group>
-        </Paper>
-      </div>
+      <Affix position={{ bottom: 24, left: 0, right: 0 }} zIndex={200} style={{ display: 'flex', justifyContent: 'center', pointerEvents: 'none' }}>
+        <Transition
+          mounted={hasSelection}
+          transition={{ in: { opacity: 1, transform: 'translateY(0)' }, out: { opacity: 0, transform: 'translateY(8px)' }, transitionProperty: 'opacity, transform' }}
+          duration={200}
+          timingFunction="ease"
+        >
+          {(styles) => (
+            <Paper shadow="md" p="sm" radius="md" withBorder style={{ ...styles, pointerEvents: 'auto' }}>
+              <Group gap="md" wrap="nowrap">
+                <Text size="sm" fw={500}>{t('common.nSelected', { count: selectedIds.size })}</Text>
+                <Button
+                  size="sm"
+                  variant="default"
+                  disabled={!singleSelected}
+                  onClick={() => { if (singleSelected) setEditService(singleSelected) }}
+                >
+                  {t('services.edit')}
+                </Button>
+                <Button
+                  size="sm"
+                  color="red"
+                  variant="light"
+                  disabled={!singleSelected}
+                  onClick={() => { if (singleSelected) setDeleteService(singleSelected) }}
+                >
+                  {t('common.delete')}
+                </Button>
+                <Button size="sm" variant="default" onClick={() => setSelectedIds(new Set())}>
+                  {t('common.clearSelection')}
+                </Button>
+              </Group>
+            </Paper>
+          )}
+        </Transition>
+      </Affix>
 
       <CreateServiceModal open={createOpen} onClose={() => setCreateOpen(false)} />
       <EditServiceModal

@@ -7,7 +7,7 @@ import {
   ResourcesPage,
   ResourceDetailPage,
   ServicesPage,
-  GuestsPage,
+  // GuestsPage, // re-enable with Guests route
 } from './pages'
 import { OwnerRoute } from './components/OwnerRoute'
 
@@ -26,6 +26,7 @@ function App() {
             </OwnerRoute>
           }
         />
+        {/* Guests route — temporarily disabled; uncomment to re-enable
         <Route
           path="guests"
           element={
@@ -34,6 +35,7 @@ function App() {
             </OwnerRoute>
           }
         />
+        */}
         <Route
           path="resources"
           element={

@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next'
 import {
   IconCalendarEvent,
   IconSparkles,
-  IconUsers,
+  // IconUsers, // re-enable with Guests tab
   IconUser,
   IconLogout,
 } from '@tabler/icons-react'
@@ -47,6 +47,7 @@ export function AppSidebarNav({ onNavigate }: AppSidebarNavProps) {
             active={isActive('/services')}
             onClick={onNavigate}
           />
+          {/* Guests tab — temporarily disabled; uncomment to re-enable
           <NavLink
             component={Link}
             to="/guests"
@@ -55,6 +56,7 @@ export function AppSidebarNav({ onNavigate }: AppSidebarNavProps) {
             active={isActive('/guests')}
             onClick={onNavigate}
           />
+          */}
           <NavLink
             component={Link}
             to="/resources"

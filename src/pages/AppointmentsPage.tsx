@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { notifications } from '@mantine/notifications'
-import { Badge, Checkbox, Group, Pagination, Paper, Stack, Text, Button } from '@mantine/core'
+import { Affix, Badge, Checkbox, Group, Pagination, Paper, Stack, Table, Text, Transition, Button } from '@mantine/core'
 import {
   CancelAppointmentConfirmModal,
   Card,
@@ -247,15 +247,15 @@ function AppointmentsPage() {
               </thead>
               <tbody>
                 {list.length === 0 ? (
-                  <tr>
+                  <Table.Tr>
                     <DataTableEmptyCell variant="page" colSpan={7}>
                       {isOwner ? t('appointments.emptyForDateAndResource') : t('appointments.emptyForDate')}
                     </DataTableEmptyCell>
-                  </tr>
+                  </Table.Tr>
                 ) : filtered.length === 0 ? (
-                  <tr>
+                  <Table.Tr>
                     <DataTableEmptyCell variant="page" colSpan={7}>{t('common.emptySearch')}</DataTableEmptyCell>
-                  </tr>
+                  </Table.Tr>
                 ) : (
                   paginated.map((apt) => {
                     const normalized = normalizeStatus(apt.status)
@@ -265,14 +265,12 @@ function AppointmentsPage() {
                       <DataTableBodyRow
                         key={apt.id}
                         hoverable
-                        style={{ cursor: 'pointer' }}
-                        onClick={() => toggleRow(apt.id)}
                       >
-                        <DataTableTd variant="page">
+                        <DataTableTd variant="page" style={{ cursor: 'pointer' }}>
                           <Checkbox
                             checked={isSelected}
                             onChange={() => {}}
-                            onClick={(e) => { e.stopPropagation(); toggleRow(apt.id) }}
+                            onClick={() => toggleRow(apt.id)}
                             aria-label={`Select ${apt.guest.name}`}
                           />
                         </DataTableTd>
@@ -300,39 +298,34 @@ function AppointmentsPage() {
       )}
 
       {/* Floating selection action bar */}
-      <div
-        style={{
-          position: 'fixed',
-          bottom: 24,
-          left: 0,
-          right: 0,
-          zIndex: 200,
-          display: 'flex',
-          justifyContent: 'center',
-          pointerEvents: 'none',
-          opacity: hasSelection ? 1 : 0,
-          transform: hasSelection ? 'none' : 'translateY(8px)',
-          transition: 'opacity 200ms ease, transform 200ms ease',
-        }}
-      >
-        <Paper shadow="md" p="sm" radius="md" withBorder style={{ pointerEvents: hasSelection ? 'auto' : 'none' }}>
-          <Group gap="md" wrap="nowrap">
-            <Text size="sm" fw={500}>{t('common.nSelected', { count: selectedIds.size })}</Text>
-            <Button
-              size="sm"
-              color="red"
-              variant="light"
-              disabled={!selectedScheduledApt}
-              onClick={() => { if (selectedScheduledApt) setCancelTarget(selectedScheduledApt) }}
-            >
-              {t('cancelAppointment.action')}
-            </Button>
-            <Button size="sm" variant="default" onClick={() => setSelectedIds(new Set())}>
-              {t('common.clearSelection')}
-            </Button>
-          </Group>
-        </Paper>
-      </div>
+      <Affix position={{ bottom: 24, left: 0, right: 0 }} zIndex={200} style={{ display: 'flex', justifyContent: 'center', pointerEvents: 'none' }}>
+        <Transition
+          mounted={hasSelection}
+          transition={{ in: { opacity: 1, transform: 'translateY(0)' }, out: { opacity: 0, transform: 'translateY(8px)' }, transitionProperty: 'opacity, transform' }}
+          duration={200}
+          timingFunction="ease"
+        >
+          {(styles) => (
+            <Paper shadow="md" p="sm" radius="md" withBorder style={{ ...styles, pointerEvents: 'auto' }}>
+              <Group gap="md" wrap="nowrap">
+                <Text size="sm" fw={500}>{t('common.nSelected', { count: selectedIds.size })}</Text>
+                <Button
+                  size="sm"
+                  color="red"
+                  variant="light"
+                  disabled={!selectedScheduledApt}
+                  onClick={() => { if (selectedScheduledApt) setCancelTarget(selectedScheduledApt) }}
+                >
+                  {t('cancelAppointment.action')}
+                </Button>
+                <Button size="sm" variant="default" onClick={() => setSelectedIds(new Set())}>
+                  {t('common.clearSelection')}
+                </Button>
+              </Group>
+            </Paper>
+          )}
+        </Transition>
+      </Affix>
 
       <CancelAppointmentConfirmModal
         open={cancelTarget !== null}

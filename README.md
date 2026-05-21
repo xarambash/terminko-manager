@@ -57,6 +57,12 @@ npm run preview   # preview production build
 ### Staff
 - Own appointments view with date filter
 
+### Table interactions (all list pages)
+- Rows are selectable via checkbox only — clicking outside the checkbox does nothing
+- Checkbox column shows a pointer cursor; the rest of the row does not
+- Row hover shows a subtle background highlight
+- A floating action bar appears at the bottom of the viewport when rows are selected; it provides context-appropriate actions (cancel appointment, edit/delete service, ban/unban guest, view/delete resource)
+
 ## Design System
 
 Sizing and spacing rules are centralized in `src/theme.ts`.

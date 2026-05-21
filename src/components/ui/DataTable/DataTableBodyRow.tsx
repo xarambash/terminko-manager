@@ -5,6 +5,6 @@ type DataTableBodyRowProps = ComponentPropsWithoutRef<'tr'> & {
   hoverable?: boolean
 }
 
-export function DataTableBodyRow({ hoverable: _hoverable, ...props }: DataTableBodyRowProps) {
-  return <Table.Tr {...props} />
+export function DataTableBodyRow({ hoverable, ...props }: DataTableBodyRowProps) {
+  return <Table.Tr data-hoverable={hoverable || undefined} {...props} />
 }

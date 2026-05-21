@@ -2,7 +2,7 @@ import { useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
 import { notifications } from '@mantine/notifications'
-import { Button, Checkbox, Group, Pagination, Paper, Stack, Text } from '@mantine/core'
+import { Affix, Button, Checkbox, Group, Pagination, Paper, Stack, Table, Text, Transition } from '@mantine/core'
 import {
   Card,
   CreateResourceModal,
@@ -149,22 +149,20 @@ function ResourcesPage() {
               </thead>
               <tbody>
                 {sorted.length === 0 ? (
-                  <tr><DataTableEmptyCell variant="page" colSpan={5}>{t('resources.empty')}</DataTableEmptyCell></tr>
+                  <Table.Tr><DataTableEmptyCell variant="page" colSpan={5}>{t('resources.empty')}</DataTableEmptyCell></Table.Tr>
                 ) : filtered.length === 0 ? (
-                  <tr><DataTableEmptyCell variant="page" colSpan={5}>{t('common.emptySearch')}</DataTableEmptyCell></tr>
+                  <Table.Tr><DataTableEmptyCell variant="page" colSpan={5}>{t('common.emptySearch')}</DataTableEmptyCell></Table.Tr>
                 ) : (
                   paginated.map((r) => (
                     <DataTableBodyRow
                       key={r.id}
                       hoverable
-                      style={{ cursor: 'pointer' }}
-                      onClick={() => toggleRow(r.id)}
                     >
-                      <DataTableTd variant="page">
+                      <DataTableTd variant="page" style={{ cursor: 'pointer' }}>
                         <Checkbox
                           checked={selectedIds.has(r.id)}
                           onChange={() => {}}
-                          onClick={(e) => { e.stopPropagation(); toggleRow(r.id) }}
+                          onClick={() => toggleRow(r.id)}
                           aria-label={`Select ${r.firstName} ${r.lastName}`}
                         />
                       </DataTableTd>
@@ -187,47 +185,42 @@ function ResourcesPage() {
       )}
 
       {/* Floating selection action bar */}
-      <div
-        style={{
-          position: 'fixed',
-          bottom: 24,
-          left: 0,
-          right: 0,
-          zIndex: 200,
-          display: 'flex',
-          justifyContent: 'center',
-          pointerEvents: 'none',
-          opacity: hasSelection ? 1 : 0,
-          transform: hasSelection ? 'none' : 'translateY(8px)',
-          transition: 'opacity 200ms ease, transform 200ms ease',
-        }}
-      >
-        <Paper shadow="md" p="sm" radius="md" withBorder style={{ pointerEvents: hasSelection ? 'auto' : 'none' }}>
-          <Group gap="md" wrap="nowrap">
-            <Text size="sm" fw={500}>{t('common.nSelected', { count: selectedIds.size })}</Text>
-            <Button
-              size="sm"
-              variant="default"
-              disabled={!singleSelected}
-              onClick={() => { if (singleSelected) navigate(`/resources/${singleSelected.id}`) }}
-            >
-              {t('resources.view')}
-            </Button>
-            <Button
-              size="sm"
-              color="red"
-              variant="light"
-              disabled={!singleSelected}
-              onClick={() => { if (singleSelected) setDeleteTarget(singleSelected) }}
-            >
-              {t('common.delete')}
-            </Button>
-            <Button size="sm" variant="default" onClick={() => setSelectedIds(new Set())}>
-              {t('common.clearSelection')}
-            </Button>
-          </Group>
-        </Paper>
-      </div>
+      <Affix position={{ bottom: 24, left: 0, right: 0 }} zIndex={200} style={{ display: 'flex', justifyContent: 'center', pointerEvents: 'none' }}>
+        <Transition
+          mounted={hasSelection}
+          transition={{ in: { opacity: 1, transform: 'translateY(0)' }, out: { opacity: 0, transform: 'translateY(8px)' }, transitionProperty: 'opacity, transform' }}
+          duration={200}
+          timingFunction="ease"
+        >
+          {(styles) => (
+            <Paper shadow="md" p="sm" radius="md" withBorder style={{ ...styles, pointerEvents: 'auto' }}>
+              <Group gap="md" wrap="nowrap">
+                <Text size="sm" fw={500}>{t('common.nSelected', { count: selectedIds.size })}</Text>
+                <Button
+                  size="sm"
+                  variant="default"
+                  disabled={!singleSelected}
+                  onClick={() => { if (singleSelected) navigate(`/resources/${singleSelected.id}`) }}
+                >
+                  {t('resources.view')}
+                </Button>
+                <Button
+                  size="sm"
+                  color="red"
+                  variant="light"
+                  disabled={!singleSelected}
+                  onClick={() => { if (singleSelected) setDeleteTarget(singleSelected) }}
+                >
+                  {t('common.delete')}
+                </Button>
+                <Button size="sm" variant="default" onClick={() => setSelectedIds(new Set())}>
+                  {t('common.clearSelection')}
+                </Button>
+              </Group>
+            </Paper>
+          )}
+        </Transition>
+      </Affix>
 
       <CreateResourceModal open={modalOpen} onClose={() => setModalOpen(false)} />
       <DeleteResourceConfirmModal
