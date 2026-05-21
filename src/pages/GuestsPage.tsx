@@ -106,7 +106,7 @@ function GuestsPage() {
   const locale = i18n.language === 'sr' ? 'sr-Latn-RS' : 'en-GB'
 
   return (
-    <Stack component="main" maw={1400} ml='lg' w="100%" gap="lg">
+    <Stack component="main" maw="1500px" mx="auto"  w="100%" gap="lg">
       <Stack gap="sm">
         <PageSectionHeader title={t('guests.title')} />
         <PageSearchBar id="guests-search" value={search} onChange={(v) => { setSearch(v); setPage(1) }} />

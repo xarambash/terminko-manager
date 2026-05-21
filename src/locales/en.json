@@ -128,7 +128,8 @@
     "createResource": "Create resource",
     "searchPlaceholder": "Search by name, email, phone…",
     "empty": "No resources yet. Create one to get started.",
-    "delete": "Delete"
+    "delete": "Delete",
+    "view": "View"
   },
   "resourceDetail": {
     "title": "Resource",

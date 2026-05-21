@@ -1,9 +1,8 @@
-import { useMemo, useState, type KeyboardEvent } from 'react'
+import { useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
 import { notifications } from '@mantine/notifications'
-import { ActionIcon, Button, Group, Pagination, Stack } from '@mantine/core'
-import { IconTrash } from '@tabler/icons-react'
+import { Button, Checkbox, Group, Pagination, Paper, Stack, Text } from '@mantine/core'
 import {
   Card,
   CreateResourceModal,
@@ -46,6 +45,7 @@ function ResourcesPage() {
   const [search, setSearch] = useState('')
   const [modalOpen, setModalOpen] = useState(false)
   const [deleteTarget, setDeleteTarget] = useState<Resource | null>(null)
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set())
   const [sortField, setSortField] = useState<SortField | null>(null)
   const [sortAsc, setSortAsc] = useState(true)
   const [page, setPage] = useState(1)
@@ -78,12 +78,33 @@ function ResourcesPage() {
     setPage(1)
   }
 
+  function handlePageChange(p: number) {
+    setPage(p)
+    setSelectedIds(new Set())
+  }
+
   function thDir(field: SortField): 'asc' | 'desc' | null {
     return sortField === field ? (sortAsc ? 'asc' : 'desc') : null
   }
 
+  function toggleRow(id: string) {
+    setSelectedIds((prev) => {
+      const next = new Set(prev)
+      if (next.has(id)) next.delete(id)
+      else next.add(id)
+      return next
+    })
+  }
+
+  const allSelected = paginated.length > 0 && paginated.every((r) => selectedIds.has(r.id))
+  const someSelected = paginated.some((r) => selectedIds.has(r.id)) && !allSelected
+  const hasSelection = selectedIds.size > 0
+  const singleSelected = selectedIds.size === 1
+    ? paginated.find((r) => selectedIds.has(r.id)) ?? null
+    : null
+
   return (
-    <Stack component="main" maw={1400} ml="lg" w="100%" gap="lg">
+    <Stack component="main" maw="1500px" mx="auto" w="100%" gap="lg">
       <Stack gap="sm">
         <PageSectionHeader title={t('resources.title')} />
         <PageSearchBar
@@ -102,6 +123,16 @@ function ResourcesPage() {
             <DataTable variant="page" minWidth={640}>
               <thead>
                 <DataTableHeadRow variant="page">
+                  <DataTableTh variant="page" style={{ width: 40 }}>
+                    <Checkbox
+                      checked={allSelected}
+                      indeterminate={someSelected}
+                      onChange={(e) =>
+                        setSelectedIds(e.currentTarget.checked ? new Set(paginated.map((r) => r.id)) : new Set())
+                      }
+                      aria-label="Select all"
+                    />
+                  </DataTableTh>
                   <DataTableTh variant="page" sortable sortDirection={thDir('name')} onSort={() => handleSort('name')}>
                     {t('common.name')}
                   </DataTableTh>
@@ -114,7 +145,6 @@ function ResourcesPage() {
                   <DataTableTh variant="page" sortable sortDirection={thDir('active')} onSort={() => handleSort('active')}>
                     {t('common.active')}
                   </DataTableTh>
-                  <DataTableTh variant="page" />
                 </DataTableHeadRow>
               </thead>
               <tbody>
@@ -127,29 +157,21 @@ function ResourcesPage() {
                     <DataTableBodyRow
                       key={r.id}
                       hoverable
-                      role="button"
-                      tabIndex={0}
                       style={{ cursor: 'pointer' }}
-                      onClick={() => navigate(`/resources/${r.id}`)}
-                      onKeyDown={(e: KeyboardEvent<HTMLTableRowElement>) => {
-                        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); navigate(`/resources/${r.id}`) }
-                      }}
+                      onClick={() => toggleRow(r.id)}
                     >
+                      <DataTableTd variant="page">
+                        <Checkbox
+                          checked={selectedIds.has(r.id)}
+                          onChange={() => {}}
+                          onClick={(e) => { e.stopPropagation(); toggleRow(r.id) }}
+                          aria-label={`Select ${r.firstName} ${r.lastName}`}
+                        />
+                      </DataTableTd>
                       <DataTableTd variant="page">{r.firstName} {r.lastName}</DataTableTd>
                       <DataTableTd variant="page">{r.email ?? t('common.dash')}</DataTableTd>
                       <DataTableTd variant="page">{r.phone ?? t('common.dash')}</DataTableTd>
                       <DataTableTd variant="page">{r.isActive ? t('common.yes') : t('common.no')}</DataTableTd>
-                      <DataTableTd variant="page" align="right">
-                        <ActionIcon
-                          variant="subtle"
-                          color="red"
-                          size="sm"
-                          aria-label={t('resources.delete')}
-                          onClick={(e) => { e.stopPropagation(); setDeleteTarget(r) }}
-                        >
-                          <IconTrash size={14} />
-                        </ActionIcon>
-                      </DataTableTd>
                     </DataTableBodyRow>
                   ))
                 )}
@@ -158,11 +180,54 @@ function ResourcesPage() {
           </DataTableScroll>
           {totalPages > 1 && (
             <Group justify="center" p="md">
-              <Pagination total={totalPages} value={page} onChange={setPage} size="sm" />
+              <Pagination total={totalPages} value={page} onChange={handlePageChange} size="sm" />
             </Group>
           )}
         </Card>
       )}
+
+      {/* Floating selection action bar */}
+      <div
+        style={{
+          position: 'fixed',
+          bottom: 24,
+          left: 0,
+          right: 0,
+          zIndex: 200,
+          display: 'flex',
+          justifyContent: 'center',
+          pointerEvents: 'none',
+          opacity: hasSelection ? 1 : 0,
+          transform: hasSelection ? 'none' : 'translateY(8px)',
+          transition: 'opacity 200ms ease, transform 200ms ease',
+        }}
+      >
+        <Paper shadow="md" p="sm" radius="md" withBorder style={{ pointerEvents: hasSelection ? 'auto' : 'none' }}>
+          <Group gap="md" wrap="nowrap">
+            <Text size="sm" fw={500}>{t('common.nSelected', { count: selectedIds.size })}</Text>
+            <Button
+              size="sm"
+              variant="default"
+              disabled={!singleSelected}
+              onClick={() => { if (singleSelected) navigate(`/resources/${singleSelected.id}`) }}
+            >
+              {t('resources.view')}
+            </Button>
+            <Button
+              size="sm"
+              color="red"
+              variant="light"
+              disabled={!singleSelected}
+              onClick={() => { if (singleSelected) setDeleteTarget(singleSelected) }}
+            >
+              {t('common.delete')}
+            </Button>
+            <Button size="sm" variant="default" onClick={() => setSelectedIds(new Set())}>
+              {t('common.clearSelection')}
+            </Button>
+          </Group>
+        </Paper>
+      </div>
 
       <CreateResourceModal open={modalOpen} onClose={() => setModalOpen(false)} />
       <DeleteResourceConfirmModal
@@ -175,6 +240,7 @@ function ResourcesPage() {
           try {
             await deleteMutation.mutateAsync(deleteTarget.id)
             setDeleteTarget(null)
+            setSelectedIds(new Set())
           } catch (err: unknown) {
             notifications.show({ message: apiErrorMessageForMutation(err, t, 'deleteResource.error'), color: 'red' })
           }

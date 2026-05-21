@@ -174,7 +174,7 @@ function AppointmentsPage() {
   const hasSelection = selectedIds.size > 0
 
   return (
-    <Stack component="main" maw={1400} ml='lg' w="100%" gap="lg">
+    <Stack component="main" maw="1500px" mx="auto" w="100%" gap="lg">
       <Stack gap="sm">
         <PageSectionHeader title={t('appointments.title')} />
         <PageSearchBar
