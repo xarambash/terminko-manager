@@ -56,12 +56,15 @@ npm run preview   # preview production build
 
 ### Staff
 - Own appointments view with date filter
+- Profile photo displayed in the header (sourced from the linked Resource record via login response)
 
 ### Table interactions (all list pages)
 - Rows are selectable via checkbox only — clicking outside the checkbox does nothing
 - Checkbox column shows a pointer cursor; the rest of the row does not
 - Row hover shows a subtle background highlight
 - A floating action bar appears at the bottom of the viewport when rows are selected; it provides context-appropriate actions (cancel appointment, edit/delete service, ban/unban guest, view/delete resource)
+- Table height is a maximum (not fixed): the table shrinks to fit its content when fewer than ~20 rows are loaded, and scrolls within the capped height when rows overflow
+- A loading spinner renders inside the table body during data fetches; column headers are always visible
 
 ## Design System
 

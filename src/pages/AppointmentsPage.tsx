@@ -1,7 +1,8 @@
 import { useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { notifications } from '@mantine/notifications'
-import { Affix, Badge, Checkbox, Group, Pagination, Paper, Stack, Table, Text, Transition, Button } from '@mantine/core'
+import { ActionIcon, Alert, Badge, Group, Loader, Pagination, Stack, Table, Tooltip } from '@mantine/core'
+import { IconAlertCircle, IconX } from '@tabler/icons-react'
 import {
   CancelAppointmentConfirmModal,
   Card,
@@ -15,13 +16,12 @@ import {
   DropdownPicker,
   PageSearchBar,
   PageSectionHeader,
-  QueryStatusBanner,
 } from '../components'
 import { DatePicker } from '@/components/ui/DatePicker'
 import { calendarLocaleFromLng } from '../lib/dateLocale'
 import { matchesTableSearch } from '../lib/tableSearch'
 import { useAppointments, useAuth, useCancelAppointment, useResources } from '../hooks'
-import { apiErrorMessageForMutation } from '../lib/errors'
+import { apiErrorMessageForMutation, formatQueryError } from '../lib/errors'
 import type { AppointmentStatus, AppointmentWithRelations } from '../types'
 
 const PAGE_SIZE = 20
@@ -95,10 +95,10 @@ function AppointmentsPage() {
 
   const [selectedDate, setSelectedDate] = useState(() => toDateInputValue(new Date()))
   const [selectedResourceId, setSelectedResourceId] = useState('')
-  const { data: resources = [] } = useResources()
+  const { data: resources = [], isPending: isResourcesPending } = useResources()
   const [search, setSearch] = useState('')
   const [cancelTarget, setCancelTarget] = useState<AppointmentWithRelations | null>(null)
-  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set())
+  const [hoveredId, setHoveredId] = useState<string | null>(null)
   const [sortField, setSortField] = useState<SortField | null>(null)
   const [sortAsc, setSortAsc] = useState(true)
   const [page, setPage] = useState(1)
@@ -143,35 +143,9 @@ function AppointmentsPage() {
     setPage(1)
   }
 
-  function handlePageChange(p: number) {
-    setPage(p)
-    setSelectedIds(new Set())
-  }
-
   function thDir(field: SortField): 'asc' | 'desc' | null {
     return sortField === field ? (sortAsc ? 'asc' : 'desc') : null
   }
-
-  function toggleRow(id: string) {
-    setSelectedIds((prev) => {
-      const next = new Set(prev)
-      if (next.has(id)) next.delete(id)
-      else next.add(id)
-      return next
-    })
-  }
-
-  const allSelected = paginated.length > 0 && paginated.every((a) => selectedIds.has(a.id))
-  const someSelected = paginated.some((a) => selectedIds.has(a.id)) && !allSelected
-
-  const selectedScheduledApt = useMemo(() => {
-    if (selectedIds.size !== 1) return null
-    const id = [...selectedIds][0]
-    const apt = paginated.find((a) => a.id === id)
-    return apt?.status === 'scheduled' ? apt : null
-  }, [selectedIds, paginated])
-
-  const hasSelection = selectedIds.size > 0
 
   return (
     <Stack component="main" maw="1500px" mx="auto" w="100%" gap="lg">
@@ -185,13 +159,13 @@ function AppointmentsPage() {
             <Group gap="sm" wrap="nowrap">
               <DatePicker
                 value={selectedDate}
-                onChange={(d) => { setSelectedDate(d); setSelectedIds(new Set()); setPage(1) }}
+                onChange={(d) => { setSelectedDate(d); setPage(1) }}
                 aria-label={t('appointments.filters.date')}
               />
               {isOwner && (
                 <DropdownPicker
                   value={effectiveResourceId}
-                  onValueChange={(id) => { setSelectedResourceId(id); setSelectedIds(new Set()); setPage(1) }}
+                  onValueChange={(id) => { setSelectedResourceId(id); setPage(1) }}
                   options={resourceOptions}
                   ariaLabel={t('appointments.filters.resource')}
                   placeholder={t('appointments.filters.resource')}
@@ -202,130 +176,105 @@ function AppointmentsPage() {
         />
       </Stack>
 
-      <QueryStatusBanner
-        isPending={isPending}
-        isError={isError}
-        error={error}
-        loadingText={t('loading.appointments')}
-      />
-
-      {!canFetchAppointments ? null : !isPending && !isError && (
-        <Card style={{ overflow: 'hidden' }}>
-          <DataTableScroll variant="page">
-            <DataTable variant="page" minWidth={700}>
-              <thead>
-                <DataTableHeadRow variant="page">
-                  <DataTableTh variant="page" style={{ width: 40 }}>
-                    <Checkbox
-                      checked={allSelected}
-                      indeterminate={someSelected}
-                      onChange={(e) =>
-                        setSelectedIds(e.currentTarget.checked ? new Set(paginated.map((a) => a.id)) : new Set())
-                      }
-                      aria-label="Select all"
-                    />
-                  </DataTableTh>
-                  <DataTableTh variant="page" sortable sortDirection={thDir('guest')} onSort={() => handleSort('guest')}>
-                    {t('common.fullName')}
-                  </DataTableTh>
-                  <DataTableTh variant="page" sortable sortDirection={thDir('service')} onSort={() => handleSort('service')}>
-                    {t('common.service')}
-                  </DataTableTh>
-                  <DataTableTh variant="page" sortable sortDirection={thDir('time')} onSort={() => handleSort('time')}>
-                    {t('common.time')}
-                  </DataTableTh>
-                  <DataTableTh variant="page" sortable sortDirection={thDir('email')} onSort={() => handleSort('email')}>
-                    {t('common.email')}
-                  </DataTableTh>
-                  <DataTableTh variant="page" sortable sortDirection={thDir('phone')} onSort={() => handleSort('phone')}>
-                    {t('common.phone')}
-                  </DataTableTh>
-                  <DataTableTh variant="page" sortable sortDirection={thDir('status')} onSort={() => handleSort('status')}>
-                    {t('common.status')}
-                  </DataTableTh>
-                </DataTableHeadRow>
-              </thead>
-              <tbody>
-                {list.length === 0 ? (
-                  <Table.Tr>
-                    <DataTableEmptyCell variant="page" colSpan={7}>
-                      {isOwner ? t('appointments.emptyForDateAndResource') : t('appointments.emptyForDate')}
-                    </DataTableEmptyCell>
-                  </Table.Tr>
-                ) : filtered.length === 0 ? (
-                  <Table.Tr>
-                    <DataTableEmptyCell variant="page" colSpan={7}>{t('common.emptySearch')}</DataTableEmptyCell>
-                  </Table.Tr>
-                ) : (
-                  paginated.map((apt) => {
-                    const normalized = normalizeStatus(apt.status)
-                    const statusLabel = normalized ? statusLabels[normalized] : apt.status
-                    const isSelected = selectedIds.has(apt.id)
-                    return (
-                      <DataTableBodyRow
-                        key={apt.id}
-                        hoverable
-                      >
-                        <DataTableTd variant="page" style={{ cursor: 'pointer' }}>
-                          <Checkbox
-                            checked={isSelected}
-                            onChange={() => {}}
-                            onClick={() => toggleRow(apt.id)}
-                            aria-label={`Select ${apt.guest.name}`}
-                          />
-                        </DataTableTd>
-                        <DataTableTd variant="page">{apt.guest.name}</DataTableTd>
-                        <DataTableTd variant="page">{apt.service.name}</DataTableTd>
-                        <DataTableTd variant="page">{formatTime(apt.startAt, calLocale)}</DataTableTd>
-                        <DataTableTd variant="page">{apt.guest.email}</DataTableTd>
-                        <DataTableTd variant="page">{apt.guest.phone}</DataTableTd>
-                        <DataTableTd variant="page">
-                          <StatusBadge status={apt.status} label={statusLabel} />
-                        </DataTableTd>
-                      </DataTableBodyRow>
-                    )
-                  })
-                )}
-              </tbody>
-            </DataTable>
-          </DataTableScroll>
-          {totalPages > 1 && (
-            <Group justify="center" p="md">
-              <Pagination total={totalPages} value={page} onChange={handlePageChange} size="sm" />
-            </Group>
-          )}
-        </Card>
-      )}
-
-      {/* Floating selection action bar */}
-      <Affix position={{ bottom: 24, left: 0, right: 0 }} zIndex={200} style={{ display: 'flex', justifyContent: 'center', pointerEvents: 'none' }}>
-        <Transition
-          mounted={hasSelection}
-          transition={{ in: { opacity: 1, transform: 'translateY(0)' }, out: { opacity: 0, transform: 'translateY(8px)' }, transitionProperty: 'opacity, transform' }}
-          duration={200}
-          timingFunction="ease"
-        >
-          {(styles) => (
-            <Paper shadow="md" p="sm" radius="md" withBorder style={{ ...styles, pointerEvents: 'auto' }}>
-              <Group gap="md" wrap="nowrap">
-                <Text size="sm" fw={500}>{t('common.nSelected', { count: selectedIds.size })}</Text>
-                <Button
-                  size="sm"
-                  color="red"
-                  variant="light"
-                  disabled={!selectedScheduledApt}
-                  onClick={() => { if (selectedScheduledApt) setCancelTarget(selectedScheduledApt) }}
-                >
-                  {t('cancelAppointment.action')}
-                </Button>
-                <Button size="sm" variant="default" onClick={() => setSelectedIds(new Set())}>
-                  {t('common.clearSelection')}
-                </Button>
-              </Group>
-            </Paper>
-          )}
-        </Transition>
-      </Affix>
+      <Card style={{ overflow: 'hidden' }}>
+        <DataTableScroll variant="page" height="calc(100vh - 220px)">
+          <DataTable variant="page" minWidth={700}>
+            <thead>
+              <DataTableHeadRow variant="page">
+                <DataTableTh variant="page" sortable sortDirection={thDir('guest')} onSort={() => handleSort('guest')}>
+                  {t('common.fullName')}
+                </DataTableTh>
+                <DataTableTh variant="page" sortable sortDirection={thDir('service')} onSort={() => handleSort('service')}>
+                  {t('common.service')}
+                </DataTableTh>
+                <DataTableTh variant="page" sortable sortDirection={thDir('time')} onSort={() => handleSort('time')}>
+                  {t('common.time')}
+                </DataTableTh>
+                <DataTableTh variant="page" sortable sortDirection={thDir('email')} onSort={() => handleSort('email')}>
+                  {t('common.email')}
+                </DataTableTh>
+                <DataTableTh variant="page" sortable sortDirection={thDir('phone')} onSort={() => handleSort('phone')}>
+                  {t('common.phone')}
+                </DataTableTh>
+                <DataTableTh variant="page" sortable sortDirection={thDir('status')} onSort={() => handleSort('status')}>
+                  {t('common.status')}
+                </DataTableTh>
+                <DataTableTh variant="page" style={{ width: 56 }} />
+              </DataTableHeadRow>
+            </thead>
+            <tbody>
+              {(isPending || (isOwner && isResourcesPending)) ? (
+                <Table.Tr>
+                  <DataTableEmptyCell variant="page" colSpan={7}>
+                    <Loader size="sm" />
+                  </DataTableEmptyCell>
+                </Table.Tr>
+              ) : isError ? (
+                <Table.Tr>
+                  <DataTableEmptyCell variant="page" colSpan={7}>
+                    <Alert icon={<IconAlertCircle size={16} />} color="red" variant="light">
+                      {formatQueryError(error)}
+                    </Alert>
+                  </DataTableEmptyCell>
+                </Table.Tr>
+              ) : list.length === 0 ? (
+                <Table.Tr>
+                  <DataTableEmptyCell variant="page" colSpan={7}>
+                    {isOwner ? t('appointments.emptyForDateAndResource') : t('appointments.emptyForDate')}
+                  </DataTableEmptyCell>
+                </Table.Tr>
+              ) : filtered.length === 0 ? (
+                <Table.Tr>
+                  <DataTableEmptyCell variant="page" colSpan={7}>{t('common.emptySearch')}</DataTableEmptyCell>
+                </Table.Tr>
+              ) : (
+                paginated.map((apt) => {
+                  const normalized = normalizeStatus(apt.status)
+                  const statusLabel = normalized ? statusLabels[normalized] : apt.status
+                  const isScheduled = apt.status === 'scheduled'
+                  return (
+                    <DataTableBodyRow
+                      key={apt.id}
+                      hoverable
+                      onMouseEnter={() => setHoveredId(apt.id)}
+                      onMouseLeave={() => setHoveredId(null)}
+                    >
+                      <DataTableTd variant="page">{apt.guest.name}</DataTableTd>
+                      <DataTableTd variant="page">{apt.service.name}</DataTableTd>
+                      <DataTableTd variant="page">{formatTime(apt.startAt, calLocale)}</DataTableTd>
+                      <DataTableTd variant="page">{apt.guest.email}</DataTableTd>
+                      <DataTableTd variant="page">{apt.guest.phone}</DataTableTd>
+                      <DataTableTd variant="page">
+                        <StatusBadge status={apt.status} label={statusLabel} />
+                      </DataTableTd>
+                      <DataTableTd variant="page" align="right" style={{ width: 56 }}>
+                        <Group gap={8} justify="flex-end" style={{ visibility: hoveredId === apt.id && isScheduled ? 'visible' : 'hidden' }}>
+                          <Tooltip label={t('cancelAppointment.action')} withArrow>
+                            <ActionIcon
+                              variant="outline"
+                              color="red"
+                              size="md"
+                              onClick={(e) => { e.stopPropagation(); setCancelTarget(apt) }}
+                              aria-label={t('cancelAppointment.action')}
+                            >
+                              <IconX size={16} />
+                            </ActionIcon>
+                          </Tooltip>
+                        </Group>
+                      </DataTableTd>
+                    </DataTableBodyRow>
+                  )
+                })
+              )}
+            </tbody>
+          </DataTable>
+        </DataTableScroll>
+        {!isPending && !isError && totalPages > 1 && (
+          <Group justify="center" p="md">
+            <Pagination total={totalPages} value={page} onChange={setPage} size="sm" />
+          </Group>
+        )}
+      </Card>
 
       <CancelAppointmentConfirmModal
         open={cancelTarget !== null}
@@ -339,7 +288,6 @@ function AppointmentsPage() {
             await cancelMutation.mutateAsync(cancelTarget.id)
             notifications.show({ message: t('cancelAppointment.success'), color: 'green' })
             setCancelTarget(null)
-            setSelectedIds(new Set())
           } catch (err: unknown) {
             notifications.show({ message: apiErrorMessageForMutation(err, t, 'cancelAppointment.error'), color: 'red' })
           }

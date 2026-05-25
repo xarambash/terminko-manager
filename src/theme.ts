@@ -12,7 +12,7 @@ import { createTheme } from '@mantine/core'
 
 export const theme = createTheme({
   primaryColor: 'indigo',
-  defaultRadius: 'sm',
+  defaultRadius: 'md',
   fontFamily: '"Anthropic Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif',
   fontFamilyMonospace: 'ui-monospace, Consolas, monospace',
   headings: {
@@ -22,42 +22,43 @@ export const theme = createTheme({
     Button: {
       defaultProps: {
         size: 'sm',
-        radius: 'sm',
+        radius: 'md',
       },
     },
     TextInput: {
       defaultProps: {
         size: 'sm',
-        radius: 'sm',
+        radius: 'md',
       },
     },
     NumberInput: {
       defaultProps: {
         size: 'sm',
-        radius: 'sm',
+        radius: 'md',
       },
     },
     Select: {
       defaultProps: {
         size: 'sm',
-        radius: 'sm',
+        radius: 'md',
       },
     },
     DatePickerInput: {
       defaultProps: {
         size: 'sm',
-        radius: 'sm',
+        radius: 'md',
       },
     },
     PasswordInput: {
       defaultProps: {
         size: 'sm',
-        radius: 'sm',
+        radius: 'md',
       },
     },
     Modal: {
       defaultProps: {
         radius: 'md',
+        centered: true,
       },
     },
     Paper: {

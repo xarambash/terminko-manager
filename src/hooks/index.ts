@@ -1,4 +1,5 @@
 export { useAuth } from './useAuth'
+export { useChangePassword } from './useChangePassword'
 export { useTenant } from './useTenant'
 export { useAppointments, useCancelAppointment } from './useAppointments'
 export { useResources, useCreateResource, useUpdateResource, useUploadResourcePhoto, useDeleteResource } from './useResources'

@@ -11,7 +11,6 @@ type CreateResourceForm = {
   email: string
   password: string
   phone: string
-  profilePicture: string
 }
 
 function CreateResourceFormContent({ onClose }: { onClose: () => void }) {
@@ -25,7 +24,6 @@ function CreateResourceFormContent({ onClose }: { onClose: () => void }) {
       email: '',
       password: '',
       phone: '',
-      profilePicture: '',
     },
     validate: {
       firstName: (v) => (!v.trim() ? t('createResource.validation.firstName') : null),
@@ -53,7 +51,6 @@ function CreateResourceFormContent({ onClose }: { onClose: () => void }) {
         email: data.email,
         password: data.password,
         ...(data.phone?.trim() && { phone: data.phone.trim() }),
-        ...(data.profilePicture?.trim() && { profilePicture: data.profilePicture.trim() }),
       })
       handleClose()
     } catch (err: unknown) {
@@ -64,25 +61,30 @@ function CreateResourceFormContent({ onClose }: { onClose: () => void }) {
   return (
     <form onSubmit={onSubmit}>
       <Stack gap="sm">
-        <Text size="sm" c="dimmed">{t('createResource.intro')}</Text>
-        <TextInput label={t('common.firstName')} {...form.getInputProps('firstName')} />
-        <TextInput label={t('common.lastName')} {...form.getInputProps('lastName')} />
+        <TextInput
+          label={t('common.firstName')}
+          withAsterisk
+          {...form.getInputProps('firstName')}
+        />
+        <TextInput
+          label={t('common.lastName')}
+          withAsterisk
+          {...form.getInputProps('lastName')}
+        />
         <TextInput
           label={t('common.email')}
+          withAsterisk
           type="email"
           autoComplete="off"
           {...form.getInputProps('email')}
         />
         <PasswordInput
           label={t('common.password')}
+          withAsterisk
           autoComplete="new-password"
           {...form.getInputProps('password')}
         />
-        <TextInput label={t('createResource.phoneOptional')} {...form.getInputProps('phone')} />
-        <TextInput
-          label={t('createResource.profileUrlOptional')}
-          {...form.getInputProps('profilePicture')}
-        />
+        <TextInput label={t('createResource.phone')} {...form.getInputProps('phone')} />
         {createMutation.isError && (
           <Text size="sm" c="red">{extractServerError(createMutation.error)}</Text>
         )}

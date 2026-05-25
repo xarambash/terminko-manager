@@ -1,9 +1,13 @@
-import { Group, Burger } from '@mantine/core'
+import { useState } from 'react'
+import { Group, Burger, Menu, UnstyledButton, Text, Avatar } from '@mantine/core'
 import { Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
+import { IconChevronDown, IconLock, IconLogout } from '@tabler/icons-react'
 import { LanguageSwitcher } from './ui/LanguageSwitcher'
 import { ThemeSwitch } from './ui/ThemeSwitch'
 import { TenantBrandName } from './TenantBrandName'
+import { ChangePasswordModal } from './ChangePasswordModal'
+import { useAuth } from '../hooks'
 
 type AppHeaderProps = {
   mobileOpen: boolean
@@ -12,29 +16,80 @@ type AppHeaderProps = {
 
 export function AppHeader({ mobileOpen, onMobileToggle }: AppHeaderProps) {
   const { t } = useTranslation()
+  const { user, logout } = useAuth()
+  const [changePasswordOpen, setChangePasswordOpen] = useState(false)
+
+  const fullName = user ? `${user.firstName} ${user.lastName}` : ''
+  const initials = user
+    ? `${user.firstName.charAt(0)}${user.lastName.charAt(0)}`.toUpperCase()
+    : ''
 
   return (
-    <Group h="100%" px="md" justify="space-between">
-      <Group gap="sm">
-        <Burger
-          opened={mobileOpen}
-          onClick={onMobileToggle}
-          hiddenFrom="lg"
-          size="sm"
-          aria-label={t('nav.openMenu')}
-        />
-        <Link
-          to="/appointments"
-          style={{ textDecoration: 'none', color: 'inherit' }}
-        >
-          <TenantBrandName />
-        </Link>
+    <>
+      <Group h="100%" px="md" justify="space-between">
+        <Group gap="sm">
+          <Burger
+            opened={mobileOpen}
+            onClick={onMobileToggle}
+            hiddenFrom="lg"
+            size="sm"
+            aria-label={t('nav.openMenu')}
+          />
+          <Link
+            to="/appointments"
+            style={{ textDecoration: 'none', color: 'inherit' }}
+          >
+            <TenantBrandName />
+          </Link>
+        </Group>
+
+        <Group gap="xs">
+          <ThemeSwitch />
+          <LanguageSwitcher />
+          <Menu shadow="md" width={220} position="bottom-end">
+            <Menu.Target>
+              <UnstyledButton>
+                <Group gap={6}>
+                  <Avatar size="sm" radius="xl" color="indigo" src={user?.profilePicture ?? undefined}>
+                    {initials}
+                  </Avatar>
+                  <IconChevronDown size={14} />
+                </Group>
+              </UnstyledButton>
+            </Menu.Target>
+            <Menu.Dropdown>
+              <Group px="sm" py="xs" gap="sm" wrap="nowrap">
+                <Avatar size="md" radius="xl" color="indigo" src={user?.profilePicture ?? undefined}>
+                  {initials}
+                </Avatar>
+                <Text size="sm" fw={500} style={{ lineHeight: 1.3 }}>
+                  {fullName}
+                </Text>
+              </Group>
+              <Menu.Divider />
+              <Menu.Item
+                leftSection={<IconLock size={14} />}
+                onClick={() => setChangePasswordOpen(true)}
+              >
+                {t('changePassword.menuItem')}
+              </Menu.Item>
+              <Menu.Divider />
+              <Menu.Item
+                leftSection={<IconLogout size={14} />}
+                color="red"
+                onClick={logout}
+              >
+                {t('common.logout')}
+              </Menu.Item>
+            </Menu.Dropdown>
+          </Menu>
+        </Group>
       </Group>
 
-      <Group gap="xs">
-        <ThemeSwitch />
-        <LanguageSwitcher />
-      </Group>
-    </Group>
+      <ChangePasswordModal
+        open={changePasswordOpen}
+        onClose={() => setChangePasswordOpen(false)}
+      />
+    </>
   )
 }

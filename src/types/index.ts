@@ -33,6 +33,7 @@ export type User = {
   role: 'owner' | 'staff'
   tenantId: string
   resourceId: string | null
+  profilePicture: string | null
 }
 
 export type AuthContextValue = {
@@ -134,4 +135,14 @@ export type CancelAppointmentConfirmModalProps = {
   isPending: boolean
   guestName: string
   serviceName: string
+}
+
+export type ChangePasswordPayload = {
+  currentPassword: string
+  newPassword: string
+}
+
+export type ChangePasswordModalProps = {
+  open: boolean
+  onClose: () => void
 }

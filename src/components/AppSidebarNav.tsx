@@ -1,4 +1,4 @@
-import { NavLink, Stack, Text, Divider } from '@mantine/core'
+import { NavLink, Stack, Text } from '@mantine/core'
 import { Link, useLocation } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import {
@@ -6,7 +6,6 @@ import {
   IconSparkles,
   // IconUsers, // re-enable with Guests tab
   IconUser,
-  IconLogout,
 } from '@tabler/icons-react'
 import { useAuth } from '../hooks/useAuth'
 
@@ -16,7 +15,7 @@ type AppSidebarNavProps = {
 
 export function AppSidebarNav({ onNavigate }: AppSidebarNavProps) {
   const { t } = useTranslation()
-  const { user, logout } = useAuth()
+  const { user } = useAuth()
   const owner = user?.role === 'owner'
   const location = useLocation()
 
@@ -67,15 +66,6 @@ export function AppSidebarNav({ onNavigate }: AppSidebarNavProps) {
           />
         </>
       )}
-
-      <Divider mt="auto" mb="xs" />
-
-      <NavLink
-        label={t('common.logout')}
-        leftSection={<IconLogout size={16} />}
-        onClick={() => { logout(); onNavigate?.() }}
-        color="red"
-      />
     </Stack>
   )
 }

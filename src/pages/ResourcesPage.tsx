@@ -2,7 +2,8 @@ import { useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
 import { notifications } from '@mantine/notifications'
-import { Affix, Button, Checkbox, Group, Pagination, Paper, Stack, Table, Text, Transition } from '@mantine/core'
+import { ActionIcon, Alert, Button, Group, Loader, Pagination, Stack, Table, Tooltip } from '@mantine/core'
+import { IconAlertCircle, IconTrash } from '@tabler/icons-react'
 import {
   Card,
   CreateResourceModal,
@@ -16,11 +17,10 @@ import {
   DeleteResourceConfirmModal,
   PageSearchBar,
   PageSectionHeader,
-  QueryStatusBanner,
 } from '../components'
 import { matchesTableSearch } from '../lib/tableSearch'
 import { useDeleteResource, useResources } from '../hooks'
-import { apiErrorMessageForMutation } from '../lib/errors'
+import { apiErrorMessageForMutation, formatQueryError } from '../lib/errors'
 import type { Resource } from '../types/resources'
 
 const PAGE_SIZE = 20
@@ -45,7 +45,7 @@ function ResourcesPage() {
   const [search, setSearch] = useState('')
   const [modalOpen, setModalOpen] = useState(false)
   const [deleteTarget, setDeleteTarget] = useState<Resource | null>(null)
-  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set())
+  const [hoveredId, setHoveredId] = useState<string | null>(null)
   const [sortField, setSortField] = useState<SortField | null>(null)
   const [sortAsc, setSortAsc] = useState(true)
   const [page, setPage] = useState(1)
@@ -78,30 +78,9 @@ function ResourcesPage() {
     setPage(1)
   }
 
-  function handlePageChange(p: number) {
-    setPage(p)
-    setSelectedIds(new Set())
-  }
-
   function thDir(field: SortField): 'asc' | 'desc' | null {
     return sortField === field ? (sortAsc ? 'asc' : 'desc') : null
   }
-
-  function toggleRow(id: string) {
-    setSelectedIds((prev) => {
-      const next = new Set(prev)
-      if (next.has(id)) next.delete(id)
-      else next.add(id)
-      return next
-    })
-  }
-
-  const allSelected = paginated.length > 0 && paginated.every((r) => selectedIds.has(r.id))
-  const someSelected = paginated.some((r) => selectedIds.has(r.id)) && !allSelected
-  const hasSelection = selectedIds.size > 0
-  const singleSelected = selectedIds.size === 1
-    ? paginated.find((r) => selectedIds.has(r.id)) ?? null
-    : null
 
   return (
     <Stack component="main" maw="1500px" mx="auto" w="100%" gap="lg">
@@ -115,112 +94,86 @@ function ResourcesPage() {
         />
       </Stack>
 
-      <QueryStatusBanner isPending={isPending} isError={isError} error={error} loadingText={t('loading.resources')} />
-
-      {!isPending && !isError && (
-        <Card style={{ overflow: 'hidden' }}>
-          <DataTableScroll variant="page">
-            <DataTable variant="page" minWidth={640}>
-              <thead>
-                <DataTableHeadRow variant="page">
-                  <DataTableTh variant="page" style={{ width: 40 }}>
-                    <Checkbox
-                      checked={allSelected}
-                      indeterminate={someSelected}
-                      onChange={(e) =>
-                        setSelectedIds(e.currentTarget.checked ? new Set(paginated.map((r) => r.id)) : new Set())
-                      }
-                      aria-label="Select all"
-                    />
-                  </DataTableTh>
-                  <DataTableTh variant="page" sortable sortDirection={thDir('name')} onSort={() => handleSort('name')}>
-                    {t('common.name')}
-                  </DataTableTh>
-                  <DataTableTh variant="page" sortable sortDirection={thDir('email')} onSort={() => handleSort('email')}>
-                    {t('common.email')}
-                  </DataTableTh>
-                  <DataTableTh variant="page" sortable sortDirection={thDir('phone')} onSort={() => handleSort('phone')}>
-                    {t('common.phone')}
-                  </DataTableTh>
-                  <DataTableTh variant="page" sortable sortDirection={thDir('active')} onSort={() => handleSort('active')}>
-                    {t('common.active')}
-                  </DataTableTh>
-                </DataTableHeadRow>
-              </thead>
-              <tbody>
-                {sorted.length === 0 ? (
-                  <Table.Tr><DataTableEmptyCell variant="page" colSpan={5}>{t('resources.empty')}</DataTableEmptyCell></Table.Tr>
-                ) : filtered.length === 0 ? (
-                  <Table.Tr><DataTableEmptyCell variant="page" colSpan={5}>{t('common.emptySearch')}</DataTableEmptyCell></Table.Tr>
-                ) : (
-                  paginated.map((r) => (
-                    <DataTableBodyRow
-                      key={r.id}
-                      hoverable
-                    >
-                      <DataTableTd variant="page" style={{ cursor: 'pointer' }}>
-                        <Checkbox
-                          checked={selectedIds.has(r.id)}
-                          onChange={() => {}}
-                          onClick={() => toggleRow(r.id)}
-                          aria-label={`Select ${r.firstName} ${r.lastName}`}
-                        />
-                      </DataTableTd>
-                      <DataTableTd variant="page">{r.firstName} {r.lastName}</DataTableTd>
-                      <DataTableTd variant="page">{r.email ?? t('common.dash')}</DataTableTd>
-                      <DataTableTd variant="page">{r.phone ?? t('common.dash')}</DataTableTd>
-                      <DataTableTd variant="page">{r.isActive ? t('common.yes') : t('common.no')}</DataTableTd>
-                    </DataTableBodyRow>
-                  ))
-                )}
-              </tbody>
-            </DataTable>
-          </DataTableScroll>
-          {totalPages > 1 && (
-            <Group justify="center" p="md">
-              <Pagination total={totalPages} value={page} onChange={handlePageChange} size="sm" />
-            </Group>
-          )}
-        </Card>
-      )}
-
-      {/* Floating selection action bar */}
-      <Affix position={{ bottom: 24, left: 0, right: 0 }} zIndex={200} style={{ display: 'flex', justifyContent: 'center', pointerEvents: 'none' }}>
-        <Transition
-          mounted={hasSelection}
-          transition={{ in: { opacity: 1, transform: 'translateY(0)' }, out: { opacity: 0, transform: 'translateY(8px)' }, transitionProperty: 'opacity, transform' }}
-          duration={200}
-          timingFunction="ease"
-        >
-          {(styles) => (
-            <Paper shadow="md" p="sm" radius="md" withBorder style={{ ...styles, pointerEvents: 'auto' }}>
-              <Group gap="md" wrap="nowrap">
-                <Text size="sm" fw={500}>{t('common.nSelected', { count: selectedIds.size })}</Text>
-                <Button
-                  size="sm"
-                  variant="default"
-                  disabled={!singleSelected}
-                  onClick={() => { if (singleSelected) navigate(`/resources/${singleSelected.id}`) }}
-                >
-                  {t('resources.view')}
-                </Button>
-                <Button
-                  size="sm"
-                  color="red"
-                  variant="light"
-                  disabled={!singleSelected}
-                  onClick={() => { if (singleSelected) setDeleteTarget(singleSelected) }}
-                >
-                  {t('common.delete')}
-                </Button>
-                <Button size="sm" variant="default" onClick={() => setSelectedIds(new Set())}>
-                  {t('common.clearSelection')}
-                </Button>
-              </Group>
-            </Paper>
-          )}
-        </Transition>
-      </Affix>
+      <Card style={{ overflow: 'hidden' }}>
+        <DataTableScroll variant="page" height="calc(100vh - 220px)">
+          <DataTable variant="page" minWidth={640}>
+            <thead>
+              <DataTableHeadRow variant="page">
+                <DataTableTh variant="page" sortable sortDirection={thDir('name')} onSort={() => handleSort('name')}>
+                  {t('common.name')}
+                </DataTableTh>
+                <DataTableTh variant="page" sortable sortDirection={thDir('email')} onSort={() => handleSort('email')}>
+                  {t('common.email')}
+                </DataTableTh>
+                <DataTableTh variant="page" sortable sortDirection={thDir('phone')} onSort={() => handleSort('phone')}>
+                  {t('common.phone')}
+                </DataTableTh>
+                <DataTableTh variant="page" sortable sortDirection={thDir('active')} onSort={() => handleSort('active')}>
+                  {t('common.active')}
+                </DataTableTh>
+                <DataTableTh variant="page" style={{ width: 56 }} />
+              </DataTableHeadRow>
+            </thead>
+            <tbody>
+              {isPending ? (
+                <Table.Tr>
+                  <DataTableEmptyCell variant="page" colSpan={5}>
+                    <Loader size="sm" />
+                  </DataTableEmptyCell>
+                </Table.Tr>
+              ) : isError ? (
+                <Table.Tr>
+                  <DataTableEmptyCell variant="page" colSpan={5}>
+                    <Alert icon={<IconAlertCircle size={16} />} color="red" variant="light">
+                      {formatQueryError(error)}
+                    </Alert>
+                  </DataTableEmptyCell>
+                </Table.Tr>
+              ) : sorted.length === 0 ? (
+                <Table.Tr><DataTableEmptyCell variant="page" colSpan={5}>{t('resources.empty')}</DataTableEmptyCell></Table.Tr>
+              ) : filtered.length === 0 ? (
+                <Table.Tr><DataTableEmptyCell variant="page" colSpan={5}>{t('common.emptySearch')}</DataTableEmptyCell></Table.Tr>
+              ) : (
+                paginated.map((r) => (
+                  <DataTableBodyRow
+                    key={r.id}
+                    hoverable
+                    style={{ cursor: 'pointer' }}
+                    onClick={() => navigate(`/resources/${r.id}`)}
+                    onMouseEnter={() => setHoveredId(r.id)}
+                    onMouseLeave={() => setHoveredId(null)}
+                  >
+                    <DataTableTd variant="page">{r.firstName} {r.lastName}</DataTableTd>
+                    <DataTableTd variant="page">{r.email ?? t('common.dash')}</DataTableTd>
+                    <DataTableTd variant="page">{r.phone ?? t('common.dash')}</DataTableTd>
+                    <DataTableTd variant="page">{r.isActive ? t('common.yes') : t('common.no')}</DataTableTd>
+                    <DataTableTd variant="page" align="right" style={{ width: 56 }}>
+                      <Group gap={8} justify="flex-end" style={{ visibility: hoveredId === r.id ? 'visible' : 'hidden' }}>
+                        <Tooltip label={t('resources.delete')} withArrow>
+                          <ActionIcon
+                            variant="outline"
+                            color="red"
+                            size="md"
+                            onClick={(e) => { e.stopPropagation(); setDeleteTarget(r) }}
+                            aria-label={t('resources.delete')}
+                          >
+                            <IconTrash size={16} />
+                          </ActionIcon>
+                        </Tooltip>
+                      </Group>
+                    </DataTableTd>
+                  </DataTableBodyRow>
+                ))
+              )}
+            </tbody>
+          </DataTable>
+        </DataTableScroll>
+        {!isPending && !isError && totalPages > 1 && (
+          <Group justify="center" p="md">
+            <Pagination total={totalPages} value={page} onChange={setPage} size="sm" />
+          </Group>
+        )}
+      </Card>
 
       <CreateResourceModal open={modalOpen} onClose={() => setModalOpen(false)} />
       <DeleteResourceConfirmModal
@@ -233,7 +186,6 @@ function ResourcesPage() {
           try {
             await deleteMutation.mutateAsync(deleteTarget.id)
             setDeleteTarget(null)
-            setSelectedIds(new Set())
           } catch (err: unknown) {
             notifications.show({ message: apiErrorMessageForMutation(err, t, 'deleteResource.error'), color: 'red' })
           }

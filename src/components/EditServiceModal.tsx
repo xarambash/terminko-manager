@@ -1,4 +1,4 @@
-import { Modal, TextInput, NumberInput, Checkbox, Button, Group, Stack } from '@mantine/core'
+import { Modal, TextInput, NumberInput, Switch, Button, Group, Text, Stack } from '@mantine/core'
 import { useForm } from '@mantine/form'
 import { useTranslation } from 'react-i18next'
 import { useUpdateService } from '../hooks'
@@ -10,7 +10,6 @@ type EditServiceForm = {
   name: string
   durationMinutes: number | ''
   description: string
-  sortOrder: number | ''
   isActive: boolean
 }
 
@@ -29,7 +28,6 @@ function EditServiceFormContent({
       name: service.name,
       durationMinutes: service.durationMinutes,
       description: service.description ?? '',
-      sortOrder: service.sortOrder,
       isActive: service.isActive,
     },
     validate: {
@@ -52,7 +50,6 @@ function EditServiceFormContent({
       isActive: data.isActive,
       description: data.description?.trim() || null,
     }
-    if (data.sortOrder !== '') payload.sortOrder = Number(data.sortOrder)
 
     try {
       await updateMutation.mutateAsync({ serviceId: service.id, body: payload })
@@ -65,25 +62,29 @@ function EditServiceFormContent({
   return (
     <form onSubmit={onSubmit}>
       <Stack gap="sm">
-        <TextInput label={t('createService.name')} {...form.getInputProps('name')} />
+        <TextInput
+          label={t('createService.serviceName')}
+          withAsterisk
+          {...form.getInputProps('name')}
+        />
         <NumberInput
-          label={t('services.durationMinutes')}
+          label={t('createService.serviceDuration')}
+          withAsterisk
           min={1}
+          hideControls
           {...form.getInputProps('durationMinutes')}
         />
         <TextInput
-          label={t('createService.descriptionOptional')}
+          label={t('createService.serviceDescription')}
           {...form.getInputProps('description')}
         />
-        <NumberInput
-          label={t('createService.sortOrderOptional')}
-          min={0}
-          {...form.getInputProps('sortOrder')}
-        />
-        <Checkbox
-          label={t('createService.isActive')}
-          {...form.getInputProps('isActive', { type: 'checkbox' })}
-        />
+        <Group justify="space-between" align="center">
+          <Text size="sm">{t('createService.isActive')}</Text>
+          <Switch
+            checked={form.values.isActive}
+            onChange={(e) => form.setFieldValue('isActive', e.currentTarget.checked)}
+          />
+        </Group>
         <Group justify="flex-end" gap="sm" mt="xs">
           <Button variant="default" onClick={handleClose} disabled={form.submitting}>
             {t('common.cancel')}

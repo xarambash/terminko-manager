@@ -248,10 +248,9 @@
   },
   "createService": {
     "title": "New service",
-    "intro": "Add a bookable service for your tenant.",
-    "name": "Name",
-    "descriptionOptional": "Description (optional)",
-    "sortOrderOptional": "Sort order (optional)",
+    "serviceName": "Service Name",
+    "serviceDuration": "Service Duration (minutes)",
+    "serviceDescription": "Service Description",
     "isActive": "Active",
     "errorCreate": "Could not create service",
     "validation": {
@@ -266,14 +265,14 @@
   },
   "deleteService": {
     "title": "Delete service",
-    "body": "Remove \"{{name}}\"? This action cannot be undone.",
+    "body": "Are you sure you want to delete \"{{name}}\"? This action cannot be undone.",
     "confirm": "Delete",
     "error": "Could not delete service",
     "errorConflictAppointments": "This service cannot be deleted because it has future scheduled appointments. Cancel or complete those appointments first."
   },
   "deleteResource": {
     "title": "Delete resource",
-    "body": "Remove \"{{name}}\"? This will also remove their staff account. This action cannot be undone.",
+    "body": "Are you sure you want to delete \"{{name}}\"? This action cannot be undone.",
     "confirm": "Delete",
     "error": "Could not delete resource",
     "errorConflictAppointments": "This staff member cannot be deleted because they have future scheduled appointments. Cancel or reassign those appointments first."
@@ -298,11 +297,24 @@
       "action": "Unban"
     }
   },
+  "changePassword": {
+    "title": "Change Password",
+    "menuItem": "Change password",
+    "currentPassword": "Current password",
+    "newPassword": "New password",
+    "confirmPassword": "Confirm new password",
+    "submit": "Change password",
+    "success": "Password changed successfully",
+    "error": "Could not change password",
+    "validation": {
+      "currentPassword": "Current password is required",
+      "newPassword": "New password must be at least 8 characters",
+      "confirmPassword": "Passwords do not match"
+    }
+  },
   "createResource": {
     "title": "New resource",
-    "intro": "Creates a staff login for this person. They can sign in with the email and password you set here.",
-    "phoneOptional": "Phone (optional)",
-    "profileUrlOptional": "Profile picture URL (optional)",
+    "phone": "Phone",
     "errorCreate": "Could not create resource",
     "validation": {
       "firstName": "First name is required",

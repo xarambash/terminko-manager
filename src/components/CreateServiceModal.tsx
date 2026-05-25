@@ -1,4 +1,4 @@
-import { Modal, TextInput, NumberInput, Checkbox, Button, Group, Text, Stack } from '@mantine/core'
+import { Modal, TextInput, NumberInput, Switch, Button, Group, Text, Stack } from '@mantine/core'
 import { useForm } from '@mantine/form'
 import { useTranslation } from 'react-i18next'
 import { useCreateService } from '../hooks'
@@ -10,7 +10,6 @@ type CreateServiceForm = {
   name: string
   durationMinutes: number | ''
   description: string
-  sortOrder: number | ''
   isActive: boolean
 }
 
@@ -23,7 +22,6 @@ function CreateServiceFormContent({ onClose }: { onClose: () => void }) {
       name: '',
       durationMinutes: 30,
       description: '',
-      sortOrder: '',
       isActive: true,
     },
     validate: {
@@ -46,7 +44,6 @@ function CreateServiceFormContent({ onClose }: { onClose: () => void }) {
       isActive: data.isActive,
     }
     if (data.description?.trim()) payload.description = data.description.trim()
-    if (data.sortOrder !== '') payload.sortOrder = Number(data.sortOrder)
 
     try {
       await createMutation.mutateAsync(payload)
@@ -59,26 +56,29 @@ function CreateServiceFormContent({ onClose }: { onClose: () => void }) {
   return (
     <form onSubmit={onSubmit}>
       <Stack gap="sm">
-        <Text size="sm" c="dimmed">{t('createService.intro')}</Text>
-        <TextInput label={t('createService.name')} {...form.getInputProps('name')} />
+        <TextInput
+          label={t('createService.serviceName')}
+          withAsterisk
+          {...form.getInputProps('name')}
+        />
         <NumberInput
-          label={t('services.durationMinutes')}
+          label={t('createService.serviceDuration')}
+          withAsterisk
           min={1}
+          hideControls
           {...form.getInputProps('durationMinutes')}
         />
         <TextInput
-          label={t('createService.descriptionOptional')}
+          label={t('createService.serviceDescription')}
           {...form.getInputProps('description')}
         />
-        <NumberInput
-          label={t('createService.sortOrderOptional')}
-          min={0}
-          {...form.getInputProps('sortOrder')}
-        />
-        <Checkbox
-          label={t('createService.isActive')}
-          {...form.getInputProps('isActive', { type: 'checkbox' })}
-        />
+        <Group justify="space-between" align="center">
+          <Text size="sm">{t('createService.isActive')}</Text>
+          <Switch
+            checked={form.values.isActive}
+            onChange={(e) => form.setFieldValue('isActive', e.currentTarget.checked)}
+          />
+        </Group>
         {createMutation.isError && (
           <Text size="sm" c="red">{extractServerError(createMutation.error)}</Text>
         )}
