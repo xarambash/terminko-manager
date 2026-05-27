@@ -81,7 +81,7 @@ export function DateRangePicker({
       valueFormat="MMM D"
       minDate={minDate}
       excludeDate={isDateDisabled as unknown as (date: string) => boolean}
-      getDayProps={getDayProps as unknown as (date: string) => Record<string, unknown>}
+      getDayProps={getDayProps as any}
       clearable
       miw={200}
     />
