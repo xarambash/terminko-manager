@@ -51,8 +51,9 @@ export function DateRangePicker({
     return disabledRanges.some((r) => d >= r.from && d <= r.to)
   }
 
-  const getDayProps = (date: Date) => {
-    const isPast = minDate != null && date < minDate
+  const getDayProps = (date: Date | string) => {
+    const d = date instanceof Date ? date : new Date(`${date}T00:00:00`)
+    const isPast = minDate != null && d < minDate
     const isExcluded = isDateDisabled(date)
     if (isPast || isExcluded) {
       return { style: { textDecoration: 'line-through' as const } }
@@ -80,7 +81,7 @@ export function DateRangePicker({
       valueFormat="MMM D"
       minDate={minDate}
       excludeDate={isDateDisabled as unknown as (date: string) => boolean}
-      getDayProps={getDayProps as unknown as (date: Date) => Record<string, unknown>}
+      getDayProps={getDayProps as unknown as (date: string) => Record<string, unknown>}
       clearable
       miw={200}
     />
