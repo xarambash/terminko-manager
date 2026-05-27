@@ -15,6 +15,7 @@ interface DateRangePickerProps {
   className?: string
   disabled?: boolean
   disabledRanges?: { from: Date; to: Date }[]
+  minDate?: Date
 }
 
 function toLocalDate(v: string): Date {
@@ -36,6 +37,7 @@ export function DateRangePicker({
   className,
   disabled,
   disabledRanges = [],
+  minDate,
 }: DateRangePickerProps) {
   const { i18n } = useTranslation()
   const locale = calendarLocaleFromLng(i18n.language)
@@ -47,6 +49,15 @@ export function DateRangePicker({
   const isDateDisabled = (date: unknown) => {
     const d = date instanceof Date ? date : new Date(`${date}T00:00:00`)
     return disabledRanges.some((r) => d >= r.from && d <= r.to)
+  }
+
+  const getDayProps = (date: Date) => {
+    const isPast = minDate != null && date < minDate
+    const isExcluded = isDateDisabled(date)
+    if (isPast || isExcluded) {
+      return { style: { textDecoration: 'line-through' as const } }
+    }
+    return {}
   }
 
   return (
@@ -67,7 +78,9 @@ export function DateRangePicker({
       locale={locale}
       firstDayOfWeek={1 as DayOfWeek}
       valueFormat="MMM D"
+      minDate={minDate}
       excludeDate={isDateDisabled as unknown as (date: string) => boolean}
+      getDayProps={getDayProps as unknown as (date: Date) => Record<string, unknown>}
       clearable
       miw={200}
     />

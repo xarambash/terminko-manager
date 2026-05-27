@@ -1,10 +1,10 @@
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import { parseISO } from 'date-fns'
 import { useTranslation } from 'react-i18next'
 import { isAxiosError } from 'axios'
 import { IconTrash } from '@tabler/icons-react'
 import {
-  Paper, Stack, Text, Button, Group, Modal, TextInput, ActionIcon,
+  Paper, Stack, Text, Button, Group, Modal, TextInput, ActionIcon, Tooltip,
 } from '@mantine/core'
 import { DateRangePicker } from '../ui/DateRangePicker'
 import type { DateRangeValue } from '../ui/DateRangePicker'
@@ -42,6 +42,9 @@ export function ResourceFreeDaysSection({ resourceId }: { resourceId: string }) 
   const [formError, setFormError] = useState<string | undefined>()
   const [deleteTarget, setDeleteTarget] = useState<ResourceFreeDay | null>(null)
   const [deleteError, setDeleteError] = useState<string | undefined>()
+  const [hoveredId, setHoveredId] = useState<string | null>(null)
+
+  const today = useMemo(() => { const d = new Date(); d.setHours(0, 0, 0, 0); return d }, [])
 
   const existingRanges = (rows ?? []).map((row) => ({
     from: parseISO(row.start_date),
@@ -109,19 +112,28 @@ export function ResourceFreeDaysSection({ resourceId }: { resourceId: string }) 
                     <tr><DataTableEmptyCell variant="inset" colSpan={3}>{t('resourceDetail.freeDays.empty')}</DataTableEmptyCell></tr>
                   ) : (
                     (rows ?? []).map((f) => (
-                      <DataTableBodyRow key={f.id}>
+                      <DataTableBodyRow
+                        key={f.id}
+                        hoverable
+                        onMouseEnter={() => setHoveredId(f.id)}
+                        onMouseLeave={() => setHoveredId(null)}
+                      >
                         <DataTableTd variant="inset">{formatFreeDayRange(f.start_date, f.end_date)}</DataTableTd>
                         <DataTableTd variant="inset">{f.reason ?? t('common.dash')}</DataTableTd>
-                        <DataTableTd variant="inset">
-                          <ActionIcon
-                            variant="subtle"
-                            color="red"
-                            size="sm"
-                            aria-label={t('resourceDetail.freeDays.deleteAriaLabel')}
-                            onClick={(e) => { e.stopPropagation(); setDeleteTarget(f) }}
-                          >
-                            <IconTrash size={14} />
-                          </ActionIcon>
+                        <DataTableTd variant="inset" align="right" style={{ width: 52 }}>
+                          <div style={{ visibility: hoveredId === f.id ? 'visible' : 'hidden' }}>
+                            <Tooltip label={t('resourceDetail.freeDays.deleteTitle')} withArrow>
+                              <ActionIcon
+                                variant="outline"
+                                color="red"
+                                size="md"
+                                aria-label={t('resourceDetail.freeDays.deleteAriaLabel')}
+                                onClick={(e) => { e.stopPropagation(); setDeleteTarget(f) }}
+                              >
+                                <IconTrash size={16} />
+                              </ActionIcon>
+                            </Tooltip>
+                          </div>
                         </DataTableTd>
                       </DataTableBodyRow>
                     ))
@@ -140,6 +152,7 @@ export function ResourceFreeDaysSection({ resourceId }: { resourceId: string }) 
                     onChange={setRange}
                     placeholder={t('resourceDetail.freeDays.dateRangePlaceholder')}
                     disabledRanges={existingRanges}
+                    minDate={today}
                   />
                 </Stack>
                 <TextInput

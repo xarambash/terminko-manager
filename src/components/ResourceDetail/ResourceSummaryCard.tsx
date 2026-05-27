@@ -111,15 +111,23 @@ export function ResourceSummaryCard({ resource, onUploadPhoto, onSave }: Resourc
 
   if (isEditMode) {
     return (
-      <Paper withBorder shadow="xs" p="md">
+      <Paper withBorder shadow="xs" p="md" style={{ position: 'relative' }}>
         <form onSubmit={onSubmit}>
-          <Group align="flex-start" gap="md" mb="md">
+          <div style={{ position: 'absolute', top: 'var(--mantine-spacing-md)', right: 'var(--mantine-spacing-md)' }}>
+            <Group gap="xs">
+              <Text size="sm" c="dimmed">{t('resourceDetail.summary.active')}</Text>
+              <Switch
+                checked={form.values.isActive}
+                onChange={(e) => form.setFieldValue('isActive', e.currentTarget.checked)}
+              />
+            </Group>
+          </div>
+          <Group align="flex-start" gap="md">
             <div style={{ position: 'relative' }}>
               <Avatar
                 src={displayPhoto}
                 alt={fullName}
-                size={80}
-                radius="xl"
+                size={96}
                 onError={() => setPhotoFailed(true)}
               />
               {onUploadPhoto && (
@@ -144,52 +152,46 @@ export function ResourceSummaryCard({ resource, onUploadPhoto, onSave }: Resourc
                 </>
               )}
             </div>
-            <Group flex={1} justify="space-between" align="flex-start">
-              <Text fw={600} size="lg">{fullName}</Text>
-              <Group gap="xs">
-                <Text size="sm" c="dimmed">{t('resourceDetail.summary.active')}</Text>
-                <Switch
-                  checked={form.values.isActive}
-                  onChange={(e) => form.setFieldValue('isActive', e.currentTarget.checked)}
+            <Stack flex={1} gap="xs">
+              <Group gap="sm">
+                <TextInput
+                  w={210}
+                  label={t('resourceDetail.summary.firstName')}
+                  {...form.getInputProps('firstName')}
+                />
+                <TextInput
+                  w={210}
+                  label={t('resourceDetail.summary.lastName')}
+                  {...form.getInputProps('lastName')}
                 />
               </Group>
-            </Group>
-          </Group>
-          <Stack gap="sm" maw={480}>
-            <Group grow>
-              <TextInput
-                label={t('resourceDetail.summary.firstName')}
-                {...form.getInputProps('firstName')}
-              />
-              <TextInput
-                label={t('resourceDetail.summary.lastName')}
-                {...form.getInputProps('lastName')}
-              />
-            </Group>
-            <Group grow>
-              <TextInput
-                label={t('resourceDetail.summary.email')}
-                type="email"
-                {...form.getInputProps('email')}
-              />
-              <TextInput
-                label={t('resourceDetail.summary.phone')}
-                type="tel"
-                {...form.getInputProps('phone')}
-              />
-            </Group>
-          </Stack>
-          <Group justify="flex-end" gap="sm" mt="md">
-            <Button variant="default" onClick={handleCancel} disabled={form.submitting}>
-              {t('resourceDetail.summary.cancel')}
-            </Button>
-            <Button
-              type="submit"
-              loading={form.submitting}
-              disabled={!form.isDirty() && !selectedFile}
-            >
-              {t('resourceDetail.summary.save')}
-            </Button>
+              <Group gap="sm">
+                <TextInput
+                  w={210}
+                  label={t('resourceDetail.summary.email')}
+                  type="email"
+                  {...form.getInputProps('email')}
+                />
+                <TextInput
+                  w={210}
+                  label={t('resourceDetail.summary.phone')}
+                  type="tel"
+                  {...form.getInputProps('phone')}
+                />
+              </Group>
+              <Group justify="flex-end" gap="sm">
+                <Button variant="default" onClick={handleCancel} disabled={form.submitting}>
+                  {t('resourceDetail.summary.cancel')}
+                </Button>
+                <Button
+                  type="submit"
+                  loading={form.submitting}
+                  disabled={!form.isDirty() && !selectedFile}
+                >
+                  {t('resourceDetail.summary.save')}
+                </Button>
+              </Group>
+            </Stack>
           </Group>
         </form>
       </Paper>
@@ -198,21 +200,21 @@ export function ResourceSummaryCard({ resource, onUploadPhoto, onSave }: Resourc
 
   return (
     <Paper withBorder shadow="xs" p="md">
-      <Group align="flex-start" gap="md">
+      <Group align="stretch" gap="md">
         <Avatar
           src={displayPhoto}
           alt={fullName}
-          size={80}
-          radius="xl"
+          size={96}
+          style={{ alignSelf: 'center' }}
           onError={() => setPhotoFailed(true)}
         />
-        <Stack flex={1} gap="xs">
-          <Group justify="space-between" align="flex-start">
-            <Stack gap={2}>
-              <Text fw={600} size="lg">{fullName}</Text>
-              <Text size="sm" c="dimmed">{resource.email ?? t('common.dash')}</Text>
-              {resource.phone && <Text size="sm" c="dimmed">{resource.phone}</Text>}
-            </Stack>
+        <Group flex={1} justify="space-between" align="stretch">
+          <Stack gap={2} justify="center">
+            <Text fw={600} size="lg">{fullName}</Text>
+            <Text size="sm" c="dimmed">{resource.email ?? t('common.dash')}</Text>
+            {resource.phone && <Text size="sm" c="dimmed">{resource.phone}</Text>}
+          </Stack>
+          <Stack align="flex-end" justify="space-between">
             <Badge
               color={resource.isActive ? 'green' : 'gray'}
               variant="light"
@@ -221,13 +223,11 @@ export function ResourceSummaryCard({ resource, onUploadPhoto, onSave }: Resourc
                 ? t('resourceDetail.summary.statusActive')
                 : t('resourceDetail.summary.statusInactive')}
             </Badge>
-          </Group>
-          <Group justify="flex-end" mt="xs">
             <Button variant="default" size="sm" onClick={() => setIsEditMode(true)}>
               {t('resourceDetail.summary.edit')}
             </Button>
-          </Group>
-        </Stack>
+          </Stack>
+        </Group>
       </Group>
     </Paper>
   )

@@ -2,7 +2,7 @@ import { useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { IconPencil, IconTrash } from '@tabler/icons-react'
 import {
-  Paper, Stack, Text, Button, Group, Modal, Select, TextInput, NumberInput, ActionIcon,
+  Paper, Stack, Text, Button, Group, Modal, Select, NumberInput, ActionIcon, Tooltip,
 } from '@mantine/core'
 import {
   DataTable,
@@ -40,22 +40,29 @@ export function ResourceServicesSection({ resourceId }: { resourceId: string }) 
   const deleteMutation = useDeleteResourceService(resourceId)
 
   const [serviceId, setServiceId] = useState('')
-  const [price, setPrice] = useState('')
+  const [price, setPrice] = useState<number | string>('')
   const [durationOverride, setDurationOverride] = useState('')
   const [formError, setFormError] = useState<string | undefined>()
 
   const [editTarget, setEditTarget] = useState<ResourceServiceAssignment | null>(null)
-  const [editPrice, setEditPrice] = useState('')
+  const [editPrice, setEditPrice] = useState<number | string>('')
   const [editDuration, setEditDuration] = useState('')
+  const [originalEditPrice, setOriginalEditPrice] = useState<number | string>('')
+  const [originalEditDuration, setOriginalEditDuration] = useState('')
   const [editError, setEditError] = useState<string | undefined>()
+
+  const [hoveredId, setHoveredId] = useState<string | null>(null)
 
   const [unassignTarget, setUnassignTarget] = useState<ResourceServiceAssignment | null>(null)
   const [unassignError, setUnassignError] = useState<string | undefined>()
 
   const openEdit = (a: ResourceServiceAssignment) => {
+    const initDuration = a.durationOverride != null ? String(a.durationOverride) : ''
     setEditTarget(a)
-    setEditPrice(String(a.price))
-    setEditDuration(a.durationOverride != null ? String(a.durationOverride) : '')
+    setEditPrice(a.price)
+    setEditDuration(initDuration)
+    setOriginalEditPrice(a.price)
+    setOriginalEditDuration(initDuration)
     setEditError(undefined)
     updateMutation.reset()
   }
@@ -69,11 +76,7 @@ export function ResourceServicesSection({ resourceId }: { resourceId: string }) 
   const onEdit = async () => {
     if (!editTarget) return
     setEditError(undefined)
-    const priceNum = Number.parseFloat(editPrice)
-    if (Number.isNaN(priceNum) || priceNum < 0) {
-      setEditError(t('resourceDetail.services.validationPrice'))
-      return
-    }
+    const priceNum = Number(editPrice)
     let duration: number | null = null
     if (editDuration.trim()) {
       const d = Number.parseInt(editDuration, 10)
@@ -128,7 +131,7 @@ export function ResourceServicesSection({ resourceId }: { resourceId: string }) 
 
   const resetForm = () => {
     setServiceId('')
-    setPrice('')
+    setPrice('' as number | string)
     setDurationOverride('')
     setFormError(undefined)
     assignMutation.reset()
@@ -138,8 +141,7 @@ export function ResourceServicesSection({ resourceId }: { resourceId: string }) 
     setFormError(undefined)
     if (!serviceId) { setFormError(t('resourceDetail.services.validationSelect')); return }
     if (assignedServiceIds.has(serviceId)) { setFormError(t('resourceDetail.services.validationDuplicate')); return }
-    const priceNum = Number.parseFloat(price)
-    if (Number.isNaN(priceNum) || priceNum < 0) { setFormError(t('resourceDetail.services.validationPrice')); return }
+    const priceNum = Number(price)
     let duration: number | undefined
     if (durationOverride.trim()) {
       const d = Number.parseInt(durationOverride, 10)
@@ -193,18 +195,27 @@ export function ResourceServicesSection({ resourceId }: { resourceId: string }) 
                     <tr><DataTableEmptyCell variant="inset" colSpan={4}>{t('resourceDetail.services.empty')}</DataTableEmptyCell></tr>
                   ) : (
                     (assignments ?? []).map((a) => (
-                      <DataTableBodyRow key={a.id}>
+                      <DataTableBodyRow
+                        key={a.id}
+                        hoverable
+                        onMouseEnter={() => setHoveredId(a.id)}
+                        onMouseLeave={() => setHoveredId(null)}
+                      >
                         <DataTableTd variant="inset">{a.service.name}</DataTableTd>
                         <DataTableTd variant="inset">{t('common.minutes', { count: a.durationOverride ?? a.service.durationMinutes })}</DataTableTd>
                         <DataTableTd variant="inset">{formatPrice(a.price)}</DataTableTd>
-                        <DataTableTd variant="inset">
-                          <Group gap="xs">
-                            <ActionIcon variant="subtle" color="gray" size="sm" onClick={() => openEdit(a)}>
-                              <IconPencil size={14} />
-                            </ActionIcon>
-                            <ActionIcon variant="subtle" color="gray" size="sm" onClick={() => setUnassignTarget(a)}>
-                              <IconTrash size={14} />
-                            </ActionIcon>
+                        <DataTableTd variant="inset" align="right" style={{ width: 88 }}>
+                          <Group gap={8} justify="flex-end" style={{ visibility: hoveredId === a.id ? 'visible' : 'hidden' }}>
+                            <Tooltip label={t('resourceDetail.services.editTitle')} withArrow>
+                              <ActionIcon variant="outline" color="gray" size="md" onClick={() => openEdit(a)}>
+                                <IconPencil size={16} />
+                              </ActionIcon>
+                            </Tooltip>
+                            <Tooltip label={t('resourceDetail.services.unassignTitle')} withArrow>
+                              <ActionIcon variant="outline" color="red" size="md" onClick={() => setUnassignTarget(a)}>
+                                <IconTrash size={16} />
+                              </ActionIcon>
+                            </Tooltip>
                           </Group>
                         </DataTableTd>
                       </DataTableBodyRow>
@@ -223,6 +234,7 @@ export function ResourceServicesSection({ resourceId }: { resourceId: string }) 
                 <Group align="flex-end" gap="sm" wrap="wrap">
                   <Select
                     label={t('common.service')}
+                    withAsterisk
                     data={serviceSelectData}
                     value={serviceId || null}
                     onChange={(v) => setServiceId(v ?? '')}
@@ -231,24 +243,28 @@ export function ResourceServicesSection({ resourceId }: { resourceId: string }) 
                     miw={200}
                     searchable
                   />
-                  <TextInput
+                  <NumberInput
                     label={t('common.price')}
-                    inputMode="decimal"
+                    withAsterisk
+                    min={0}
+                    decimalScale={2}
+                    hideControls
                     value={price}
-                    onChange={(e) => setPrice(e.target.value)}
+                    onChange={(v) => setPrice(v)}
                     placeholder={t('resourceDetail.services.pricePlaceholder')}
                     w={120}
                   />
                   <NumberInput
                     label={t('resourceDetail.services.durationOverride')}
                     min={1}
+                    hideControls
                     value={durationOverride}
                     onChange={(v) => setDurationOverride(String(v))}
                     placeholder={t('resourceDetail.services.durationPlaceholder')}
                     w={120}
                   />
                   <Button
-                    disabled={assignMutation.isPending || !serviceId || assignedServiceIds.has(serviceId)}
+                    disabled={assignMutation.isPending || !serviceId || assignedServiceIds.has(serviceId) || price === ''}
                     loading={assignMutation.isPending}
                     onClick={() => void onAssign()}
                     mb={1}
@@ -269,16 +285,20 @@ export function ResourceServicesSection({ resourceId }: { resourceId: string }) 
             <Text size="sm" c="dimmed">
               {t('resourceDetail.services.editDescription', { name: editTarget.service.name })}
             </Text>
-            <TextInput
+            <NumberInput
               label={t('common.price')}
-              inputMode="decimal"
+              withAsterisk
+              min={0}
+              decimalScale={2}
+              hideControls
               value={editPrice}
-              onChange={(e) => setEditPrice(e.target.value)}
+              onChange={(v) => setEditPrice(v)}
               placeholder={t('resourceDetail.services.pricePlaceholder')}
             />
             <NumberInput
               label={t('resourceDetail.services.durationOverride')}
               min={1}
+              hideControls
               value={editDuration}
               onChange={(v) => setEditDuration(String(v))}
               placeholder={t('resourceDetail.services.durationPlaceholder')}
@@ -286,7 +306,13 @@ export function ResourceServicesSection({ resourceId }: { resourceId: string }) 
             <FormError message={editError} />
             <Group justify="flex-end" gap="sm">
               <Button variant="default" onClick={closeEdit} disabled={updateMutation.isPending}>{t('common.cancel')}</Button>
-              <Button onClick={() => void onEdit()} loading={updateMutation.isPending}>{t('common.save')}</Button>
+              <Button
+                onClick={() => void onEdit()}
+                loading={updateMutation.isPending}
+                disabled={updateMutation.isPending || editPrice === '' || (editPrice === originalEditPrice && editDuration === originalEditDuration)}
+              >
+                {t('common.save')}
+              </Button>
             </Group>
           </Stack>
         )}
