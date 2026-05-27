@@ -26,7 +26,7 @@ export function AppHeader({ mobileOpen, onMobileToggle }: AppHeaderProps) {
 
   return (
     <>
-      <Group h="100%" px="md" justify="space-between">
+      <Group h="100%" px="md" justify="space-between" wrap="nowrap">
         <Group gap="sm">
           <Burger
             opened={mobileOpen}
@@ -43,7 +43,7 @@ export function AppHeader({ mobileOpen, onMobileToggle }: AppHeaderProps) {
           </Link>
         </Group>
 
-        <Group gap="xs">
+        <Group gap="xs" visibleFrom="lg">
           <ThemeSwitch />
           <LanguageSwitcher />
           <Menu shadow="md" width={220} position="bottom-end">

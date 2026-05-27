@@ -97,7 +97,7 @@ function ServicesPage() {
 
       <Card style={{ overflow: 'hidden' }}>
         <DataTableScroll variant="page" height="calc(100vh - 220px)">
-          <DataTable variant="page" minWidth={880}>
+          <DataTable variant="page" minWidth={300}>
             <thead>
               <DataTableHeadRow variant="page">
                 <DataTableTh variant="page" sortable sortDirection={thDir('name')} onSort={() => handleSort('name')}>
@@ -106,10 +106,10 @@ function ServicesPage() {
                 <DataTableTh variant="page" sortable sortDirection={thDir('duration')} onSort={() => handleSort('duration')}>
                   {t('common.duration')}
                 </DataTableTh>
-                <DataTableTh variant="page" sortable sortDirection={thDir('description')} onSort={() => handleSort('description')}>
+                <DataTableTh variant="page" sortable sortDirection={thDir('description')} onSort={() => handleSort('description')} className="mobile-hide">
                   {t('services.description')}
                 </DataTableTh>
-                <DataTableTh variant="page" sortable sortDirection={thDir('active')} onSort={() => handleSort('active')}>
+                <DataTableTh variant="page" sortable sortDirection={thDir('active')} onSort={() => handleSort('active')} className="mobile-hide">
                   {t('common.active')}
                 </DataTableTh>
                 <DataTableTh variant="page" style={{ width: 88 }} />
@@ -144,10 +144,10 @@ function ServicesPage() {
                   >
                     <DataTableTd variant="page">{s.name}</DataTableTd>
                     <DataTableTd variant="page">{t('common.minutes', { count: s.durationMinutes })}</DataTableTd>
-                    <DataTableTd variant="page" style={{ maxWidth: 220 }}>
+                    <DataTableTd variant="page" className="mobile-hide" style={{ maxWidth: 220 }}>
                       <Text truncate="end">{s.description ?? t('common.dash')}</Text>
                     </DataTableTd>
-                    <DataTableTd variant="page">{s.isActive ? t('common.yes') : t('common.no')}</DataTableTd>
+                    <DataTableTd variant="page" className="mobile-hide">{s.isActive ? t('common.yes') : t('common.no')}</DataTableTd>
                     <DataTableTd variant="page" align="right" style={{ width: 88 }}>
                       <Group gap={8} justify="flex-end" style={{ visibility: hoveredId === s.id ? 'visible' : 'hidden' }}>
                         <Tooltip label={t('services.edit')} withArrow>

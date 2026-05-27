@@ -58,7 +58,7 @@ function ResourceDetailPage() {
           if (tab) setSearchParams({ tab })
         }}
       >
-        <Tabs.List mb="md">
+        <Tabs.List mb="md" grow>
           {tabItems.map((tab) => (
             <Tabs.Tab key={tab.key} value={tab.key}>
               {tab.label}

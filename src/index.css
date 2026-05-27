@@ -8,3 +8,9 @@
 tr[data-hoverable]:hover td {
   background-color: light-dark(var(--mantine-color-gray-1), var(--mantine-color-dark-5));
 }
+
+@media (max-width: 47.9375em) {
+  .mobile-hide {
+    display: none !important;
+  }
+}

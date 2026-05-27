@@ -96,7 +96,7 @@ function ResourcesPage() {
 
       <Card style={{ overflow: 'hidden' }}>
         <DataTableScroll variant="page" height="calc(100vh - 220px)">
-          <DataTable variant="page" minWidth={640}>
+          <DataTable variant="page" minWidth={320}>
             <thead>
               <DataTableHeadRow variant="page">
                 <DataTableTh variant="page" sortable sortDirection={thDir('name')} onSort={() => handleSort('name')}>
@@ -105,10 +105,10 @@ function ResourcesPage() {
                 <DataTableTh variant="page" sortable sortDirection={thDir('email')} onSort={() => handleSort('email')}>
                   {t('common.email')}
                 </DataTableTh>
-                <DataTableTh variant="page" sortable sortDirection={thDir('phone')} onSort={() => handleSort('phone')}>
+                <DataTableTh variant="page" sortable sortDirection={thDir('phone')} onSort={() => handleSort('phone')} className="mobile-hide">
                   {t('common.phone')}
                 </DataTableTh>
-                <DataTableTh variant="page" sortable sortDirection={thDir('active')} onSort={() => handleSort('active')}>
+                <DataTableTh variant="page" sortable sortDirection={thDir('active')} onSort={() => handleSort('active')} className="mobile-hide">
                   {t('common.active')}
                 </DataTableTh>
                 <DataTableTh variant="page" style={{ width: 56 }} />
@@ -145,8 +145,8 @@ function ResourcesPage() {
                   >
                     <DataTableTd variant="page">{r.firstName} {r.lastName}</DataTableTd>
                     <DataTableTd variant="page">{r.email ?? t('common.dash')}</DataTableTd>
-                    <DataTableTd variant="page">{r.phone ?? t('common.dash')}</DataTableTd>
-                    <DataTableTd variant="page">{r.isActive ? t('common.yes') : t('common.no')}</DataTableTd>
+                    <DataTableTd variant="page" className="mobile-hide">{r.phone ?? t('common.dash')}</DataTableTd>
+                    <DataTableTd variant="page" className="mobile-hide">{r.isActive ? t('common.yes') : t('common.no')}</DataTableTd>
                     <DataTableTd variant="page" align="right" style={{ width: 56 }}>
                       <Group gap={8} justify="flex-end" style={{ visibility: hoveredId === r.id ? 'visible' : 'hidden' }}>
                         <Tooltip label={t('resources.delete')} withArrow>

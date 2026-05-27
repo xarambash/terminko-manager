@@ -181,11 +181,11 @@ export function ResourceServicesSection({ resourceId }: { resourceId: string }) 
             <QueryStatusBanner isPending={servicesPending} isError={servicesError} error={servicesQueryError} loadingText={t('loading.tenantServices')} />
 
             <DataTableScroll variant="inset">
-              <DataTable variant="inset" minWidth={520}>
+              <DataTable variant="inset" minWidth={300}>
                 <thead>
                   <DataTableHeadRow variant="inset">
                     <DataTableTh variant="inset">{t('common.service')}</DataTableTh>
-                    <DataTableTh variant="inset">{t('common.duration')}</DataTableTh>
+                    <DataTableTh variant="inset" className="mobile-hide">{t('common.duration')}</DataTableTh>
                     <DataTableTh variant="inset">{t('common.price')}</DataTableTh>
                     <DataTableTh variant="inset">{t('common.actions')}</DataTableTh>
                   </DataTableHeadRow>
@@ -202,7 +202,7 @@ export function ResourceServicesSection({ resourceId }: { resourceId: string }) 
                         onMouseLeave={() => setHoveredId(null)}
                       >
                         <DataTableTd variant="inset">{a.service.name}</DataTableTd>
-                        <DataTableTd variant="inset">{t('common.minutes', { count: a.durationOverride ?? a.service.durationMinutes })}</DataTableTd>
+                        <DataTableTd variant="inset" className="mobile-hide">{t('common.minutes', { count: a.durationOverride ?? a.service.durationMinutes })}</DataTableTd>
                         <DataTableTd variant="inset">{formatPrice(a.price)}</DataTableTd>
                         <DataTableTd variant="inset" align="right" style={{ width: 88 }}>
                           <Group gap={8} justify="flex-end" style={{ visibility: hoveredId === a.id ? 'visible' : 'hidden' }}>

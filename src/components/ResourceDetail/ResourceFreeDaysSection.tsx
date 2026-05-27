@@ -99,7 +99,7 @@ export function ResourceFreeDaysSection({ resourceId }: { resourceId: string }) 
         {!isPending && !isError && (
           <>
             <DataTableScroll variant="inset">
-              <DataTable variant="inset" minWidth={360}>
+              <DataTable variant="inset" minWidth={260}>
                 <thead>
                   <DataTableHeadRow variant="inset">
                     <DataTableTh variant="inset">{t('resourceDetail.freeDays.dateRange')}</DataTableTh>
