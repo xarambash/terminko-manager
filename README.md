@@ -48,14 +48,14 @@ npm run preview   # preview production build
 ## Features
 
 ### Owner
-- Appointments overview with resource and date filters
+- Appointments overview with resource and date filters; responsive — table on desktop, timeline on mobile
 - Resource management — create, delete, edit profile (name, email, phone, photo)
 - Service management — CRUD with duration and description
 - Resource scheduling — working hours (inline weekly form), free days (date range), service assignments with price and duration override; edit and unassign existing assignments
 - Guest list
 
 ### Staff
-- Own appointments view with date filter
+- Own appointments view with date filter; responsive — table on desktop, timeline on mobile
 - Profile photo displayed in the header (sourced from the linked Resource record via login response)
 
 ### Table interactions (all list pages)

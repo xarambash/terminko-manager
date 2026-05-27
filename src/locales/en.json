@@ -101,7 +101,12 @@
     },
     "statusScheduled": "Scheduled",
     "statusCompleted": "Completed",
-    "statusCanceled": "Canceled"
+    "statusCanceled": "Canceled",
+    "timeline": {
+      "freeSlot": "{{count}} min free",
+      "prevDay": "Previous day",
+      "nextDay": "Next day"
+    }
   },
   "cancelAppointment": {
     "title": "Cancel Appointment",

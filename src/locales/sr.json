@@ -101,7 +101,12 @@
     },
     "statusScheduled": "Заказано",
     "statusCompleted": "Завршено",
-    "statusCanceled": "Отказано"
+    "statusCanceled": "Отказано",
+    "timeline": {
+      "freeSlot": "{{count}} min слободно",
+      "prevDay": "Претходни дан",
+      "nextDay": "Следећи дан"
+    }
   },
   "cancelAppointment": {
     "title": "Откажи термин",

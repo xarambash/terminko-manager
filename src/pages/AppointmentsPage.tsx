@@ -1,9 +1,11 @@
 import { useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { notifications } from '@mantine/notifications'
+import { useMediaQuery } from '@mantine/hooks'
 import { ActionIcon, Alert, Badge, Group, Loader, Pagination, Stack, Table, Tooltip } from '@mantine/core'
 import { IconAlertCircle, IconX } from '@tabler/icons-react'
 import {
+  AppointmentsTimeline,
   CancelAppointmentConfirmModal,
   Card,
   DataTable,
@@ -92,6 +94,7 @@ function AppointmentsPage() {
   const isOwner = user?.role === 'owner'
   const statusLabels = useStatusLabels()
   const calLocale = calendarLocaleFromLng(i18n.language)
+  const isMobile = useMediaQuery('(max-width: 768px)')
 
   const [selectedDate, setSelectedDate] = useState(() => toDateInputValue(new Date()))
   const [selectedResourceId, setSelectedResourceId] = useState('')
@@ -149,132 +152,152 @@ function AppointmentsPage() {
 
   return (
     <Stack component="main" maw="1500px" mx="auto" w="100%" gap="lg">
-      <Stack gap="sm">
-        <PageSectionHeader title={t('appointments.title')} />
-        <PageSearchBar
-          id="appointments-search"
-          value={search}
-          onChange={(v) => { setSearch(v); setPage(1) }}
-          actions={
-            <Group gap="sm" wrap="nowrap">
-              <DatePicker
-                value={selectedDate}
-                onChange={(d) => { setSelectedDate(d); setPage(1) }}
-                aria-label={t('appointments.filters.date')}
-              />
-              {isOwner && (
-                <DropdownPicker
-                  value={effectiveResourceId}
-                  onValueChange={(id) => { setSelectedResourceId(id); setPage(1) }}
-                  options={resourceOptions}
-                  ariaLabel={t('appointments.filters.resource')}
-                  placeholder={t('appointments.filters.resource')}
-                />
-              )}
-            </Group>
-          }
-        />
-      </Stack>
+      {isMobile ? (
+        <>
+          <PageSectionHeader title={t('appointments.title')} />
+          <AppointmentsTimeline
+            appointments={list}
+            isPending={isPending || (isOwner && isResourcesPending)}
+            isError={isError}
+            error={error}
+            isOwner={isOwner}
+            resourceOptions={resourceOptions}
+            selectedResourceId={effectiveResourceId}
+            onResourceChange={setSelectedResourceId}
+            selectedDate={selectedDate}
+            onDateChange={setSelectedDate}
+          />
+        </>
+      ) : (
+        <>
+          <Stack gap="sm">
+            <PageSectionHeader title={t('appointments.title')} />
+            <PageSearchBar
+              id="appointments-search"
+              value={search}
+              onChange={(v) => { setSearch(v); setPage(1) }}
+              actions={
+                <Group gap="sm" wrap="nowrap">
+                  <DatePicker
+                    value={selectedDate}
+                    onChange={(d) => { setSelectedDate(d); setPage(1) }}
+                    aria-label={t('appointments.filters.date')}
+                  />
+                  {isOwner && (
+                    <DropdownPicker
+                      value={effectiveResourceId}
+                      onValueChange={(id) => { setSelectedResourceId(id); setPage(1) }}
+                      options={resourceOptions}
+                      ariaLabel={t('appointments.filters.resource')}
+                      placeholder={t('appointments.filters.resource')}
+                    />
+                  )}
+                </Group>
+              }
+            />
+          </Stack>
 
-      <Card style={{ overflow: 'hidden' }}>
-        <DataTableScroll variant="page" height="calc(100vh - 220px)">
-          <DataTable variant="page" minWidth={700}>
-            <thead>
-              <DataTableHeadRow variant="page">
-                <DataTableTh variant="page" sortable sortDirection={thDir('guest')} onSort={() => handleSort('guest')}>
-                  {t('common.fullName')}
-                </DataTableTh>
-                <DataTableTh variant="page" sortable sortDirection={thDir('service')} onSort={() => handleSort('service')}>
-                  {t('common.service')}
-                </DataTableTh>
-                <DataTableTh variant="page" sortable sortDirection={thDir('time')} onSort={() => handleSort('time')}>
-                  {t('common.time')}
-                </DataTableTh>
-                <DataTableTh variant="page" sortable sortDirection={thDir('email')} onSort={() => handleSort('email')}>
-                  {t('common.email')}
-                </DataTableTh>
-                <DataTableTh variant="page" sortable sortDirection={thDir('phone')} onSort={() => handleSort('phone')}>
-                  {t('common.phone')}
-                </DataTableTh>
-                <DataTableTh variant="page" sortable sortDirection={thDir('status')} onSort={() => handleSort('status')}>
-                  {t('common.status')}
-                </DataTableTh>
-                <DataTableTh variant="page" style={{ width: 56 }} />
-              </DataTableHeadRow>
-            </thead>
-            <tbody>
-              {(isPending || (isOwner && isResourcesPending)) ? (
-                <Table.Tr>
-                  <DataTableEmptyCell variant="page" colSpan={7}>
-                    <Loader size="sm" />
-                  </DataTableEmptyCell>
-                </Table.Tr>
-              ) : isError ? (
-                <Table.Tr>
-                  <DataTableEmptyCell variant="page" colSpan={7}>
-                    <Alert icon={<IconAlertCircle size={16} />} color="red" variant="light">
-                      {formatQueryError(error)}
-                    </Alert>
-                  </DataTableEmptyCell>
-                </Table.Tr>
-              ) : list.length === 0 ? (
-                <Table.Tr>
-                  <DataTableEmptyCell variant="page" colSpan={7}>
-                    {isOwner ? t('appointments.emptyForDateAndResource') : t('appointments.emptyForDate')}
-                  </DataTableEmptyCell>
-                </Table.Tr>
-              ) : filtered.length === 0 ? (
-                <Table.Tr>
-                  <DataTableEmptyCell variant="page" colSpan={7}>{t('common.emptySearch')}</DataTableEmptyCell>
-                </Table.Tr>
-              ) : (
-                paginated.map((apt) => {
-                  const normalized = normalizeStatus(apt.status)
-                  const statusLabel = normalized ? statusLabels[normalized] : apt.status
-                  const isScheduled = apt.status === 'scheduled'
-                  return (
-                    <DataTableBodyRow
-                      key={apt.id}
-                      hoverable
-                      onMouseEnter={() => setHoveredId(apt.id)}
-                      onMouseLeave={() => setHoveredId(null)}
-                    >
-                      <DataTableTd variant="page">{apt.guest.name}</DataTableTd>
-                      <DataTableTd variant="page">{apt.service.name}</DataTableTd>
-                      <DataTableTd variant="page">{formatTime(apt.startAt, calLocale)}</DataTableTd>
-                      <DataTableTd variant="page">{apt.guest.email}</DataTableTd>
-                      <DataTableTd variant="page">{apt.guest.phone}</DataTableTd>
-                      <DataTableTd variant="page">
-                        <StatusBadge status={apt.status} label={statusLabel} />
-                      </DataTableTd>
-                      <DataTableTd variant="page" align="right" style={{ width: 56 }}>
-                        <Group gap={8} justify="flex-end" style={{ visibility: hoveredId === apt.id && isScheduled ? 'visible' : 'hidden' }}>
-                          <Tooltip label={t('cancelAppointment.action')} withArrow>
-                            <ActionIcon
-                              variant="outline"
-                              color="red"
-                              size="md"
-                              onClick={(e) => { e.stopPropagation(); setCancelTarget(apt) }}
-                              aria-label={t('cancelAppointment.action')}
-                            >
-                              <IconX size={16} />
-                            </ActionIcon>
-                          </Tooltip>
-                        </Group>
-                      </DataTableTd>
-                    </DataTableBodyRow>
-                  )
-                })
-              )}
-            </tbody>
-          </DataTable>
-        </DataTableScroll>
-        {!isPending && !isError && totalPages > 1 && (
-          <Group justify="center" p="md">
-            <Pagination total={totalPages} value={page} onChange={setPage} size="sm" />
-          </Group>
-        )}
-      </Card>
+          <Card style={{ overflow: 'hidden' }}>
+            <DataTableScroll variant="page" height="calc(100vh - 220px)">
+              <DataTable variant="page" minWidth={700}>
+                <thead>
+                  <DataTableHeadRow variant="page">
+                    <DataTableTh variant="page" sortable sortDirection={thDir('guest')} onSort={() => handleSort('guest')}>
+                      {t('common.fullName')}
+                    </DataTableTh>
+                    <DataTableTh variant="page" sortable sortDirection={thDir('service')} onSort={() => handleSort('service')}>
+                      {t('common.service')}
+                    </DataTableTh>
+                    <DataTableTh variant="page" sortable sortDirection={thDir('time')} onSort={() => handleSort('time')}>
+                      {t('common.time')}
+                    </DataTableTh>
+                    <DataTableTh variant="page" sortable sortDirection={thDir('email')} onSort={() => handleSort('email')}>
+                      {t('common.email')}
+                    </DataTableTh>
+                    <DataTableTh variant="page" sortable sortDirection={thDir('phone')} onSort={() => handleSort('phone')}>
+                      {t('common.phone')}
+                    </DataTableTh>
+                    <DataTableTh variant="page" sortable sortDirection={thDir('status')} onSort={() => handleSort('status')}>
+                      {t('common.status')}
+                    </DataTableTh>
+                    <DataTableTh variant="page" style={{ width: 56 }} />
+                  </DataTableHeadRow>
+                </thead>
+                <tbody>
+                  {(isPending || (isOwner && isResourcesPending)) ? (
+                    <Table.Tr>
+                      <DataTableEmptyCell variant="page" colSpan={7}>
+                        <Loader size="sm" />
+                      </DataTableEmptyCell>
+                    </Table.Tr>
+                  ) : isError ? (
+                    <Table.Tr>
+                      <DataTableEmptyCell variant="page" colSpan={7}>
+                        <Alert icon={<IconAlertCircle size={16} />} color="red" variant="light">
+                          {formatQueryError(error)}
+                        </Alert>
+                      </DataTableEmptyCell>
+                    </Table.Tr>
+                  ) : list.length === 0 ? (
+                    <Table.Tr>
+                      <DataTableEmptyCell variant="page" colSpan={7}>
+                        {isOwner ? t('appointments.emptyForDateAndResource') : t('appointments.emptyForDate')}
+                      </DataTableEmptyCell>
+                    </Table.Tr>
+                  ) : filtered.length === 0 ? (
+                    <Table.Tr>
+                      <DataTableEmptyCell variant="page" colSpan={7}>{t('common.emptySearch')}</DataTableEmptyCell>
+                    </Table.Tr>
+                  ) : (
+                    paginated.map((apt) => {
+                      const normalized = normalizeStatus(apt.status)
+                      const statusLabel = normalized ? statusLabels[normalized] : apt.status
+                      const isScheduled = apt.status === 'scheduled'
+                      return (
+                        <DataTableBodyRow
+                          key={apt.id}
+                          hoverable
+                          onMouseEnter={() => setHoveredId(apt.id)}
+                          onMouseLeave={() => setHoveredId(null)}
+                        >
+                          <DataTableTd variant="page">{apt.guest.name}</DataTableTd>
+                          <DataTableTd variant="page">{apt.service.name}</DataTableTd>
+                          <DataTableTd variant="page">{formatTime(apt.startAt, calLocale)}</DataTableTd>
+                          <DataTableTd variant="page">{apt.guest.email}</DataTableTd>
+                          <DataTableTd variant="page">{apt.guest.phone}</DataTableTd>
+                          <DataTableTd variant="page">
+                            <StatusBadge status={apt.status} label={statusLabel} />
+                          </DataTableTd>
+                          <DataTableTd variant="page" align="right" style={{ width: 56 }}>
+                            <Group gap={8} justify="flex-end" style={{ visibility: hoveredId === apt.id && isScheduled ? 'visible' : 'hidden' }}>
+                              <Tooltip label={t('cancelAppointment.action')} withArrow>
+                                <ActionIcon
+                                  variant="outline"
+                                  color="red"
+                                  size="md"
+                                  onClick={(e) => { e.stopPropagation(); setCancelTarget(apt) }}
+                                  aria-label={t('cancelAppointment.action')}
+                                >
+                                  <IconX size={16} />
+                                </ActionIcon>
+                              </Tooltip>
+                            </Group>
+                          </DataTableTd>
+                        </DataTableBodyRow>
+                      )
+                    })
+                  )}
+                </tbody>
+              </DataTable>
+            </DataTableScroll>
+            {!isPending && !isError && totalPages > 1 && (
+              <Group justify="center" p="md">
+                <Pagination total={totalPages} value={page} onChange={setPage} size="sm" />
+              </Group>
+            )}
+          </Card>
+        </>
+      )}
 
       <CancelAppointmentConfirmModal
         open={cancelTarget !== null}
