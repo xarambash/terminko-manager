@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Group, Burger, Menu, UnstyledButton, Text, Avatar, Drawer, Stack, Divider, NavLink } from '@mantine/core'
+import { Group, Burger, Menu, UnstyledButton, Text, Avatar, Drawer, Stack, Divider, NavLink, Box } from '@mantine/core'
 import { Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { IconChevronDown, IconLock, IconLogout } from '@tabler/icons-react'
@@ -102,10 +102,15 @@ export function AppHeader({ mobileOpen, onMobileToggle }: AppHeaderProps) {
         position="bottom"
         size="auto"
         withCloseButton={false}
-        padding="md"
+        radius="md"
+        padding={0}
+        styles={{ content: { height: 'fit-content' } }}
       >
-        <Stack gap={0}>
-          <Group gap="sm" p="sm">
+        <Box py="xs" style={{ display: 'flex', justifyContent: 'center' }}>
+          <Box w={32} h={4} bg="gray.5" style={{ borderRadius: 2 }} />
+        </Box>
+        <Stack gap={0} pb="md">
+          <Group gap="sm" px="md" pb="sm">
             <Avatar size="md" radius="xl" color="indigo" src={user?.profilePicture ?? undefined}>
               {initials}
             </Avatar>
