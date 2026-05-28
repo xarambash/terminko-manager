@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Group, Burger, Menu, UnstyledButton, Text, Avatar } from '@mantine/core'
+import { Group, Burger, Menu, UnstyledButton, Text, Avatar, Drawer, Stack, Divider, NavLink } from '@mantine/core'
 import { Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { IconChevronDown, IconLock, IconLogout } from '@tabler/icons-react'
@@ -18,6 +18,7 @@ export function AppHeader({ mobileOpen, onMobileToggle }: AppHeaderProps) {
   const { t } = useTranslation()
   const { user, logout } = useAuth()
   const [changePasswordOpen, setChangePasswordOpen] = useState(false)
+  const [drawerOpen, setDrawerOpen] = useState(false)
 
   const fullName = user ? `${user.firstName} ${user.lastName}` : ''
   const initials = user
@@ -43,11 +44,10 @@ export function AppHeader({ mobileOpen, onMobileToggle }: AppHeaderProps) {
           </Link>
         </Group>
 
-        <Group gap="xs" wrap="nowrap">
-          <Group gap="xs" visibleFrom="lg">
-            <ThemeSwitch />
-            <LanguageSwitcher />
-          </Group>
+        {/* Desktop: ThemeSwitch + LanguageSwitcher + dropdown menu */}
+        <Group gap="xs" visibleFrom="lg">
+          <ThemeSwitch />
+          <LanguageSwitcher />
           <Menu shadow="md" width={220} position="bottom-end">
             <Menu.Target>
               <UnstyledButton>
@@ -86,7 +86,52 @@ export function AppHeader({ mobileOpen, onMobileToggle }: AppHeaderProps) {
             </Menu.Dropdown>
           </Menu>
         </Group>
+
+        {/* Mobile: avatar button opens bottom drawer */}
+        <UnstyledButton hiddenFrom="lg" onClick={() => setDrawerOpen(true)}>
+          <Avatar size="sm" radius="xl" color="indigo" src={user?.profilePicture ?? undefined}>
+            {initials}
+          </Avatar>
+        </UnstyledButton>
       </Group>
+
+      {/* Mobile account drawer */}
+      <Drawer
+        opened={drawerOpen}
+        onClose={() => setDrawerOpen(false)}
+        position="bottom"
+        size="auto"
+        withCloseButton={false}
+        padding="md"
+      >
+        <Stack gap={0}>
+          <Group gap="sm" p="sm">
+            <Avatar size="md" radius="xl" color="indigo" src={user?.profilePicture ?? undefined}>
+              {initials}
+            </Avatar>
+            <Text size="sm" fw={500}>{fullName}</Text>
+          </Group>
+          <Divider />
+          <NavLink
+            label={t('changePassword.menuItem')}
+            leftSection={<IconLock size={16} />}
+            onClick={() => {
+              setDrawerOpen(false)
+              setChangePasswordOpen(true)
+            }}
+          />
+          <Divider />
+          <NavLink
+            label={t('common.logout')}
+            leftSection={<IconLogout size={16} />}
+            c="red"
+            onClick={() => {
+              setDrawerOpen(false)
+              logout()
+            }}
+          />
+        </Stack>
+      </Drawer>
 
       <ChangePasswordModal
         open={changePasswordOpen}

@@ -1,4 +1,4 @@
-import { Avatar, Box, Divider, Group, NavLink, Stack, Text } from '@mantine/core'
+import { Box, Divider, Group, NavLink, Stack, Text } from '@mantine/core'
 import { Link, useLocation } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import {
@@ -21,11 +21,6 @@ export function AppSidebarNav({ onNavigate }: AppSidebarNavProps) {
   const owner = user?.role === 'owner'
   const location = useLocation()
   const isActive = (path: string) => location.pathname.startsWith(path)
-
-  const fullName = user ? `${user.firstName} ${user.lastName}` : ''
-  const initials = user
-    ? `${user.firstName.charAt(0)}${user.lastName.charAt(0)}`.toUpperCase()
-    : ''
 
   return (
     <Stack gap={4} h="100%">
@@ -75,13 +70,7 @@ export function AppSidebarNav({ onNavigate }: AppSidebarNavProps) {
 
       <Box mt="auto" hiddenFrom="lg">
         <Divider my="sm" />
-        <Group px="sm" py="xs" gap="sm" wrap="nowrap">
-          <Avatar size="sm" radius="xl" color="indigo" src={user?.profilePicture ?? undefined}>
-            {initials}
-          </Avatar>
-          <Text size="sm" fw={500} style={{ flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-            {fullName}
-          </Text>
+        <Group px="sm" py="xs" gap="sm">
           <ThemeSwitch />
           <LanguageSwitcher />
         </Group>
