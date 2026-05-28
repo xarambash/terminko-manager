@@ -1,8 +1,9 @@
 import { useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
+import { useMediaQuery } from '@mantine/hooks'
 import { notifications } from '@mantine/notifications'
-import { ActionIcon, Alert, Button, Group, Loader, Pagination, Stack, Table, Tooltip } from '@mantine/core'
+import { ActionIcon, Alert, Badge, Button, Group, Loader, Pagination, Paper, Stack, Table, Text, Tooltip } from '@mantine/core'
 import { IconAlertCircle, IconTrash } from '@tabler/icons-react'
 import {
   Card,
@@ -45,6 +46,7 @@ function ResourcesPage() {
   const [search, setSearch] = useState('')
   const [modalOpen, setModalOpen] = useState(false)
   const [deleteTarget, setDeleteTarget] = useState<Resource | null>(null)
+  const isMobile = useMediaQuery('(max-width: 768px)')
   const [hoveredId, setHoveredId] = useState<string | null>(null)
   const [sortField, setSortField] = useState<SortField | null>(null)
   const [sortAsc, setSortAsc] = useState(true)
@@ -94,86 +96,122 @@ function ResourcesPage() {
         />
       </Stack>
 
-      <Card style={{ overflow: 'hidden' }}>
-        <DataTableScroll variant="page" height="calc(100vh - 220px)">
-          <DataTable variant="page" minWidth={320}>
-            <thead>
-              <DataTableHeadRow variant="page">
-                <DataTableTh variant="page" sortable sortDirection={thDir('name')} onSort={() => handleSort('name')}>
-                  {t('common.name')}
-                </DataTableTh>
-                <DataTableTh variant="page" sortable sortDirection={thDir('email')} onSort={() => handleSort('email')}>
-                  {t('common.email')}
-                </DataTableTh>
-                <DataTableTh variant="page" sortable sortDirection={thDir('phone')} onSort={() => handleSort('phone')} className="mobile-hide">
-                  {t('common.phone')}
-                </DataTableTh>
-                <DataTableTh variant="page" sortable sortDirection={thDir('active')} onSort={() => handleSort('active')} className="mobile-hide">
-                  {t('common.active')}
-                </DataTableTh>
-                <DataTableTh variant="page" style={{ width: 56 }} />
-              </DataTableHeadRow>
-            </thead>
-            <tbody>
-              {isPending ? (
-                <Table.Tr>
-                  <DataTableEmptyCell variant="page" colSpan={5}>
-                    <Loader size="sm" />
-                  </DataTableEmptyCell>
-                </Table.Tr>
-              ) : isError ? (
-                <Table.Tr>
-                  <DataTableEmptyCell variant="page" colSpan={5}>
-                    <Alert icon={<IconAlertCircle size={16} />} color="red" variant="light">
-                      {formatQueryError(error)}
-                    </Alert>
-                  </DataTableEmptyCell>
-                </Table.Tr>
-              ) : sorted.length === 0 ? (
-                <Table.Tr><DataTableEmptyCell variant="page" colSpan={5}>{t('resources.empty')}</DataTableEmptyCell></Table.Tr>
-              ) : filtered.length === 0 ? (
-                <Table.Tr><DataTableEmptyCell variant="page" colSpan={5}>{t('common.emptySearch')}</DataTableEmptyCell></Table.Tr>
-              ) : (
-                paginated.map((r) => (
-                  <DataTableBodyRow
-                    key={r.id}
-                    hoverable
-                    style={{ cursor: 'pointer' }}
-                    onClick={() => navigate(`/resources/${r.id}`)}
-                    onMouseEnter={() => setHoveredId(r.id)}
-                    onMouseLeave={() => setHoveredId(null)}
+      {isPending && <Group justify="center"><Loader size="sm" /></Group>}
+      {isError && (
+        <Alert icon={<IconAlertCircle size={16} />} color="red" variant="light">
+          {formatQueryError(error)}
+        </Alert>
+      )}
+      {!isPending && !isError && (
+        isMobile ? (
+          <Stack gap="sm">
+            {sorted.length === 0 && <Text c="dimmed" size="sm">{t('resources.empty')}</Text>}
+            {sorted.length > 0 && filtered.length === 0 && <Text c="dimmed" size="sm">{t('common.emptySearch')}</Text>}
+            {paginated.map((r) => (
+              <Paper
+                key={r.id}
+                withBorder
+                p="md"
+                radius="md"
+                style={{ cursor: 'pointer' }}
+                onClick={() => navigate(`/resources/${r.id}`)}
+              >
+                <Group justify="space-between" mb={4}>
+                  <Text fw={500}>{r.firstName} {r.lastName}</Text>
+                  <Badge color={r.isActive ? 'green' : 'gray'} variant="light" size="sm">
+                    {r.isActive ? t('common.active') : t('common.inactive')}
+                  </Badge>
+                </Group>
+                <Text size="sm" c="dimmed">{r.email ?? t('common.dash')}</Text>
+                {r.phone && <Text size="sm" c="dimmed">{r.phone}</Text>}
+                <Group justify="flex-end" mt="sm">
+                  <ActionIcon
+                    variant="outline"
+                    color="red"
+                    size="md"
+                    onClick={(e) => { e.stopPropagation(); setDeleteTarget(r) }}
+                    aria-label={t('resources.delete')}
                   >
-                    <DataTableTd variant="page">{r.firstName} {r.lastName}</DataTableTd>
-                    <DataTableTd variant="page">{r.email ?? t('common.dash')}</DataTableTd>
-                    <DataTableTd variant="page" className="mobile-hide">{r.phone ?? t('common.dash')}</DataTableTd>
-                    <DataTableTd variant="page" className="mobile-hide">{r.isActive ? t('common.yes') : t('common.no')}</DataTableTd>
-                    <DataTableTd variant="page" align="right" style={{ width: 56 }}>
-                      <Group gap={8} justify="flex-end" style={{ visibility: hoveredId === r.id ? 'visible' : 'hidden' }}>
-                        <Tooltip label={t('resources.delete')} withArrow>
-                          <ActionIcon
-                            variant="outline"
-                            color="red"
-                            size="md"
-                            onClick={(e) => { e.stopPropagation(); setDeleteTarget(r) }}
-                            aria-label={t('resources.delete')}
-                          >
-                            <IconTrash size={16} />
-                          </ActionIcon>
-                        </Tooltip>
-                      </Group>
-                    </DataTableTd>
-                  </DataTableBodyRow>
-                ))
-              )}
-            </tbody>
-          </DataTable>
-        </DataTableScroll>
-        {!isPending && !isError && totalPages > 1 && (
-          <Group justify="center" p="md">
-            <Pagination total={totalPages} value={page} onChange={setPage} size="sm" />
-          </Group>
-        )}
-      </Card>
+                    <IconTrash size={14} />
+                  </ActionIcon>
+                </Group>
+              </Paper>
+            ))}
+            {totalPages > 1 && (
+              <Group justify="center">
+                <Pagination total={totalPages} value={page} onChange={setPage} size="sm" />
+              </Group>
+            )}
+          </Stack>
+        ) : (
+          <Card style={{ overflow: 'hidden' }}>
+            <DataTableScroll variant="page" height="calc(100vh - 220px)">
+              <DataTable variant="page" minWidth={320}>
+                <thead>
+                  <DataTableHeadRow variant="page">
+                    <DataTableTh variant="page" sortable sortDirection={thDir('name')} onSort={() => handleSort('name')}>
+                      {t('common.name')}
+                    </DataTableTh>
+                    <DataTableTh variant="page" sortable sortDirection={thDir('email')} onSort={() => handleSort('email')}>
+                      {t('common.email')}
+                    </DataTableTh>
+                    <DataTableTh variant="page" sortable sortDirection={thDir('phone')} onSort={() => handleSort('phone')}>
+                      {t('common.phone')}
+                    </DataTableTh>
+                    <DataTableTh variant="page" sortable sortDirection={thDir('active')} onSort={() => handleSort('active')}>
+                      {t('common.active')}
+                    </DataTableTh>
+                    <DataTableTh variant="page" style={{ width: 56 }} />
+                  </DataTableHeadRow>
+                </thead>
+                <tbody>
+                  {sorted.length === 0 ? (
+                    <Table.Tr><DataTableEmptyCell variant="page" colSpan={5}>{t('resources.empty')}</DataTableEmptyCell></Table.Tr>
+                  ) : filtered.length === 0 ? (
+                    <Table.Tr><DataTableEmptyCell variant="page" colSpan={5}>{t('common.emptySearch')}</DataTableEmptyCell></Table.Tr>
+                  ) : (
+                    paginated.map((r) => (
+                      <DataTableBodyRow
+                        key={r.id}
+                        hoverable
+                        style={{ cursor: 'pointer' }}
+                        onClick={() => navigate(`/resources/${r.id}`)}
+                        onMouseEnter={() => setHoveredId(r.id)}
+                        onMouseLeave={() => setHoveredId(null)}
+                      >
+                        <DataTableTd variant="page">{r.firstName} {r.lastName}</DataTableTd>
+                        <DataTableTd variant="page">{r.email ?? t('common.dash')}</DataTableTd>
+                        <DataTableTd variant="page">{r.phone ?? t('common.dash')}</DataTableTd>
+                        <DataTableTd variant="page">{r.isActive ? t('common.yes') : t('common.no')}</DataTableTd>
+                        <DataTableTd variant="page" align="right" style={{ width: 56 }}>
+                          <Group gap={8} justify="flex-end" style={{ visibility: hoveredId === r.id ? 'visible' : 'hidden' }}>
+                            <Tooltip label={t('resources.delete')} withArrow>
+                              <ActionIcon
+                                variant="outline"
+                                color="red"
+                                size="md"
+                                onClick={(e) => { e.stopPropagation(); setDeleteTarget(r) }}
+                                aria-label={t('resources.delete')}
+                              >
+                                <IconTrash size={16} />
+                              </ActionIcon>
+                            </Tooltip>
+                          </Group>
+                        </DataTableTd>
+                      </DataTableBodyRow>
+                    ))
+                  )}
+                </tbody>
+              </DataTable>
+            </DataTableScroll>
+            {totalPages > 1 && (
+              <Group justify="center" p="md">
+                <Pagination total={totalPages} value={page} onChange={setPage} size="sm" />
+              </Group>
+            )}
+          </Card>
+        )
+      )}
 
       <CreateResourceModal open={modalOpen} onClose={() => setModalOpen(false)} />
       <DeleteResourceConfirmModal

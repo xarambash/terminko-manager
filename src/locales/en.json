@@ -20,6 +20,7 @@
     "password": "Password",
     "phone": "Phone",
     "active": "Active",
+    "inactive": "Inactive",
     "name": "Name",
     "fullName": "Full name",
     "actions": "Actions",

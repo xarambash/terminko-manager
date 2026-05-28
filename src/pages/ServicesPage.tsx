@@ -1,7 +1,8 @@
 import { useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
+import { useMediaQuery } from '@mantine/hooks'
 import { notifications } from '@mantine/notifications'
-import { ActionIcon, Alert, Button, Group, Loader, Pagination, Stack, Table, Text, Tooltip } from '@mantine/core'
+import { ActionIcon, Alert, Badge, Button, Group, Loader, Pagination, Paper, Stack, Table, Text, Tooltip } from '@mantine/core'
 import { IconAlertCircle, IconPencil, IconTrash } from '@tabler/icons-react'
 import {
   Card,
@@ -47,6 +48,7 @@ function ServicesPage() {
   const [createOpen, setCreateOpen] = useState(false)
   const [editService, setEditService] = useState<Service | null>(null)
   const [deleteService, setDeleteService] = useState<Service | null>(null)
+  const isMobile = useMediaQuery('(max-width: 768px)')
   const [hoveredId, setHoveredId] = useState<string | null>(null)
   const [sortField, setSortField] = useState<SortField | null>(null)
   const [sortAsc, setSortAsc] = useState(true)
@@ -95,97 +97,123 @@ function ServicesPage() {
         />
       </Stack>
 
-      <Card style={{ overflow: 'hidden' }}>
-        <DataTableScroll variant="page" height="calc(100vh - 220px)">
-          <DataTable variant="page" minWidth={300}>
-            <thead>
-              <DataTableHeadRow variant="page">
-                <DataTableTh variant="page" sortable sortDirection={thDir('name')} onSort={() => handleSort('name')}>
-                  {t('common.name')}
-                </DataTableTh>
-                <DataTableTh variant="page" sortable sortDirection={thDir('duration')} onSort={() => handleSort('duration')}>
-                  {t('common.duration')}
-                </DataTableTh>
-                <DataTableTh variant="page" sortable sortDirection={thDir('description')} onSort={() => handleSort('description')} className="mobile-hide">
-                  {t('services.description')}
-                </DataTableTh>
-                <DataTableTh variant="page" sortable sortDirection={thDir('active')} onSort={() => handleSort('active')} className="mobile-hide">
-                  {t('common.active')}
-                </DataTableTh>
-                <DataTableTh variant="page" style={{ width: 88 }} />
-              </DataTableHeadRow>
-            </thead>
-            <tbody>
-              {isPending ? (
-                <Table.Tr>
-                  <DataTableEmptyCell variant="page" colSpan={5}>
-                    <Loader size="sm" />
-                  </DataTableEmptyCell>
-                </Table.Tr>
-              ) : isError ? (
-                <Table.Tr>
-                  <DataTableEmptyCell variant="page" colSpan={5}>
-                    <Alert icon={<IconAlertCircle size={16} />} color="red" variant="light">
-                      {formatQueryError(error)}
-                    </Alert>
-                  </DataTableEmptyCell>
-                </Table.Tr>
-              ) : sorted.length === 0 ? (
-                <Table.Tr><DataTableEmptyCell variant="page" colSpan={5}>{t('services.empty')}</DataTableEmptyCell></Table.Tr>
-              ) : filtered.length === 0 ? (
-                <Table.Tr><DataTableEmptyCell variant="page" colSpan={5}>{t('common.emptySearch')}</DataTableEmptyCell></Table.Tr>
-              ) : (
-                paginated.map((s) => (
-                  <DataTableBodyRow
-                    key={s.id}
-                    hoverable
-                    onMouseEnter={() => setHoveredId(s.id)}
-                    onMouseLeave={() => setHoveredId(null)}
-                  >
-                    <DataTableTd variant="page">{s.name}</DataTableTd>
-                    <DataTableTd variant="page">{t('common.minutes', { count: s.durationMinutes })}</DataTableTd>
-                    <DataTableTd variant="page" className="mobile-hide" style={{ maxWidth: 220 }}>
-                      <Text truncate="end">{s.description ?? t('common.dash')}</Text>
-                    </DataTableTd>
-                    <DataTableTd variant="page" className="mobile-hide">{s.isActive ? t('common.yes') : t('common.no')}</DataTableTd>
-                    <DataTableTd variant="page" align="right" style={{ width: 88 }}>
-                      <Group gap={8} justify="flex-end" style={{ visibility: hoveredId === s.id ? 'visible' : 'hidden' }}>
-                        <Tooltip label={t('services.edit')} withArrow>
-                          <ActionIcon
-                            variant="outline"
-                            color="gray"
-                            size="md"
-                            onClick={(e) => { e.stopPropagation(); setEditService(s) }}
-                            aria-label={t('services.edit')}
-                          >
-                            <IconPencil size={16} />
-                          </ActionIcon>
-                        </Tooltip>
-                        <Tooltip label={t('common.delete')} withArrow>
-                          <ActionIcon
-                            variant="outline"
-                            color="red"
-                            size="md"
-                            onClick={(e) => { e.stopPropagation(); setDeleteService(s) }}
-                            aria-label={t('common.delete')}
-                          >
-                            <IconTrash size={16} />
-                          </ActionIcon>
-                        </Tooltip>
-                      </Group>
-                    </DataTableTd>
-                  </DataTableBodyRow>
-                ))
-              )}
-            </tbody>
-          </DataTable>
-        </DataTableScroll>
-        {!isPending && !isError && totalPages > 1 && (
-          <Group justify="center" p="md">
-            <Pagination total={totalPages} value={page} onChange={setPage} size="sm" />
-          </Group>
-        )}
-      </Card>
+      {isPending && <Group justify="center"><Loader size="sm" /></Group>}
+      {isError && (
+        <Alert icon={<IconAlertCircle size={16} />} color="red" variant="light">
+          {formatQueryError(error)}
+        </Alert>
+      )}
+      {!isPending && !isError && (
+        isMobile ? (
+          <Stack gap="sm">
+            {sorted.length === 0 && <Text c="dimmed" size="sm">{t('services.empty')}</Text>}
+            {sorted.length > 0 && filtered.length === 0 && <Text c="dimmed" size="sm">{t('common.emptySearch')}</Text>}
+            {paginated.map((s) => (
+              <Paper key={s.id} withBorder p="md" radius="md">
+                <Group justify="space-between" mb={4}>
+                  <Text fw={500}>{s.name}</Text>
+                  <Badge color={s.isActive ? 'green' : 'gray'} variant="light" size="sm">
+                    {s.isActive ? t('common.active') : t('common.inactive')}
+                  </Badge>
+                </Group>
+                <Text size="sm" c="dimmed">{t('common.minutes', { count: s.durationMinutes })}</Text>
+                {s.description && <Text size="sm" c="dimmed" mt={4}>{s.description}</Text>}
+                <Group justify="flex-end" mt="sm" gap="sm">
+                  <ActionIcon variant="outline" color="gray" size="md" onClick={() => setEditService(s)} aria-label={t('services.edit')}>
+                    <IconPencil size={14} />
+                  </ActionIcon>
+                  <ActionIcon variant="outline" color="red" size="md" onClick={() => setDeleteService(s)} aria-label={t('common.delete')}>
+                    <IconTrash size={14} />
+                  </ActionIcon>
+                </Group>
+              </Paper>
+            ))}
+            {totalPages > 1 && (
+              <Group justify="center">
+                <Pagination total={totalPages} value={page} onChange={setPage} size="sm" />
+              </Group>
+            )}
+          </Stack>
+        ) : (
+          <Card style={{ overflow: 'hidden' }}>
+            <DataTableScroll variant="page" height="calc(100vh - 220px)">
+              <DataTable variant="page" minWidth={300}>
+                <thead>
+                  <DataTableHeadRow variant="page">
+                    <DataTableTh variant="page" sortable sortDirection={thDir('name')} onSort={() => handleSort('name')}>
+                      {t('common.name')}
+                    </DataTableTh>
+                    <DataTableTh variant="page" sortable sortDirection={thDir('duration')} onSort={() => handleSort('duration')}>
+                      {t('common.duration')}
+                    </DataTableTh>
+                    <DataTableTh variant="page" sortable sortDirection={thDir('description')} onSort={() => handleSort('description')}>
+                      {t('services.description')}
+                    </DataTableTh>
+                    <DataTableTh variant="page" sortable sortDirection={thDir('active')} onSort={() => handleSort('active')}>
+                      {t('common.active')}
+                    </DataTableTh>
+                    <DataTableTh variant="page" style={{ width: 88 }} />
+                  </DataTableHeadRow>
+                </thead>
+                <tbody>
+                  {sorted.length === 0 ? (
+                    <Table.Tr><DataTableEmptyCell variant="page" colSpan={5}>{t('services.empty')}</DataTableEmptyCell></Table.Tr>
+                  ) : filtered.length === 0 ? (
+                    <Table.Tr><DataTableEmptyCell variant="page" colSpan={5}>{t('common.emptySearch')}</DataTableEmptyCell></Table.Tr>
+                  ) : (
+                    paginated.map((s) => (
+                      <DataTableBodyRow
+                        key={s.id}
+                        hoverable
+                        onMouseEnter={() => setHoveredId(s.id)}
+                        onMouseLeave={() => setHoveredId(null)}
+                      >
+                        <DataTableTd variant="page">{s.name}</DataTableTd>
+                        <DataTableTd variant="page">{t('common.minutes', { count: s.durationMinutes })}</DataTableTd>
+                        <DataTableTd variant="page" style={{ maxWidth: 220 }}>
+                          <Text truncate="end">{s.description ?? t('common.dash')}</Text>
+                        </DataTableTd>
+                        <DataTableTd variant="page">{s.isActive ? t('common.yes') : t('common.no')}</DataTableTd>
+                        <DataTableTd variant="page" align="right" style={{ width: 88 }}>
+                          <Group gap={8} justify="flex-end" style={{ visibility: hoveredId === s.id ? 'visible' : 'hidden' }}>
+                            <Tooltip label={t('services.edit')} withArrow>
+                              <ActionIcon
+                                variant="outline"
+                                color="gray"
+                                size="md"
+                                onClick={(e) => { e.stopPropagation(); setEditService(s) }}
+                                aria-label={t('services.edit')}
+                              >
+                                <IconPencil size={16} />
+                              </ActionIcon>
+                            </Tooltip>
+                            <Tooltip label={t('common.delete')} withArrow>
+                              <ActionIcon
+                                variant="outline"
+                                color="red"
+                                size="md"
+                                onClick={(e) => { e.stopPropagation(); setDeleteService(s) }}
+                                aria-label={t('common.delete')}
+                              >
+                                <IconTrash size={16} />
+                              </ActionIcon>
+                            </Tooltip>
+                          </Group>
+                        </DataTableTd>
+                      </DataTableBodyRow>
+                    ))
+                  )}
+                </tbody>
+              </DataTable>
+            </DataTableScroll>
+            {totalPages > 1 && (
+              <Group justify="center" p="md">
+                <Pagination total={totalPages} value={page} onChange={setPage} size="sm" />
+              </Group>
+            )}
+          </Card>
+        )
+      )}
 
       <CreateServiceModal open={createOpen} onClose={() => setCreateOpen(false)} />
       <EditServiceModal
