@@ -43,9 +43,11 @@ export function AppHeader({ mobileOpen, onMobileToggle }: AppHeaderProps) {
           </Link>
         </Group>
 
-        <Group gap="xs" visibleFrom="lg">
-          <ThemeSwitch />
-          <LanguageSwitcher />
+        <Group gap="xs" wrap="nowrap">
+          <Group gap="xs" visibleFrom="lg">
+            <ThemeSwitch />
+            <LanguageSwitcher />
+          </Group>
           <Menu shadow="md" width={220} position="bottom-end">
             <Menu.Target>
               <UnstyledButton>

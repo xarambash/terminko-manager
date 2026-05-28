@@ -1,11 +1,8 @@
-import { useState } from 'react'
 import { Avatar, Box, Divider, Group, NavLink, Stack, Text } from '@mantine/core'
 import { Link, useLocation } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import {
   IconCalendarEvent,
-  IconLock,
-  IconLogout,
   IconSparkles,
   // IconUsers, // re-enable with Guests tab
   IconUser,
@@ -13,7 +10,6 @@ import {
 import { useAuth } from '../hooks/useAuth'
 import { LanguageSwitcher } from './ui/LanguageSwitcher'
 import { ThemeSwitch } from './ui/ThemeSwitch'
-import { ChangePasswordModal } from './ChangePasswordModal'
 
 type AppSidebarNavProps = {
   onNavigate?: () => void
@@ -21,11 +17,9 @@ type AppSidebarNavProps = {
 
 export function AppSidebarNav({ onNavigate }: AppSidebarNavProps) {
   const { t } = useTranslation()
-  const { user, logout } = useAuth()
+  const { user } = useAuth()
   const owner = user?.role === 'owner'
   const location = useLocation()
-  const [changePasswordOpen, setChangePasswordOpen] = useState(false)
-
   const isActive = (path: string) => location.pathname.startsWith(path)
 
   const fullName = user ? `${user.firstName} ${user.lastName}` : ''
@@ -91,24 +85,7 @@ export function AppSidebarNav({ onNavigate }: AppSidebarNavProps) {
           <ThemeSwitch />
           <LanguageSwitcher />
         </Group>
-        <NavLink
-          label={t('changePassword.menuItem')}
-          leftSection={<IconLock size={16} />}
-          onClick={() => setChangePasswordOpen(true)}
-        />
-        <NavLink
-          label={t('common.logout')}
-          leftSection={<IconLogout size={16} />}
-          color="red"
-          c="red"
-          onClick={() => { logout(); onNavigate?.() }}
-        />
       </Box>
-
-      <ChangePasswordModal
-        open={changePasswordOpen}
-        onClose={() => setChangePasswordOpen(false)}
-      />
     </Stack>
   )
 }
