@@ -113,14 +113,10 @@ export function AppointmentsTimeline({
         size="auto"
       >
         <DatePicker
-          value={new Date(`${selectedDate}T00:00:00`)}
+          value={selectedDate}
           onChange={(date) => {
             if (!date) return
-            const d = date as Date
-            const y = d.getFullYear()
-            const m = String(d.getMonth() + 1).padStart(2, '0')
-            const day = String(d.getDate()).padStart(2, '0')
-            onDateChange(`${y}-${m}-${day}`)
+            onDateChange(date)
             setIsDatePickerOpen(false)
           }}
           locale={locale}
