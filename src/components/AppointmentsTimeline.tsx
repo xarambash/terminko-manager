@@ -1,7 +1,9 @@
-import { useMemo } from 'react'
+import { useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { ActionIcon, Alert, Box, Divider, Group, Loader, Paper, Stack, Text } from '@mantine/core'
+import { ActionIcon, Alert, Box, Divider, Group, Loader, Modal, Paper, Stack, Text, UnstyledButton } from '@mantine/core'
 import { IconAlertCircle, IconChevronLeft, IconChevronRight } from '@tabler/icons-react'
+import { DatePicker } from '@mantine/dates'
+import type { DayOfWeek } from '@mantine/dates'
 import { Card } from './ui/Card'
 import { DropdownPicker } from './ui/DropdownPicker'
 import { calendarLocaleFromLng } from '../lib/dateLocale'
@@ -78,6 +80,7 @@ export function AppointmentsTimeline({
 }: AppointmentsTimelineProps) {
   const { t, i18n } = useTranslation()
   const locale = calendarLocaleFromLng(i18n.language)
+  const [isDatePickerOpen, setIsDatePickerOpen] = useState(false)
 
   const sorted = useMemo(
     () => [...appointments].sort((a, b) => a.startAt.localeCompare(b.startAt)),
@@ -101,26 +104,55 @@ export function AppointmentsTimeline({
   }, [sorted])
 
   return (
-    <Card style={{ overflow: 'hidden' }}>
-      <Group justify="space-between" align="center" p="sm">
-        <ActionIcon
-          variant="subtle"
-          aria-label={t('appointments.timeline.prevDay')}
-          onClick={() => onDateChange(shiftDate(selectedDate, -1))}
-        >
-          <IconChevronLeft size={18} />
-        </ActionIcon>
-        <Text fw={600} size="sm" ta="center" style={{ flex: 1, textTransform: 'capitalize' }}>
-          {formatDateLabel(selectedDate, locale)}
-        </Text>
-        <ActionIcon
-          variant="subtle"
-          aria-label={t('appointments.timeline.nextDay')}
-          onClick={() => onDateChange(shiftDate(selectedDate, 1))}
-        >
-          <IconChevronRight size={18} />
-        </ActionIcon>
-      </Group>
+    <>
+      <Modal
+        opened={isDatePickerOpen}
+        onClose={() => setIsDatePickerOpen(false)}
+        title={t('appointments.timeline.selectDate')}
+        centered
+        size="auto"
+      >
+        <DatePicker
+          value={new Date(`${selectedDate}T00:00:00`)}
+          onChange={(date) => {
+            if (!date) return
+            const d = date as Date
+            const y = d.getFullYear()
+            const m = String(d.getMonth() + 1).padStart(2, '0')
+            const day = String(d.getDate()).padStart(2, '0')
+            onDateChange(`${y}-${m}-${day}`)
+            setIsDatePickerOpen(false)
+          }}
+          locale={locale}
+          firstDayOfWeek={1 as DayOfWeek}
+        />
+      </Modal>
+
+      <Card style={{ overflow: 'hidden' }}>
+        <Group justify="space-between" align="center" p="sm">
+          <ActionIcon
+            variant="subtle"
+            aria-label={t('appointments.timeline.prevDay')}
+            onClick={() => onDateChange(shiftDate(selectedDate, -1))}
+          >
+            <IconChevronLeft size={18} />
+          </ActionIcon>
+          <UnstyledButton
+            style={{ flex: 1, textAlign: 'center' }}
+            onClick={() => setIsDatePickerOpen(true)}
+          >
+            <Text fw={600} size="sm" ta="center" style={{ textTransform: 'capitalize' }}>
+              {formatDateLabel(selectedDate, locale)}
+            </Text>
+          </UnstyledButton>
+          <ActionIcon
+            variant="subtle"
+            aria-label={t('appointments.timeline.nextDay')}
+            onClick={() => onDateChange(shiftDate(selectedDate, 1))}
+          >
+            <IconChevronRight size={18} />
+          </ActionIcon>
+        </Group>
 
       {isOwner && (
         <Box px="sm" pb="sm">
@@ -204,5 +236,6 @@ export function AppointmentsTimeline({
         </Stack>
       )}
     </Card>
+    </>
   )
 }

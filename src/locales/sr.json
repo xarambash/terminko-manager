@@ -106,7 +106,8 @@
     "timeline": {
       "freeSlot": "{{count}} min слободно",
       "prevDay": "Претходни дан",
-      "nextDay": "Следећи дан"
+      "nextDay": "Следећи дан",
+      "selectDate": "Изаберите датум"
     }
   },
   "cancelAppointment": {

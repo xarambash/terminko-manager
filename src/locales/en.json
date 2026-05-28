@@ -106,7 +106,8 @@
     "timeline": {
       "freeSlot": "{{count}} min free",
       "prevDay": "Previous day",
-      "nextDay": "Next day"
+      "nextDay": "Next day",
+      "selectDate": "Select date"
     }
   },
   "cancelAppointment": {
@@ -146,7 +147,7 @@
       "navigationLabel": "Resource sections",
       "profile": "Profile",
       "services": "Services",
-      "workingHours": "Working hours",
+      "workingHours": "Hours",
       "absences": "Absences"
     },
     "summary": {

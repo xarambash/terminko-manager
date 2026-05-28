@@ -25,6 +25,7 @@ export function PageSectionHeader({
             color="gray"
             aria-label={backAriaLabel}
             title={backAriaLabel}
+            visibleFrom="sm"
           >
             <IconArrowLeft size={16} />
           </ActionIcon>
