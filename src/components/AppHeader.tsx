@@ -36,12 +36,14 @@ export function AppHeader({ mobileOpen, onMobileToggle }: AppHeaderProps) {
             size="sm"
             aria-label={t('nav.openMenu')}
           />
-          <Link
-            to="/appointments"
-            style={{ textDecoration: 'none', color: 'inherit' }}
-          >
-            <TenantBrandName />
-          </Link>
+          <Box visibleFrom="lg">
+            <Link
+              to="/appointments"
+              style={{ textDecoration: 'none', color: 'inherit' }}
+            >
+              <TenantBrandName />
+            </Link>
+          </Box>
         </Group>
 
         {/* Desktop: ThemeSwitch + LanguageSwitcher + dropdown menu */}
@@ -87,12 +89,16 @@ export function AppHeader({ mobileOpen, onMobileToggle }: AppHeaderProps) {
           </Menu>
         </Group>
 
-        {/* Mobile: avatar button opens bottom drawer */}
-        <UnstyledButton hiddenFrom="lg" onClick={() => setDrawerOpen(true)}>
-          <Avatar size="sm" radius="xl" color="indigo" src={user?.profilePicture ?? undefined}>
-            {initials}
-          </Avatar>
-        </UnstyledButton>
+        {/* Mobile: theme + language + avatar (avatar opens bottom drawer) */}
+        <Group hiddenFrom="lg" gap="xs" wrap="nowrap">
+          <ThemeSwitch />
+          <LanguageSwitcher />
+          <UnstyledButton onClick={() => setDrawerOpen(true)}>
+            <Avatar size="sm" radius="xl" color="indigo" src={user?.profilePicture ?? undefined}>
+              {initials}
+            </Avatar>
+          </UnstyledButton>
+        </Group>
       </Group>
 
       {/* Mobile account drawer */}

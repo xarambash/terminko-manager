@@ -1,4 +1,4 @@
-import { Box, Divider, Group, NavLink, Stack, Text } from '@mantine/core'
+import { NavLink, Stack, Text } from '@mantine/core'
 import { Link, useLocation } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import {
@@ -8,8 +8,6 @@ import {
   IconUser,
 } from '@tabler/icons-react'
 import { useAuth } from '../hooks/useAuth'
-import { LanguageSwitcher } from './ui/LanguageSwitcher'
-import { ThemeSwitch } from './ui/ThemeSwitch'
 
 type AppSidebarNavProps = {
   onNavigate?: () => void
@@ -68,13 +66,6 @@ export function AppSidebarNav({ onNavigate }: AppSidebarNavProps) {
         </>
       )}
 
-      <Box mt="auto" hiddenFrom="lg">
-        <Divider my="sm" />
-        <Group px="sm" py="xs" gap="sm">
-          <ThemeSwitch />
-          <LanguageSwitcher />
-        </Group>
-      </Box>
     </Stack>
   )
 }
