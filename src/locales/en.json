@@ -164,7 +164,7 @@
       "edit": "Edit",
       "save": "Save",
       "saving": "Saving…",
-      "cancel": "Cancel",
+      "discard": "Discard",
       "firstName": "First name",
       "lastName": "Last name",
       "validationFirstName": "First name is required",

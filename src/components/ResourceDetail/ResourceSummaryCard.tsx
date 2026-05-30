@@ -1,13 +1,13 @@
 import { useEffect, useRef, useState } from 'react'
 import { useForm } from '@mantine/form'
 import { useTranslation } from 'react-i18next'
+import { useMediaQuery } from '@mantine/hooks'
 import {
   Paper,
   Avatar,
   Group,
   Stack,
   Text,
-  Badge,
   Button,
   TextInput,
   Switch,
@@ -33,12 +33,13 @@ type EditForm = {
 
 export function ResourceSummaryCard({ resource, onUploadPhoto, onSave }: ResourceSummaryCardProps) {
   const { t, i18n } = useTranslation()
+  const isMobile = useMediaQuery('(max-width: 768px)')
   const fileInputRef = useRef<HTMLInputElement>(null)
-  const fullName = `${resource.firstName} ${resource.lastName}`.trim() || t('common.dash')
   const [photoFailed, setPhotoFailed] = useState(false)
-  const [isEditMode, setIsEditMode] = useState(false)
   const [selectedFile, setSelectedFile] = useState<File | null>(null)
   const [previewUrl, setPreviewUrl] = useState<string | null>(null)
+  const [photoError, setPhotoError] = useState<string | undefined>()
+  const [formError, setFormError] = useState<string | undefined>()
 
   const displayPhoto = previewUrl ?? (photoFailed ? null : resource.profilePicture)
 
@@ -65,7 +66,7 @@ export function ResourceSummaryCard({ resource, onUploadPhoto, onSave }: Resourc
   })
 
   useEffect(() => {
-    if (isEditMode) return
+    if (form.isDirty() || selectedFile) return
     form.setValues({
       firstName: resource.firstName,
       lastName: resource.lastName,
@@ -74,14 +75,15 @@ export function ResourceSummaryCard({ resource, onUploadPhoto, onSave }: Resourc
       isActive: resource.isActive,
     })
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [resource, isEditMode, i18n.language])
+  }, [resource, i18n.language])
 
-  const handleCancel = () => {
+  const handleDiscard = () => {
     form.reset()
     if (previewUrl) URL.revokeObjectURL(previewUrl)
     setSelectedFile(null)
     setPreviewUrl(null)
-    setIsEditMode(false)
+    setPhotoError(undefined)
+    setFormError(undefined)
   }
 
   const onFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -91,108 +93,118 @@ export function ResourceSummaryCard({ resource, onUploadPhoto, onSave }: Resourc
     if (previewUrl) URL.revokeObjectURL(previewUrl)
     setSelectedFile(file)
     setPreviewUrl(URL.createObjectURL(file))
+    setPhotoError(undefined)
   }
 
   const onSubmit = form.onSubmit(async (data) => {
-    try {
-      if (selectedFile && onUploadPhoto) {
+    setPhotoError(undefined)
+    setFormError(undefined)
+
+    if (selectedFile && onUploadPhoto) {
+      try {
         await onUploadPhoto(selectedFile)
         if (previewUrl) URL.revokeObjectURL(previewUrl)
         setSelectedFile(null)
         setPreviewUrl(null)
         setPhotoFailed(false)
+      } catch (err: unknown) {
+        setPhotoError(extractServerError(err) ?? t('resourceDetail.summary.errorUploadPhoto'))
+        return
       }
+    }
+
+    try {
       if (onSave) await onSave(data)
-      setIsEditMode(false)
     } catch (err: unknown) {
-      form.setErrors({ firstName: extractServerError(err) ?? t('resourceDetail.summary.errorUpdate') })
+      setFormError(extractServerError(err) ?? t('resourceDetail.summary.errorUpdate'))
     }
   })
 
-  if (isEditMode) {
+  const avatarSection = (
+    <div style={{ position: 'relative', flexShrink: 0 }}>
+      <Avatar
+        src={displayPhoto}
+        alt={resource.firstName}
+        size={96}
+        onError={() => setPhotoFailed(true)}
+      />
+      {onUploadPhoto && (
+        <>
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="image/jpeg,image/png,image/webp"
+            style={{ display: 'none' }}
+            onChange={onFileChange}
+          />
+          <ActionIcon
+            size="sm"
+            radius="xl"
+            variant="filled"
+            style={{ position: 'absolute', bottom: 0, right: 0 }}
+            onClick={() => fileInputRef.current?.click()}
+            title={displayPhoto ? t('resourceDetail.summary.changePhoto') : t('resourceDetail.summary.uploadPhoto')}
+          >
+            <IconCamera size={12} />
+          </ActionIcon>
+        </>
+      )}
+    </div>
+  )
+
+  const isDirty = form.isDirty() || !!selectedFile
+
+  const bottomRow = (
+    <Group justify="space-between" mt="md" align="center">
+      <Group gap="xs">
+        <Text size="sm" c="dimmed">{t('resourceDetail.summary.active')}</Text>
+        <Switch
+          checked={form.values.isActive}
+          onChange={(e) => form.setFieldValue('isActive', e.currentTarget.checked)}
+        />
+      </Group>
+      <Text size="sm" c="red" role="alert" style={{ flex: 1, textAlign: 'center' }}>
+        {photoError ?? formError ?? ''}
+      </Text>
+      <Group gap="sm">
+        <Button variant="default" onClick={handleDiscard} disabled={!isDirty || form.submitting}>
+          {t('resourceDetail.summary.discard')}
+        </Button>
+        <Button type="submit" loading={form.submitting} disabled={!isDirty}>
+          {t('resourceDetail.summary.save')}
+        </Button>
+      </Group>
+    </Group>
+  )
+
+  if (isMobile) {
     return (
-      <Paper withBorder shadow="xs" p="md" style={{ position: 'relative' }}>
+      <Paper withBorder shadow="xs" p="md">
         <form onSubmit={onSubmit}>
-          <div style={{ position: 'absolute', top: 'var(--mantine-spacing-md)', right: 'var(--mantine-spacing-md)' }}>
-            <Group gap="xs">
-              <Text size="sm" c="dimmed">{t('resourceDetail.summary.active')}</Text>
-              <Switch
-                checked={form.values.isActive}
-                onChange={(e) => form.setFieldValue('isActive', e.currentTarget.checked)}
-              />
-            </Group>
-          </div>
-          <Group align="flex-start" gap="md">
-            <div style={{ position: 'relative' }}>
-              <Avatar
-                src={displayPhoto}
-                alt={fullName}
-                size={96}
-                onError={() => setPhotoFailed(true)}
-              />
-              {onUploadPhoto && (
-                <>
-                  <input
-                    ref={fileInputRef}
-                    type="file"
-                    accept="image/jpeg,image/png,image/webp"
-                    style={{ display: 'none' }}
-                    onChange={onFileChange}
-                  />
-                  <ActionIcon
-                    size="sm"
-                    radius="xl"
-                    variant="filled"
-                    style={{ position: 'absolute', bottom: 0, right: 0 }}
-                    onClick={() => fileInputRef.current?.click()}
-                    title={displayPhoto ? t('resourceDetail.summary.changePhoto') : t('resourceDetail.summary.uploadPhoto')}
-                  >
-                    <IconCamera size={12} />
-                  </ActionIcon>
-                </>
-              )}
-            </div>
-            <Stack flex={1} gap="xs">
-              <Group gap="sm">
-                <TextInput
-                  w={210}
-                  label={t('resourceDetail.summary.firstName')}
-                  {...form.getInputProps('firstName')}
-                />
-                <TextInput
-                  w={210}
-                  label={t('resourceDetail.summary.lastName')}
-                  {...form.getInputProps('lastName')}
-                />
-              </Group>
-              <Group gap="sm">
-                <TextInput
-                  w={210}
-                  label={t('resourceDetail.summary.email')}
-                  type="email"
-                  {...form.getInputProps('email')}
-                />
-                <TextInput
-                  w={210}
-                  label={t('resourceDetail.summary.phone')}
-                  type="tel"
-                  {...form.getInputProps('phone')}
-                />
-              </Group>
-              <Group justify="flex-end" gap="sm">
-                <Button variant="default" onClick={handleCancel} disabled={form.submitting}>
-                  {t('resourceDetail.summary.cancel')}
-                </Button>
-                <Button
-                  type="submit"
-                  loading={form.submitting}
-                  disabled={!form.isDirty() && !selectedFile}
-                >
-                  {t('resourceDetail.summary.save')}
-                </Button>
-              </Group>
-            </Stack>
-          </Group>
+          <Stack gap="xs" align="center" mb="md">
+            {avatarSection}
+          </Stack>
+          <Stack gap="xs">
+            <TextInput
+              label={t('resourceDetail.summary.firstName')}
+              {...form.getInputProps('firstName')}
+            />
+            <TextInput
+              label={t('resourceDetail.summary.lastName')}
+              {...form.getInputProps('lastName')}
+            />
+            <TextInput
+              label={t('resourceDetail.summary.email')}
+              type="email"
+              {...form.getInputProps('email')}
+            />
+            <TextInput
+              label={t('resourceDetail.summary.phone')}
+              type="tel"
+              {...form.getInputProps('phone')}
+            />
+          </Stack>
+          {bottomRow}
         </form>
       </Paper>
     )
@@ -200,35 +212,40 @@ export function ResourceSummaryCard({ resource, onUploadPhoto, onSave }: Resourc
 
   return (
     <Paper withBorder shadow="xs" p="md">
-      <Group align="stretch" gap="md">
-        <Avatar
-          src={displayPhoto}
-          alt={fullName}
-          size={96}
-          style={{ alignSelf: 'center' }}
-          onError={() => setPhotoFailed(true)}
-        />
-        <Group flex={1} justify="space-between" align="stretch">
-          <Stack gap={2} justify="center">
-            <Text fw={600} size="lg">{fullName}</Text>
-            <Text size="sm" c="dimmed">{resource.email ?? t('common.dash')}</Text>
-            {resource.phone && <Text size="sm" c="dimmed">{resource.phone}</Text>}
-          </Stack>
-          <Stack align="flex-end" justify="space-between">
-            <Badge
-              color={resource.isActive ? 'green' : 'gray'}
-              variant="light"
-            >
-              {resource.isActive
-                ? t('resourceDetail.summary.statusActive')
-                : t('resourceDetail.summary.statusInactive')}
-            </Badge>
-            <Button variant="default" size="sm" onClick={() => setIsEditMode(true)}>
-              {t('resourceDetail.summary.edit')}
-            </Button>
+      <form onSubmit={onSubmit}>
+        <Group align="center" gap="md">
+          {avatarSection}
+          <Stack flex={1} gap="xs">
+            <Group gap="sm">
+              <TextInput
+                flex={1}
+                label={t('resourceDetail.summary.firstName')}
+                {...form.getInputProps('firstName')}
+              />
+              <TextInput
+                flex={1}
+                label={t('resourceDetail.summary.lastName')}
+                {...form.getInputProps('lastName')}
+              />
+            </Group>
+            <Group gap="sm">
+              <TextInput
+                flex={1}
+                label={t('resourceDetail.summary.email')}
+                type="email"
+                {...form.getInputProps('email')}
+              />
+              <TextInput
+                flex={1}
+                label={t('resourceDetail.summary.phone')}
+                type="tel"
+                {...form.getInputProps('phone')}
+              />
+            </Group>
           </Stack>
         </Group>
-      </Group>
+        {bottomRow}
+      </form>
     </Paper>
   )
 }

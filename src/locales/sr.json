@@ -164,7 +164,7 @@
       "edit": "Измени",
       "save": "Сачувај",
       "saving": "Чување…",
-      "cancel": "Откажи",
+      "discard": "Odbaci",
       "firstName": "Ime",
       "lastName": "Prezime",
       "validationFirstName": "Ime je obavezno",
