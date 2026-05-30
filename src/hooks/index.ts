@@ -1,4 +1,5 @@
 export { useAuth } from './useAuth'
+export { useIsMobile } from './useIsMobile'
 export { useChangePassword } from './useChangePassword'
 export { useTenant } from './useTenant'
 export { useAppointments, useCancelAppointment } from './useAppointments'

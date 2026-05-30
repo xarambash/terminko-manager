@@ -1,6 +1,5 @@
 import { useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { useMediaQuery } from '@mantine/hooks'
 import { notifications } from '@mantine/notifications'
 import { ActionIcon, Alert, Badge, Button, Group, Loader, Pagination, Paper, Stack, Table, Text, Tooltip } from '@mantine/core'
 import { IconAlertCircle, IconPencil, IconTrash } from '@tabler/icons-react'
@@ -20,11 +19,11 @@ import {
   PageSectionHeader,
 } from '../components'
 import { matchesTableSearch } from '../lib/tableSearch'
-import { useDeleteService, useServices } from '../hooks'
+import { useDeleteService, useIsMobile, useServices } from '../hooks'
 import { apiErrorMessageForMutation, formatQueryError } from '../lib/errors'
 import type { Service } from '../types'
 
-const PAGE_SIZE = 20
+const PAGE_SIZE = 10
 
 type SortField = 'name' | 'duration' | 'description' | 'active'
 
@@ -48,7 +47,7 @@ function ServicesPage() {
   const [createOpen, setCreateOpen] = useState(false)
   const [editService, setEditService] = useState<Service | null>(null)
   const [deleteService, setDeleteService] = useState<Service | null>(null)
-  const isMobile = useMediaQuery('(max-width: 768px)')
+  const isMobile = useIsMobile()
   const [hoveredId, setHoveredId] = useState<string | null>(null)
   const [sortField, setSortField] = useState<SortField | null>(null)
   const [sortAsc, setSortAsc] = useState(true)

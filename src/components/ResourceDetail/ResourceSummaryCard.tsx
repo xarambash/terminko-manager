@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { useForm } from '@mantine/form'
 import { useTranslation } from 'react-i18next'
-import { useMediaQuery } from '@mantine/hooks'
+import { useIsMobile } from '../../hooks'
 import {
   Paper,
   Avatar,
@@ -33,7 +33,7 @@ type EditForm = {
 
 export function ResourceSummaryCard({ resource, onUploadPhoto, onSave }: ResourceSummaryCardProps) {
   const { t, i18n } = useTranslation()
-  const isMobile = useMediaQuery('(max-width: 768px)')
+  const isMobile = useIsMobile()
   const fileInputRef = useRef<HTMLInputElement>(null)
   const [photoFailed, setPhotoFailed] = useState(false)
   const [selectedFile, setSelectedFile] = useState<File | null>(null)

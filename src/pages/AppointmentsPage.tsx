@@ -1,7 +1,6 @@
 import { useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { notifications } from '@mantine/notifications'
-import { useMediaQuery } from '@mantine/hooks'
 import { ActionIcon, Alert, Badge, Group, Loader, Pagination, Stack, Table, Tooltip } from '@mantine/core'
 import { IconAlertCircle, IconX } from '@tabler/icons-react'
 import {
@@ -22,11 +21,11 @@ import {
 import { DatePicker } from '@/components/ui/DatePicker'
 import { calendarLocaleFromLng } from '../lib/dateLocale'
 import { matchesTableSearch } from '../lib/tableSearch'
-import { useAppointments, useAuth, useCancelAppointment, useResources } from '../hooks'
+import { useAppointments, useAuth, useCancelAppointment, useIsMobile, useResources } from '../hooks'
 import { apiErrorMessageForMutation, formatQueryError } from '../lib/errors'
 import type { AppointmentStatus, AppointmentWithRelations } from '../types'
 
-const PAGE_SIZE = 20
+const PAGE_SIZE = 10
 
 type SortField = 'guest' | 'service' | 'time' | 'email' | 'phone' | 'status'
 
@@ -94,7 +93,7 @@ function AppointmentsPage() {
   const isOwner = user?.role === 'owner'
   const statusLabels = useStatusLabels()
   const calLocale = calendarLocaleFromLng(i18n.language)
-  const isMobile = useMediaQuery('(max-width: 768px)')
+  const isMobile = useIsMobile()
 
   const [selectedDate, setSelectedDate] = useState(() => toDateInputValue(new Date()))
   const [selectedResourceId, setSelectedResourceId] = useState('')
