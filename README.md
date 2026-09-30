@@ -6,6 +6,8 @@ manage appointments, resources, services, working hours, and guests.
 
 **Live demo: [terminko-manager.vercel.app](https://terminko-manager.vercel.app/)**
 
+Demo login (Owner): `owner@demo.rs` / `Owner01`
+
 > Backed by a Render-hosted API. The API sleeps after 15 minutes of
 > inactivity, so the first login after a pause takes 30 to 60 seconds while
 > the backend wakes up.
@@ -111,8 +113,7 @@ src/
 ## Notes
 
 This is a portfolio project. The backend runs on a free Render instance and
-the database holds demo data only. Owner login for the demo tenant is available
-on request. Real user data is not stored.
+the database holds demo data only. Real user data is not stored.
 
 Some management flows (guest ban, service edit from the floating action bar)
 are wired to the UI but not yet backed by an API endpoint.
