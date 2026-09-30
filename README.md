@@ -1,88 +1,130 @@
 # Terminko Manager
 
-Web app for salon appointment management. Built for owners and staff to manage appointments, resources, services, guests, and resource scheduling.
+Web dashboard for **Terminko**, a multi-tenant appointment scheduling platform
+for small businesses (salons, barbers, dentists). Owners and staff use it to
+manage appointments, resources, services, working hours, and guests.
 
-## Stack
+**Live demo: [terminko-manager.vercel.app](https://terminko-manager.vercel.app/)**
 
-- React 19 + TypeScript + Vite
-- TanStack React Query v5
-- Mantine v9 (`@mantine/core`, `@mantine/form`, `@mantine/dates`, `@mantine/notifications`)
-- Tabler Icons (`@tabler/icons-react`)
-- i18next (Serbian + English)
+> Backed by a Render-hosted API. The API sleeps after 15 minutes of
+> inactivity, so the first login after a pause takes 30 to 60 seconds while
+> the backend wakes up.
 
-## Setup
+> **Part of the Terminko project:**
+> - 🖥️ [terminko-server](https://github.com/xarambash/terminko-server): REST API
+> - 🌐 **terminko-manager**: Web dashboard (this repo)
+> - 📱 [terminko-mobile](https://github.com/xarambash/terminko-mobile): Mobile app (guests)
+
+---
+
+## Screenshots
+
+### Appointments
+
+![Appointments](docs/screenshots/appointments.png)
+
+### Services
+
+![Services](docs/screenshots/services.png)
+
+### Resources
+
+![Resources](docs/screenshots/resources.png)
+
+### Resource profile
+
+![Resource profile](docs/screenshots/resource-update.png)
+
+---
+
+## Features
+
+- Appointments overview with resource and date filters, responsive between table (desktop) and timeline (mobile)
+- Resource management with CRUD, profile photo upload, and active toggle
+- Service management with duration and description
+- Per-resource scheduling: working hours (multiple intervals per day), free days (date ranges), and service assignments with price and duration override
+- Role-aware UI: Owners see full tenant data, Staff see only their own resource and appointments
+- Bilingual UI (English and Serbian) with i18next
+- Light and dark theme toggle
+- Design system centralized in `src/theme.ts` with a global `sm` component size and token-based spacing
+
+## Tech stack
+
+| Area           | Choice                                     |
+| -------------- | ------------------------------------------ |
+| Language       | TypeScript 5 (strict)                      |
+| UI             | React 19, Mantine v9, Tabler Icons         |
+| Data fetching  | TanStack React Query v5                    |
+| Routing        | React Router 7                             |
+| HTTP           | axios                                      |
+| Forms          | Mantine Form                               |
+| Dates          | date-fns, dayjs                            |
+| i18n           | i18next, react-i18next                     |
+| Build          | Vite 8                                     |
+| Hosting        | Vercel                                     |
+| Tooling        | ESLint                                     |
+
+## Running locally
 
 ```bash
-cp .env.example .env   # set VITE_API_URL and VITE_TENANT_SLUG
+git clone https://github.com/xarambash/terminko-manager.git
+cd terminko-manager
+cp .env.example .env    # adjust values if needed
 npm install
 npm run dev
 ```
 
-## Commands
+The app runs at `http://localhost:5173`. It expects a running
+[terminko-server](https://github.com/xarambash/terminko-server) instance
+reachable at `VITE_API_URL`.
 
-```bash
-npm run dev       # dev server (port 5173)
-npm run build     # tsc + vite build
-npm run lint      # ESLint
-npm run preview   # preview production build
+| Script            | What it does                            |
+| ----------------- | --------------------------------------- |
+| `npm run dev`     | Start the Vite dev server               |
+| `npm run build`   | Type-check and build for production     |
+| `npm run lint`    | Run ESLint                              |
+| `npm run preview` | Serve the production build              |
+
+### Environment variables
+
+| Variable            | Purpose                                            |
+| ------------------- | -------------------------------------------------- |
+| `VITE_API_URL`      | Base URL of the terminko-server API                |
+| `VITE_TENANT_SLUG`  | Tenant slug the dashboard should log into          |
+
+## Project structure
+
+```
+src/
+├── api/          # axios calls, one file per domain
+├── hooks/        # TanStack Query wrappers
+├── pages/        # Route-level components
+├── components/   # Shared UI, modals, and layout
+├── contexts/     # Auth context (JWT, localStorage)
+├── services/     # Cross-cutting client-side logic
+├── lib/          # Small utilities
+├── locales/      # i18next translation files (en, sr)
+├── types/        # Shared TypeScript types
+└── theme.ts      # Mantine theme, size, and spacing tokens
 ```
 
-## Environment variables
+## Notes
 
-| Variable | Description |
-|----------|-------------|
-| `VITE_API_URL` | Backend base URL (e.g. `http://localhost:5000`) |
-| `VITE_TENANT_SLUG` | Tenant identifier (e.g. `salon-demo`) |
+This is a portfolio project. The backend runs on a free Render instance and
+the database holds demo data only. Owner login for the demo tenant is available
+on request. Real user data is not stored.
 
-## Architecture
+Some management flows (guest ban, service edit from the floating action bar)
+are wired to the UI but not yet backed by an API endpoint.
 
-| Layer | Location | Role |
-|-------|----------|------|
-| API client | `src/api/` | Axios calls, one file per domain |
-| Hooks | `src/hooks/` | TanStack Query wrappers |
-| Pages | `src/pages/` | Route-level components |
-| Components | `src/components/` | Shared UI and modals |
-| Types | `src/types/` | TypeScript interfaces |
-| Contexts | `src/contexts/` | Auth context (JWT, localStorage) |
+## What I'd do next
 
-## Features
+- Unit tests (Vitest + React Testing Library) for critical flows: login, appointment cancel, working-hours form
+- Wire up the remaining action-bar operations to real endpoints
+- Owner analytics dashboard (bookings per resource, revenue per service)
+- Optimistic updates on cancel and delete
+- GitHub Actions CI running lint, type-check, and build on every push
 
-### Owner
-- Appointments overview with resource and date filters; responsive — table on desktop, timeline on mobile
-- Resource management — create, delete, edit profile (name, email, phone, photo)
-- Service management — CRUD with duration and description
-- Resource scheduling — working hours (inline weekly form), free days (date range), service assignments with price and duration override; edit and unassign existing assignments
-- Guest list
+## Author
 
-### Staff
-- Own appointments view with date filter; responsive — table on desktop, timeline on mobile
-- Profile photo displayed in the header (sourced from the linked Resource record via login response)
-
-### Table interactions (all list pages)
-- Rows are selectable via checkbox only — clicking outside the checkbox does nothing
-- Checkbox column shows a pointer cursor; the rest of the row does not
-- Row hover shows a subtle background highlight
-- A floating action bar appears at the bottom of the viewport when rows are selected; it provides context-appropriate actions (cancel appointment, edit/delete service, ban/unban guest, view/delete resource)
-- Table height is a maximum (not fixed): the table shrinks to fit its content when fewer than ~20 rows are loaded, and scrolls within the capped height when rows overflow
-- A loading spinner renders inside the table body during data fetches; column headers are always visible
-
-## Design System
-
-Sizing and spacing rules are centralized in `src/theme.ts`.
-
-**Component size** — `"sm"` is the global default for all interactive components (Button, TextInput, NumberInput, Select, DatePickerInput). Exceptions must be explicit.
-
-**Spacing tokens:**
-
-| Token | Use case |
-|-------|----------|
-| `"xs"` | Icon + label pairs, tightly related inline elements |
-| `"sm"` | Between form fields in a Stack; between buttons in a Group |
-| `"md"` | Between sections inside a card |
-| `"lg"` | Between major page sections |
-
-Numeric gap values are only for sub-`xs` intentional tightness (e.g. stacked text lines). All other spacing uses tokens.
-
-**Icon sizes:** 16px (nav/header) · 14px (ActionIcon / inline) · 12px (icon inside button with label)
-
-**Width constraints** — use Mantine style props (`miw`, `maw`, `w`) instead of inline `style={{ minWidth }}`.
+Stefan Rakonjac, [@xarambash](https://github.com/xarambash)

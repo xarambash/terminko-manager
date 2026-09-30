@@ -1,8 +1,11 @@
 {
   "name": "terminko-manager",
+  "description": "Web dashboard for Terminko, a multi-tenant appointment scheduling platform. Owner and staff facing.",
   "private": true,
-  "version": "0.0.0",
+  "version": "0.1.0",
   "type": "module",
+  "license": "MIT",
+  "author": "Stefan Rakonjac",
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
